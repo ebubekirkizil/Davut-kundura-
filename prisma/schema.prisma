@@ -3,13 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-// -------------------------------------------------------------
-// USER & KIMLIK DOGRULAMA (NextAuth.js uyumlu)
-// -------------------------------------------------------------
+// ─────────────────────────────────────────────
+// KİMLİK DOĞRULAMA (NextAuth.js v5 + Prisma Adapter)
+// ─────────────────────────────────────────────
 
 enum Role {
   CUSTOMER
@@ -23,28 +24,32 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  phone         String?
   role          Role      @default(CUSTOMER)
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
-  
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  addresses     Address[]
+  wishlistItems WishlistItem[]
+  reviews       Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -67,87 +72,387 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// -------------------------------------------------------------
-// E-TİCARET & ÜRÜN (ÜRÜN KATALOĞU)
-// -------------------------------------------------------------
+// ─────────────────────────────────────────────
+// MÜŞTERİ ADRESLERİ
+// ─────────────────────────────────────────────
+
+model Address {
+  id         String  @id @default(cuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String  // "Ev", "İş"
+  fullName   String
+  phone      String
+  city       String
+  district   String
+  postalCode String?
+  address    String  @db.Text
+  isDefault  Boolean @default(false)
+  orders     Order[]
+
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// ÜRÜN KATALOĞu & VARYANTLAR
+// ─────────────────────────────────────────────
 
 enum ProductCategory {
-  ORTHOPEDIC_INSOLE // Ortopedik Taban
-  BELT              // Kemer
-  SHOE_CARE         // Ayakkabı Bakım
-  LUGGAGE_PARTS     // Valiz Yedek Parça
-  OTHER             // Diğer
+  ORTHOPEDIC_INSOLE
+  BELT
+  SHOE_CARE
+  LUGGAGE_PARTS
+  OTHER
+}
+
+enum ProductStatus {
+  ACTIVE
+  DRAFT
+  ARCHIVED
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  name        String
-  description String           @db.Text
-  price       Float
-  stock       Int              @default(0)
-  category    ProductCategory  @default(OTHER)
-  imageUrl    String?          @db.Text
-  
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  
-  orderItems  OrderItem[]
-  inventory   InventoryTransaction[]
+  id              String          @id @default(cuid())
+  name            String
+  slug            String          @unique
+  description     String          @db.Text
+  shortDesc       String?
+  price           Float
+  compareAtPrice  Float?          // Üstü çizili eski fiyat
+  costPrice       Float?          // Maliyet (müşteri görmez)
+  category        ProductCategory @default(OTHER)
+  status          ProductStatus   @default(ACTIVE)
+  sku             String?         @unique
+  barcode         String?
+  vendor          String?         @default("Davut Kundura Atölyesi")
+  tags            String[]
+  imageUrls       String[]        @db.Text
+  stock           Int             @default(0)
+  lowStockAlert   Int             @default(5) // Bu sayının altına düşünce uyarı ver
+  weight          Float?          // gram
+  trackInventory  Boolean         @default(true)
+  allowBackorder  Boolean         @default(false)
+
+  variants        ProductVariant[]
+  orderItems      OrderItem[]
+  inventory       InventoryTransaction[]
+  reviews         Review[]
+  wishlistItems   WishlistItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-// -------------------------------------------------------------
+model ProductVariant {
+  id         String  @id @default(cuid())
+  productId  String
+  product    Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name       String  // Örn: "42 Numara - Siyah"
+  size       String?
+  color      String?
+  price      Float?  // Null ise ürünün ana fiyatını kullan
+  stock      Int     @default(0)
+  sku        String?
+  imageUrl   String?
+
+  orderItems OrderItem[]
+}
+
+// ─────────────────────────────────────────────
 // SİPARİŞ & SATIŞ YÖNETİMİ
-// -------------------------------------------------------------
+// ─────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING      // Bekliyor
+  PROCESSING   // Hazırlanıyor
+  SHIPPED      // Kargoya verildi
+  DELIVERED    // Teslim edildi
+  CANCELLED    // İptal edildi
+  REFUNDED     // İade edildi
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+}
 
 model Order {
-  id          String      @id @default(cuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id])
-  totalAmount Float
-  status      String      @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED
-  isPaid      Boolean     @default(false)
+  id              String        @id @default(cuid())
+  orderNumber     String        @unique // ORD-2024-0001 formatı
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  addressId       String?
+  address         Address?      @relation(fields: [addressId], references: [id])
   
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(UNPAID)
   
-  items       OrderItem[]
+  subtotal        Float
+  shippingCost    Float         @default(0)
+  discountAmount  Float         @default(0)
+  totalAmount     Float
+  
+  // Paytr Altyapısı
+  paytrMerchantOid String?      // Paytr sipariş numarası
+  paytrToken       String?      // Paytr token
+  
+  // Kargo Altyapısı  
+  cargoCompany    String?       // "Yurtiçi", "Aras", "MNG", "PTT"
+  cargoTrackingNo String?       // Kargo takip numarası
+  cargoSentAt     DateTime?
+  
+  discountCodeId  String?
+  discountCode    DiscountCode? @relation(fields: [discountCodeId], references: [id])
+  
+  notes           String?       @db.Text // Müşteri notu
+  adminNotes      String?       @db.Text // Admin notu (müşteri görmez)
+  
+  items           OrderItem[]
+  invoice         Invoice?
+  
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   orderId   String
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product         @relation(fields: [productId], references: [id])
+  variantId String?
+  variant   ProductVariant? @relation(fields: [variantId], references: [id])
   quantity  Int
-  price     Float
+  price     Float           // Satış anındaki fiyat (sonradan değişmesin)
+  costPrice Float?          // Satış anındaki maliyet
 }
 
-// -------------------------------------------------------------
-// STOK & MUHASEBE (DAVUT KUNDURA YÖNETİM MERKEZİ)
-// -------------------------------------------------------------
+// ─────────────────────────────────────────────
+// STOK & ENVANTER YÖNETİMİ
+// ─────────────────────────────────────────────
+
+enum InventoryType {
+  IN       // Stok girişi (tedarik, iade)
+  OUT      // Stok çıkışı (satış, hasar)
+  ADJUST   // Manuel düzeltme
+}
 
 model InventoryTransaction {
-  id          String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  quantity    Int      // Pozitif değer: Stoğa eklendi, Negatif: Satıldı/Eksildi
-  type        String   // "IN" (Giriş) veya "OUT" (Çıkış)
-  notes       String?  // İade, yeni sevkıyat, imha vs.
-  
-  createdAt   DateTime @default(now())
+  id        String        @id @default(cuid())
+  productId String
+  product   Product       @relation(fields: [productId], references: [id])
+  quantity  Int           // Pozitif: Giriş, Negatif: Çıkış
+  type      InventoryType
+  notes     String?
+  createdBy String?       // Admin kullanıcı adı
+
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// MUHASEBE & FİNANS
+// ─────────────────────────────────────────────
+
+enum ExpenseCategory {
+  SHIPPING    // Kargo gideri
+  SUPPLIES    // Hammadde/malzeme
+  RENT        // Kira
+  SALARY      // Personel
+  MARKETING   // Reklam
+  OTHER       // Diğer
+}
+
+model Expense {
+  id          String          @id @default(cuid())
+  title       String
+  amount      Float
+  category    ExpenseCategory @default(OTHER)
+  description String?
+  date        DateTime        @default(now())
+  receiptUrl  String?         // Fiş/fatura görseli
+
+  createdAt DateTime @default(now())
 }
 
 model FinancialRecord {
-  id            String   @id @default(cuid())
-  month         Int      // Örn: 10 (Ekim)
-  year          Int      // Örn: 2024
-  revenue       Float    @default(0) // Toplam Gelir
-  expense       Float    @default(0) // Toplam Gider
-  taxEstimate   Float    @default(0) // Tahmini Vergi Borcu
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id           String   @id @default(cuid())
+  month        Int
+  year         Int
+  revenue      Float    @default(0)
+  expense      Float    @default(0)
+  profit       Float    @default(0)
+  taxEstimate  Float    @default(0)
+  orderCount   Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([month, year])
+}
+
+// ─────────────────────────────────────────────
+// FATURA SİSTEMİ (ALTYAPI)
+// ─────────────────────────────────────────────
+
+model Invoice {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  invoiceNo   String   @unique // FAT-2024-0001
+  pdfUrl      String?           // Oluşturulan PDF linki
+  issuedAt    DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// KARGO ENTEGRASYONU (ALTYAPI HAZIR)
+// ─────────────────────────────────────────────
+
+enum CargoStatus {
+  PREPARING    // Hazırlanıyor
+  AT_CARGO     // Kargoda
+  ON_THE_WAY   // Yolda
+  DELIVERED    // Teslim edildi
+  RETURNED     // İade oldu
+}
+
+model CargoTracking {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique
+  company       String      // "Yurtiçi", "Aras", "MNG"
+  trackingNo    String
+  status        CargoStatus @default(PREPARING)
+  estimatedDate DateTime?
+  deliveredAt   DateTime?
+  events        Json?       // Kargo olayları (konum güncellemeleri)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─────────────────────────────────────────────
+// İNDİRİM KOD SİSTEMİ
+// ─────────────────────────────────────────────
+
+enum DiscountType {
+  PERCENTAGE  // %10 indirim
+  FIXED       // 50₺ indirim
+  FREE_SHIP   // Ücretsiz kargo
+}
+
+model DiscountCode {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  type            DiscountType
+  value           Float        // 10 (yüzde için) veya 50 (sabit için)
+  minOrderAmount  Float?       // Minimum sipariş tutarı
+  maxUses         Int?         // Maksimum kullanım sayısı
+  usedCount       Int          @default(0)
+  isActive        Boolean      @default(true)
+  expiresAt       DateTime?
+  orders          Order[]
+
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// ÜRÜN YORUMLARI & FAVORİLER
+// ─────────────────────────────────────────────
+
+model Review {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  rating    Int     // 1-5
+  title     String?
+  body      String? @db.Text
+  isVisible Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model WishlistItem {
+  id        String  @id @default(cuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, productId])
+}
+
+// ─────────────────────────────────────────────
+// CANLI ANALİTİK & ZİYARETÇİ TAKİBİ
+// ─────────────────────────────────────────────
+
+model AnalyticsEvent {
+  id          String   @id @default(cuid())
+  type        String   // "pageview", "add_to_cart", "purchase", "product_view"
+  sessionId   String   // Ziyaretçi oturumu
+  userId      String?  // Giriş yapmışsa
+  page        String?  // Hangi sayfa
+  productId   String?  // Ürünle ilgiliyse
+  country     String?  // TR, US, DE
+  city        String?  
+  lat         Float?   // Enlem (globe için)
+  lng         Float?   // Boylam (globe için)
+  device      String?  // "mobile", "desktop", "tablet"
+  browser     String?
+  referrer    String?
+  metadata    Json?
+
+  createdAt DateTime @default(now())
+}
+
+model ActiveSession {
+  id        String   @id @default(cuid())
+  sessionId String   @unique
+  country   String?
+  city      String?
+  lat       Float?
+  lng       Float?
+  page      String?
+  device    String?
+  lastSeen  DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// BİLDİRİM SİSTEMİ
+// ─────────────────────────────────────────────
+
+enum NotificationType {
+  NEW_ORDER
+  LOW_STOCK
+  NEW_REVIEW
+  PAYMENT_RECEIVED
+  CARGO_DELIVERED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  link      String?
+  metadata  Json?
+
+  createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// VİTRİN İÇERİK YÖNETİMİ (CMS)
+// ─────────────────────────────────────────────
+
+model SiteSettings {
+  id              String   @id @default(cuid())
+  key             String   @unique
+  value           String   @db.Text
+  updatedAt       DateTime @updatedAt
 }

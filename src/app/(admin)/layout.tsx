@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle } from "lucide-react";
+import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle, Activity } from "lucide-react";
 
 export default function AdminShopifyLayout({
   children,
@@ -74,6 +74,19 @@ export default function AdminShopifyLayout({
           >
             <Users className="h-[18px] w-[18px]" />
             <span className="text-[14px]">Müşteriler</span>
+          </Link>
+
+          <Link 
+            href="/analytics" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
+               pathname === '/analytics' ? 'bg-[#333333] text-white font-semibold' : 'text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium'
+             }`}
+          >
+            <Activity className="h-[18px] w-[18px]" />
+            <span className="text-[14px]">Canlı İzleme</span>
+            <span className="ml-auto flex items-center gap-1">
+              <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            </span>
           </Link>
 
           <div className="text-[11px] font-semibold text-[#8a8a8a] px-3 pt-6 pb-2 tracking-wider">MAĞAZA (FRONTEND)</div>
