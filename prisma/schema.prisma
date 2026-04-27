@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------------------
+// USER & KIMLIK DOGRULAMA (NextAuth.js uyumlu)
+// -------------------------------------------------------------
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(CUSTOMER)
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// -------------------------------------------------------------
+// E-TİCARET & ÜRÜN (ÜRÜN KATALOĞU)
+// -------------------------------------------------------------
+
+enum ProductCategory {
+  ORTHOPEDIC_INSOLE // Ortopedik Taban
+  BELT              // Kemer
+  SHOE_CARE         // Ayakkabı Bakım
+  LUGGAGE_PARTS     // Valiz Yedek Parça
+  OTHER             // Diğer
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  description String           @db.Text
+  price       Float
+  stock       Int              @default(0)
+  category    ProductCategory  @default(OTHER)
+  imageUrl    String?          @db.Text
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  orderItems  OrderItem[]
+  inventory   InventoryTransaction[]
+}
+
+// -------------------------------------------------------------
+// SİPARİŞ & SATIŞ YÖNETİMİ
+// -------------------------------------------------------------
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Float
+  status      String      @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED
+  isPaid      Boolean     @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  items       OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+}
+
+// -------------------------------------------------------------
+// STOK & MUHASEBE (DAVUT KUNDURA YÖNETİM MERKEZİ)
+// -------------------------------------------------------------
+
+model InventoryTransaction {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int      // Pozitif değer: Stoğa eklendi, Negatif: Satıldı/Eksildi
+  type        String   // "IN" (Giriş) veya "OUT" (Çıkış)
+  notes       String?  // İade, yeni sevkıyat, imha vs.
+  
+  createdAt   DateTime @default(now())
+}
+
+model FinancialRecord {
+  id            String   @id @default(cuid())
+  month         Int      // Örn: 10 (Ekim)
+  year          Int      // Örn: 2024
+  revenue       Float    @default(0) // Toplam Gelir
+  expense       Float    @default(0) // Toplam Gider
+  taxEstimate   Float    @default(0) // Tahmini Vergi Borcu
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([month, year])
+}
