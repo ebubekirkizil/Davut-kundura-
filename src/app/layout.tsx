@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display, Cinzel_Decorative } from "next/font/google";
 import "./globals.css";
+// Otonom sistem aktif: Vercel - GitHub entegrasyonu başarıyla sağlandı.
 import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
 
 const inter = Inter({
