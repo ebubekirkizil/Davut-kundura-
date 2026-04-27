@@ -77,7 +77,12 @@ export default function AdminLoginPage() {
 
             {/* Şifre */}
             <div>
-              <label className="block text-sm font-medium text-[#aaa] mb-2">Şifre</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium text-[#aaa]">Şifre</label>
+                <a href="/admin/forgot-password" className="text-xs text-green-500 hover:text-green-400 transition-colors">
+                  Şifremi Unuttum
+                </a>
+              </div>
               <div className="relative">
                 <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#555]" />
                 <input
