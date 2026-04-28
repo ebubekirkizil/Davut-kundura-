@@ -7,12 +7,13 @@ function isAdmin(session: any) {
 }
 
 // GET /api/admin/products/[id]
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!isAdmin(session)) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const product = await prisma.product.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       variants: true,
       inventory: { orderBy: { createdAt: "desc" }, take: 20 },
@@ -26,16 +27,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 }
 
 // PATCH /api/admin/products/[id] — Ürünü güncelle
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!isAdmin(session)) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   const body = await req.json();
-  const oldProduct = await prisma.product.findUnique({ where: { id: params.id } });
+  const oldProduct = await prisma.product.findUnique({ where: { id } });
   if (!oldProduct) return NextResponse.json({ error: "Ürün bulunamadı" }, { status: 404 });
 
   const product = await prisma.product.update({
-    where: { id: params.id },
+    where: { id },
     data: {
       ...(body.name && { name: body.name }),
       ...(body.description !== undefined && { description: body.description }),
@@ -60,10 +62,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (body.stock !== undefined && parseInt(body.stock) !== oldProduct.stock) {
     const diff = parseInt(body.stock) - oldProduct.stock;
     await prisma.$transaction([
-      prisma.product.update({ where: { id: params.id }, data: { stock: parseInt(body.stock) } }),
+      prisma.product.update({ where: { id }, data: { stock: parseInt(body.stock) } }),
       prisma.inventoryTransaction.create({
         data: {
-          productId: params.id,
+          productId: id,
           quantity: diff,
           type: diff > 0 ? "IN" : "OUT",
           notes: "Admin manuel düzeltme",
@@ -77,13 +79,14 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE /api/admin/products/[id]
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await auth();
   if (!isAdmin(session)) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
 
   // Soft delete — arşivle
   const product = await prisma.product.update({
-    where: { id: params.id },
+    where: { id },
     data: { status: "ARCHIVED" },
   });
 

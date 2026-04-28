@@ -7,15 +7,16 @@ import { ShieldCheck, Truck, RotateCcw, Star } from "lucide-react";
 export const revalidate = 60; // 1 dakikada bir yenile (stok vb. güncellenmesi için)
 
 interface ProductPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // SEO için dinamik metadata (sayfa başlıkları) oluştur
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
   const product = await prisma.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug },
   });
 
   if (!product) return { title: "Ürün Bulunamadı | Davut Kundura" };
@@ -30,8 +31,9 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
+  const { slug } = await params;
   const product = await prisma.product.findUnique({
-    where: { slug: params.slug },
+    where: { slug: slug },
     include: {
       variants: true,
       reviews: true,
