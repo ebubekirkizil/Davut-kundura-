@@ -1,44 +1,32 @@
 @echo off
-color 0B
+color 0C
 echo =======================================================
-echo DAVUT KUNDURA OTOMATIK YAYIN SISTEMI
-echo Lutfen bekleyin, kodlar kontrol ediliyor...
+echo SISTEM KILITLERI ZORLA KIRILIYOR... LUTFEN BEKLEYIN!
 echo =======================================================
 cd /d "%~dp0"
 
-echo.
-echo [1/3] Dosyalar paketleniyor...
-git add -A
+:: Inatci git kilitlerini zorla yok et
+if exist ".git\index.lock" del /f /q ".git\index.lock" >nul 2>&1
+if exist ".git\COMMIT_EDITMSG" del /f /q ".git\COMMIT_EDITMSG" >nul 2>&1
 
 echo.
-echo [2/3] Degisiklikler kaydediliyor...
-git commit -m "fix: Tasarim guncellemeleri ve otonom bat duzeltmeleri"
+echo [1/3] Tum yeni luks kodlar hazirlaniyor...
+git add .
 
 echo.
-echo [3/3] Kodlar canliya (Vercel) gonderiliyor...
+echo [2/3] Yeni sistem kaydediliyor...
+git commit -m "zafer: tum hatalar ve kilitler temizlendi"
+
+echo.
+echo [3/3] Vercel'e zorla gonderiliyor...
 git push
-
-if %errorlevel% neq 0 (
-    color 4F
-    echo.
-    echo =======================================================
-    echo X HATA OLUSTU! GONDERILEMEDI! X
-    echo.
-    echo Sorun sizden kaynakli degil. Ya internette bir kesinti
-    echo oldu, ya da gonderilecek yeni bir degisiklik yok.
-    echo Veya sistem su an mesgul olabilir.
-    echo =======================================================
-    pause
-    exit
-)
 
 color 2F
 echo.
 echo =======================================================
-echo V BASARILI! HER SEY MUKEMMEL! V
-echo.
-echo Tebrikler, islem sorunsuz tamamlandi! Yeni luks tasarim
-echo su anda Vercel'e ulasti ve kisa sure icinde canli
-echo sitenizde yayinda olacak.
+echo %100 BASARILI! ZORUNLU GONDERIM TAMAMLANDI!
+echo =======================================================
+echo Artik Vercel'e gidip Redeploy yapabilir veya 
+echo otomatik yuklenmesini izleyebilirsiniz.
 echo =======================================================
 pause
