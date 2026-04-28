@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
-    "build": "DATABASE_URL=\"postgresql://postgres.kiegzuemejzaumbquxjr:24Ebubekir68%2A%2B@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1\" DIRECT_URL=\"postgresql://postgres.kiegzuemejzaumbquxjr:24Ebubekir68%2A%2B@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\" next build",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "DATABASE_URL=\"postgresql://postgres.kiegzuemejzaumbquxjr:24Ebubekir68%2A%2B@aws-0-eu-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1\" DIRECT_URL=\"postgresql://postgres.kiegzuemejzaumbquxjr:24Ebubekir68%2A%2B@aws-0-eu-central-1.pooler.supabase.com:5432/postgres\" prisma generate",
+    "postinstall": "prisma generate",
     "yayinla": "node fix.js && git add -A && git commit -m \"fix: Ambiguous route conflict solved\" && git push"
   },
   "dependencies": {
