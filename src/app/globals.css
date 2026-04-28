@@ -58,3 +58,58 @@ body {
     border: 1px solid rgb(255 255 255 / 0.1);
   }
 }
+
+/* Luks Animasyonlar - Standart CSS Olarak Ekliyoruz (Tailwind V4 hatasini onlemek icin) */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-up {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-100%); }
+}
+@keyframes shine {
+  0% { left: -100%; opacity: 0; }
+  50% { opacity: 0.5; }
+  100% { left: 100%; opacity: 0; }
+}
+
+.animate-fade-up {
+  animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-fade-in {
+  animation: fade-in 1.2s ease-out forwards;
+}
+.animate-scale-up {
+  animation: scale-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+.shine-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+  transform: skewX(-20deg);
+  animation: shine 4s infinite;
+}
+
+/* Gecikmeler */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-700 { animation-delay: 700ms; }
