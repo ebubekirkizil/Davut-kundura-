@@ -3,6 +3,7 @@ import { Inter, Playfair_Display, Cinzel_Decorative } from "next/font/google";
 import "./globals.css";
 // Otonom sistem aktif: Vercel - GitHub entegrasyonu başarıyla sağlandı.
 import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
+import { Providers } from "@/components/Providers";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -64,7 +65,9 @@ export default function RootLayout({
     <html lang="tr" className={`${inter.variable} ${playfair.variable} ${cinzel.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
