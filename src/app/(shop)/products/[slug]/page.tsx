@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import AddToCartButton from "@/components/product/AddToCartButton";
 import { ShieldCheck, Truck, RotateCcw, Star } from "lucide-react";
 
-export const revalidate = 60; // 1 dakikada bir yenile (stok vb. güncellenmesi için)
+export const dynamic = "force-dynamic";
 
 interface ProductPageProps {
   params: Promise<{
@@ -14,31 +14,31 @@ interface ProductPageProps {
 
 // SEO için dinamik metadata (sayfa başlıkları) oluştur
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const product = await prisma.product.findUnique({
-    where: { slug },
-  });
-
-  if (!product) return { title: "Ürün Bulunamadı | Davut Kundura" };
-
-  return {
-    title: `${product.name} | Davut Kundura`,
-    description: product.shortDesc || product.description.substring(0, 160),
-    openGraph: {
-      images: product.imageUrls[0] ? [product.imageUrls[0]] : [],
-    },
-  };
+  try {
+    const { slug } = await params;
+    const product = await prisma.product.findUnique({ where: { slug } });
+    if (!product) return { title: "Ürün Bulunamadı | Davut Kundura" };
+    return {
+      title: `${product.name} | Davut Kundura`,
+      description: product.shortDesc || product.description.substring(0, 160),
+      openGraph: { images: product.imageUrls[0] ? [product.imageUrls[0]] : [] },
+    };
+  } catch {
+    return { title: "Davut Kundura" };
+  }
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const product = await prisma.product.findUnique({
-    where: { slug: slug },
-    include: {
-      variants: true,
-      reviews: true,
-    }
-  });
+  let product: any = null;
+  try {
+    product = await prisma.product.findUnique({
+      where: { slug },
+      include: { variants: true, reviews: true }
+    });
+  } catch (error) {
+    console.error("Ürün yüklenemedi:", error);
+  }
 
   if (!product || product.status === "ARCHIVED") {
     notFound();

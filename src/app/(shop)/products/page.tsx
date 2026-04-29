@@ -7,17 +7,22 @@ export const metadata: Metadata = {
   description: "Hakiki deri ayakkabılar, ortopedik tabanlar, kemerler, ayakkabı bakım ürünleri ve daha fazlasını inceleyin.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
-  const products = await prisma.product.findMany({
-    where: { status: "ACTIVE" },
-    orderBy: { createdAt: "desc" },
-    include: {
-      variants: true,
-      reviews: true,
-    }
-  });
+  let products: any[] = [];
+  try {
+    products = await prisma.product.findMany({
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+      include: {
+        variants: true,
+        reviews: true,
+      }
+    });
+  } catch (error) {
+    console.error("Ürünler yüklenemedi:", error);
+  }
 
   const hasProducts = products.length > 0;
 
