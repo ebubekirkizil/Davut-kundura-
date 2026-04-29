@@ -3,20 +3,25 @@ import { ArrowRight, Truck, ShieldCheck, RefreshCw, Star, ArrowUpRight } from "l
 import ProductCard from "@/components/product/ProductCard";
 import { prisma } from "@/lib/prisma";
 
-// Sayfanın her saat başı yeniden oluşturulmasını sağla (ISR - Performans için)
-export const revalidate = 3600;
+// Her istekte dinamik olarak render et (derleme sırasında DB bağlantısı YOK)
+export const dynamic = "force-dynamic";
 
 export default async function ShopHome() {
-  // Gerçek veritabanından en son eklenen 4 aktif ürünü çek
-  const BestsellerProducts = await prisma.product.findMany({
-    where: { status: "ACTIVE" },
-    orderBy: { createdAt: "desc" },
-    take: 4,
-    include: {
-      variants: true,
-      reviews: true,
-    }
-  });
+  // Veritabanı bağlantı hatalarında sayfa yine de açılsın
+  let BestsellerProducts: any[] = [];
+  try {
+    BestsellerProducts = await prisma.product.findMany({
+      where: { status: "ACTIVE" },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      include: {
+        variants: true,
+        reviews: true,
+      }
+    });
+  } catch (error) {
+    console.error("Ürünler yüklenemedi:", error);
+  }
 
   const hasProducts = BestsellerProducts.length > 0;
 
