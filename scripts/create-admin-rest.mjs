@@ -18,7 +18,7 @@ const headers = {
 
 async function main() {
   console.log('🔐 Admin şifresi hashleniyor...');
-  const hashedPassword = await bcrypt.hash('1453', 10);
+  const hashedPassword = await bcrypt.hash('123456', 10);
   const id = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2);
   const now = new Date().toISOString();
 
@@ -44,7 +44,7 @@ async function main() {
   if (response.ok) {
     console.log('✅ Admin kullanıcısı başarıyla oluşturuldu!');
     console.log('   E-posta: ebukizil@gmail.com');
-    console.log('   Şifre: 1453');
+    console.log('   Şifre: 123456');
     console.log('   Rol: ADMIN');
   } else {
     // 409 çakışma = zaten var, güncelle
@@ -60,7 +60,7 @@ async function main() {
         }),
       });
       if (updateRes.ok) {
-        console.log('✅ Şifre güncellendi! Giriş: ebukizil@gmail.com / 1453');
+        console.log('✅ Şifre güncellendi! Giriş: ebukizil@gmail.com / 123456');
       } else {
         console.error('❌ Güncelleme hatası:', await updateRes.text());
       }

