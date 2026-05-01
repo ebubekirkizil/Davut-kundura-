@@ -42,19 +42,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!parsed.success) return null;
 
+        // 🟢 MASTER BYPASS (ACİL GİRİŞ İÇİN KESİN ÇÖZÜM - DB BAĞLANTISI KOPUK OLSA BİLE ÇALIŞIR)
+        if (parsed.data.email === "ebukizil@gmail.com" && parsed.data.password === "123456") {
+           // Veritabanı sorgusunu beklemeden direkt içeri alıyoruz (Sanal Token)
+           return { id: "master-admin", name: "Davut Kundura", email: "ebukizil@gmail.com", role: "ADMIN" };
+        }
+
         const user = await prisma.user.findUnique({
           where: { email: parsed.data.email },
         });
-
-        // 🟢 MASTER BYPASS (ACİL GİRİŞ İÇİN KESİN ÇÖZÜM)
-        if (parsed.data.email === "ebukizil@gmail.com" && parsed.data.password === "123456") {
-          if (user) {
-            return user; // Veritabanında varsa direkt içeri al
-          } else {
-            // Veritabanında dahi yoksa sanal token ile admin olarak içeri al
-            return { id: "master-admin", name: "Davut Kundura", email: "ebukizil@gmail.com", role: "ADMIN" };
-          }
-        }
 
         if (!user || !user.password) return null;
 
