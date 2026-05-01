@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CartBadge from "./CartBadge";
+import AccountMenu from "./AccountMenu";
 import { ShoppingBag } from "lucide-react";
 
 export default function Navbar() {
@@ -38,11 +39,13 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        {/* Mobile menu button & Cart */}
-        <div className="flex items-center space-x-4">
+        {/* Mobile menu button & Icons */}
+        <div className="flex items-center space-x-2">
+          {/* Account Menu */}
+          <AccountMenu />
+          
           <Link href="/cart" className="relative text-[#3d2f24] hover:text-[#9b6a4a] transition-colors group p-2">
             <ShoppingBag className="h-5 w-5" />
-            {/* The CartBadge uses context so it needs to be client component. We kept it. */}
             <div className="absolute -top-0 -right-0">
                <CartBadge />
             </div>
