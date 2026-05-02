@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle, Activity, Paintbrush, Factory, Warehouse, Building2, Ticket, ShieldCheck } from "lucide-react";
+import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle, Activity, Paintbrush, Factory, Warehouse, Building2, Ticket, ShieldCheck, Tag } from "lucide-react";
 
 export default function AdminShopifyLayout({
   children,
@@ -132,12 +132,24 @@ export default function AdminShopifyLayout({
           <Link 
             href="/builder" 
             className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
-               pathname.startsWith('/builder') ? 'bg-[#333333] text-white font-semibold' : 'text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium'
+               pathname === '/builder' ? 'bg-[#333333] text-white font-semibold' : 'text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium'
              }`}
           >
             <Paintbrush className="h-[18px] w-[18px]" />
             <span className="text-[14px]">Mağaza Tasarımcısı</span>
-            <span className="ml-auto flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">YENİ</span>
+            <span className="ml-auto flex items-center gap-1">
+               <span className="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Yeni</span>
+            </span>
+          </Link>
+
+          <Link 
+            href="/discounts" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
+               pathname === '/discounts' ? 'bg-[#333333] text-white font-semibold' : 'text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium'
+             }`}
+          >
+            <Tag className="h-[18px] w-[18px]" />
+            <span className="text-[14px]">İndirimler & Kuponlar</span>
           </Link>
 
           <Link 

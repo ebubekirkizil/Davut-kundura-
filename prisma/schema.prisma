@@ -34,6 +34,7 @@ model User {
   reviews       Review[]
   supportTickets SupportTicket[]
   b2bContact    B2BCompany?    @relation("B2BUser")
+  personalDiscounts DiscountCode[] @relation("PersonalDiscount")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -356,6 +357,11 @@ model DiscountCode {
   usedCount       Int          @default(0)
   isActive        Boolean      @default(true)
   expiresAt       DateTime?
+  
+  // Kişiye Özel İndirim (VIP)
+  userId          String?
+  user            User?        @relation("PersonalDiscount", fields: [userId], references: [id])
+  
   orders          Order[]
 
   createdAt DateTime @default(now())
@@ -626,7 +632,10 @@ model B2BCompany {
   discountTier  Float    @default(10.0) // %10 toptancı indirimi
   creditLimit   Float?   // Açık hesap limiti
   balanceOwed   Float    @default(0)    // Firmadan alacak
-  // Note: Added user relation using existing User model (needs relation field on User model if required, omitted for now)
+  
+  contactUserId String?  @unique
+  contactUser   User?    @relation("B2BUser", fields: [contactUserId], references: [id])
+  
   createdAt     DateTime @default(now())
 }
 
