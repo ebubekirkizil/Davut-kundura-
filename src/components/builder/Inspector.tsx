@@ -90,6 +90,18 @@ export const Inspector: React.FC = () => {
           </div>
         )}
 
+        {setting.type === "checkbox" && (
+          <div className="flex items-center gap-3 py-1">
+            <button 
+              onClick={() => handleChange(!value)}
+              className={`w-10 h-5 rounded-full transition-all relative ${value ? 'bg-[var(--p-blue)]' : 'bg-gray-300'}`}
+            >
+              <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${value ? 'left-6' : 'left-1'}`} />
+            </button>
+            <span className="text-[13px] text-gray-500">{value ? 'Aktif' : 'Pasif'}</span>
+          </div>
+        )}
+
         {setting.type === "image" && (
           <div className="space-y-3">
             <div className="border border-[var(--p-border)] rounded-[var(--p-radius)] p-1 bg-[var(--p-bg)] hover:bg-gray-100 cursor-pointer transition-all shadow-sm">

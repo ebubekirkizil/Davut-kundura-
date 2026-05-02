@@ -2,19 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Plus, 
-  Settings, 
-  Layers, 
-  Layout, 
-  Eye, 
-  ChevronDown,
-  GripVertical,
-  ArrowLeft,
-  X,
-  Search,
-  Box,
-  Smartphone,
-  Monitor,
+  ArrowLeft, ChevronDown, Monitor, Smartphone, 
+  Plus, X, Search, Settings, Eye, Box, 
+  GripVertical, Star, ShoppingBag, Type, Megaphone,
+  Layers,
+  Layout,
   CreditCard
 } from "lucide-react";
 import Link from "next/link";
@@ -281,8 +273,9 @@ export default function ShopifyProfessionalBuilder() {
       {showAddSection && (
         <div className="fixed inset-0 z-[2000] flex items-center justify-center p-8">
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowAddSection(false)}></div>
-          <div className="bg-white w-full max-w-4xl h-[640px] rounded-3xl shadow-2xl flex flex-col overflow-hidden relative z-10 animate-in zoom-in duration-300">
-            <div className="p-6 border-b border-[var(--p-border)] flex items-center justify-between bg-white">
+          <div className="bg-white w-full max-w-5xl h-[700px] rounded-[var(--p-radius)] shadow-2xl flex flex-col overflow-hidden relative z-10 animate-in zoom-in duration-300">
+            {/* Header */}
+            <div className="p-6 border-b border-[var(--p-border)] flex items-center justify-between bg-white sticky top-0 z-10">
               <div className="flex items-center gap-8">
                 <h2 className="text-xl font-bold text-[var(--p-text)]">Bölüm Ekle</h2>
                 <div className="relative">
@@ -290,7 +283,7 @@ export default function ShopifyProfessionalBuilder() {
                   <input 
                     type="text" 
                     placeholder="Bölüm ara..." 
-                    className="pl-10 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-lg w-80 focus:bg-white focus:ring-2 focus:ring-[var(--p-green)] outline-none transition-all" 
+                    className="pl-10 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-lg w-80 focus:bg-white focus:ring-2 focus:ring-[var(--p-blue)] outline-none transition-all" 
                   />
                 </div>
               </div>
@@ -298,23 +291,77 @@ export default function ShopifyProfessionalBuilder() {
             </div>
             
             <div className="flex flex-1 overflow-hidden">
-              <div className="w-56 bg-gray-50 border-r border-[var(--p-border)] p-4 space-y-1">
-                {["Popüler", "Görsel", "Yazı", "Ürünler", "Video"].map(cat => (
-                  <button key={cat} className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors ${cat === 'Popüler' ? 'bg-white shadow-sm font-bold text-[var(--p-green)]' : 'text-gray-600 hover:bg-gray-200'}`}>
-                    {cat}
+              {/* Sidebar Categories */}
+              <div className="w-64 bg-gray-50 border-r border-[var(--p-border)] p-4 space-y-1">
+                {[
+                  { id: 'popular', label: 'Popüler', icon: <Star size={16} /> },
+                  { id: 'images', label: 'Görsel & Video', icon: <ImageIcon size={16} /> },
+                  { id: 'products', label: 'Ürünler', icon: <ShoppingBag size={16} /> },
+                  { id: 'text', label: 'Yazı & İçerik', icon: <Type size={16} /> },
+                  { id: 'marketing', label: 'Pazarlama', icon: <Megaphone size={16} /> },
+                ].map(cat => (
+                  <button key={cat.id} className={`w-full flex items-center gap-3 px-3 py-2.5 text-[13px] rounded-lg transition-all ${cat.id === 'popular' ? 'bg-white shadow-sm font-bold text-[var(--p-blue)]' : 'text-gray-600 hover:bg-gray-200'}`}>
+                    {cat.icon}
+                    {cat.label}
                   </button>
                 ))}
               </div>
               
+              {/* Main Grid with Mockups */}
               <div className="flex-1 p-8 overflow-y-auto grid grid-cols-3 gap-8 content-start bg-white custom-scrollbar">
                 {Object.values(SECTION_SCHEMAS).map(schema => (
                   <div key={schema.type} onClick={() => handleAddSection(schema.type)} className="group cursor-pointer">
-                    <div className="aspect-[4/3] bg-gray-50 border border-gray-100 rounded-2xl mb-3 flex items-center justify-center group-hover:border-[var(--p-green)]/30 group-hover:shadow-xl transition-all relative overflow-hidden bg-gradient-to-br from-gray-50 to-white">
-                      <Box size={40} className="text-gray-200 group-hover:scale-110 group-hover:text-[var(--p-green)]/20 transition-all duration-300" />
-                      <div className="absolute inset-0 bg-[var(--p-green)]/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    {/* Visual Mockup Container */}
+                    <div className="aspect-[4/3] bg-gray-50 border border-gray-100 rounded-2xl mb-4 flex flex-col items-center justify-center group-hover:border-[var(--p-blue)] group-hover:shadow-xl transition-all relative overflow-hidden bg-gradient-to-br from-gray-50 to-white">
+                      
+                      {/* CSS Mockups per type */}
+                      <div className="w-full h-full p-4 pointer-events-none opacity-60 group-hover:opacity-100 transition-opacity">
+                         {schema.type === 'hero' && (
+                           <div className="w-full h-full bg-gray-200 rounded-lg flex flex-col items-center justify-center gap-2">
+                             <div className="w-2/3 h-2 bg-gray-400 rounded-full"></div>
+                             <div className="w-1/2 h-1 bg-gray-300 rounded-full"></div>
+                             <div className="w-1/4 h-3 bg-[var(--p-blue)] rounded-sm mt-1"></div>
+                           </div>
+                         )}
+                         {schema.type === 'productGrid' && (
+                           <div className="grid grid-cols-2 gap-2 w-full h-full">
+                             {[1,2,3,4].map(i => <div key={i} className="bg-gray-200 rounded-md"></div>)}
+                           </div>
+                         )}
+                         {schema.type === 'header' && (
+                           <div className="w-full h-8 bg-gray-100 border-b border-gray-200 flex items-center justify-between px-2">
+                             <div className="w-10 h-2 bg-gray-400"></div>
+                             <div className="flex gap-1"><div className="w-4 h-1 bg-gray-300"></div><div className="w-4 h-1 bg-gray-300"></div></div>
+                           </div>
+                         )}
+                         {schema.type === 'videoHero' && (
+                            <div className="w-full h-full bg-gray-900 rounded-lg flex items-center justify-center relative">
+                               <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center"><div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[6px] border-l-white border-b-[4px] border-b-transparent ml-1"></div></div>
+                            </div>
+                         )}
+                         {schema.type === 'countdown' && (
+                            <div className="w-full h-full flex items-center justify-center gap-2">
+                               <div className="w-8 h-8 bg-gray-100 border border-gray-200 rounded flex flex-col items-center justify-center text-[8px] font-bold">00</div>
+                               <div className="w-8 h-8 bg-gray-100 border border-gray-200 rounded flex flex-col items-center justify-center text-[8px] font-bold">00</div>
+                               <div className="w-8 h-8 bg-gray-100 border border-gray-200 rounded flex flex-col items-center justify-center text-[8px] font-bold">00</div>
+                            </div>
+                         )}
+                         {/* Default Icon for others */}
+                         {!['hero', 'productGrid', 'header', 'videoHero', 'countdown'].includes(schema.type) && (
+                            <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                               <Box size={32} className="text-gray-300 group-hover:text-[var(--p-blue)]/40 transition-colors" />
+                               <div className="w-1/2 h-1 bg-gray-200 rounded-full"></div>
+                            </div>
+                         )}
+                      </div>
+
+                      {/* Add Button Overlay */}
+                      <div className="absolute inset-0 bg-[var(--p-blue)]/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <div className="bg-[var(--p-blue)] text-white px-4 py-2 rounded-full text-xs font-bold transform translate-y-4 group-hover:translate-y-0 transition-all">Ekle</div>
+                      </div>
                     </div>
-                    <h3 className="text-sm font-bold group-hover:text-[var(--p-green)] transition-colors">{schema.label}</h3>
-                    <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">Şablona {schema.label.toLowerCase()} ekleyin.</p>
+                    <h3 className="text-[13px] font-bold text-[var(--p-text)] group-hover:text-[var(--p-blue)] transition-colors text-center">{schema.label}</h3>
+                    <p className="text-[11px] text-gray-400 mt-1 text-center line-clamp-1">{schema.label} alanı ekleyin.</p>
                   </div>
                 ))}
               </div>

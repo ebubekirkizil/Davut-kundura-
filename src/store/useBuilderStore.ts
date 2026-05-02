@@ -98,6 +98,19 @@ export const useBuilderStore = create<BuilderState>()(
         index: {
           sections: [
             {
+              id: "header-1",
+              type: "header",
+              settings: {
+                logoText: "DAVUT KUNDURA",
+                menu1: "ANA SAYFA",
+                menu2: "ERKEK",
+                menu3: "KADIN",
+                menu4: "KOLEKSİYON",
+                sticky: true
+              },
+              blocks: []
+            },
+            {
               id: "hero-1",
               type: "hero",
               settings: {
