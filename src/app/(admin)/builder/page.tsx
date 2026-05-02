@@ -56,6 +56,23 @@ export default function ShopifyProfessionalBuilder() {
       if (event.data?.type === "SELECT_SECTION") {
         setSelectedId(event.data.id);
       }
+      if (event.data?.type === "REMOVE_SECTION") {
+        removeSection(activePage, event.data.id);
+      }
+      if (event.data?.type === "MOVE_SECTION") {
+        const { id, direction } = event.data;
+        const sections = [...currentPage.sections];
+        const index = sections.findIndex(s => s.id === id);
+        if (index === -1) return;
+        
+        const newIndex = direction === "up" ? index - 1 : index + 1;
+        if (newIndex >= 0 && newIndex < sections.length) {
+          const temp = sections[index];
+          sections[index] = sections[newIndex];
+          sections[newIndex] = temp;
+          reorderSections(activePage, sections);
+        }
+      }
       if (event.data?.type === "PREVIEW_READY") {
         syncToIframe();
       }
