@@ -23,6 +23,10 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  const selectElement = (name: string) => {
+    window.parent.postMessage({ type: "SELECT_ELEMENT", payload: { name } }, "*");
+  };
+
   return (
     <section className="relative w-full h-[90vh] min-h-[600px] flex items-center overflow-hidden">
       <div className="absolute inset-0 z-0 bg-[#1a120b]">
@@ -42,11 +46,15 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
           </div>
           
           <h1 
-            className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl" 
+            onClick={() => selectElement("heroTitle")}
+            className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl cursor-pointer hover:ring-2 hover:ring-blue-500 rounded-lg transition-all" 
             dangerouslySetInnerHTML={{ __html: data.title }}
           />
           
-          <p className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl">
+          <p 
+            onClick={() => selectElement("heroSubtitle")}
+            className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl cursor-pointer hover:ring-2 hover:ring-blue-500 rounded-lg transition-all"
+          >
             {data.subtitle}
           </p>
           

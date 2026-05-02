@@ -7,9 +7,11 @@ import Link from "next/link";
 
 export default function AdminStorefrontBar() {
   const { data: session } = useSession();
+  const [isInIframe, setIsInIframe] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   useEffect(() => {
+    setIsInIframe(window.self !== window.top);
     if (isEditMode) {
       document.body.classList.add("admin-edit-mode");
       const elements = document.querySelectorAll("h1, h2, p, img, a, button");
@@ -17,8 +19,7 @@ export default function AdminStorefrontBar() {
       const handleClick = (e: Event) => {
         e.preventDefault();
         e.stopPropagation();
-        alert("CMS Entegrasyonu: Bu elementi düzenlemek için Yönetim Paneli > Vitrin Ayarları sayfasına yönlendirileceksiniz.");
-        window.location.href = "/settings";
+        // In the future, we could send a message to the builder here
       };
 
       elements.forEach(el => {
@@ -53,7 +54,7 @@ export default function AdminStorefrontBar() {
     };
   }, [isEditMode]);
 
-  if (session?.user?.role !== "ADMIN") return null;
+  if (session?.user?.role !== "ADMIN" || isInIframe) return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] bg-[#1a1a1a] text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-6 border border-[#333]">

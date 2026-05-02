@@ -23,6 +23,9 @@ export default function AdvancedBuilderPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const subtitleRef = useRef<HTMLTextAreaElement>(null);
+  const buttonRef = useRef<HTMLInputElement>(null);
 
   // Fetch real data on mount
   useEffect(() => {
@@ -61,6 +64,23 @@ export default function AdvancedBuilderPage() {
       }, "*");
     }
   }, [heroTitle, heroSubtitle, buttonText, isLoadingData]);
+
+  // Listen for element selection from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "SELECT_ELEMENT") {
+        const { name } = event.data.payload;
+        setActiveRightTab("content");
+        setTimeout(() => {
+          if (name === "heroTitle") titleRef.current?.focus();
+          if (name === "heroSubtitle") subtitleRef.current?.focus();
+          if (name === "buttonText") buttonRef.current?.focus();
+        }, 100);
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
 
   async function saveDesign() {
     setIsSaving(true);
@@ -266,15 +286,6 @@ export default function AdvancedBuilderPage() {
                    className="w-full h-full border-0"
                    title="Live Store Preview"
                 />
-                
-                {/* Hover/Edit Target Frame */}
-                <div className="absolute top-0 left-0 right-0 h-[600px] pointer-events-none z-50">
-                   <div className="absolute top-[20%] left-[5%] right-[5%] bottom-[10%] border-[3px] border-blue-500 rounded-lg shadow-[0_0_0_9999px_rgba(37,99,235,0.05)] transition-all duration-300 flex items-start justify-end p-2">
-                      <div className="bg-blue-500 text-white text-[11px] px-3 py-1.5 font-bold uppercase tracking-wider rounded-md shadow-lg pointer-events-auto cursor-pointer hover:bg-blue-600">
-                        Hero Alanını Düzenliyorsunuz
-                      </div>
-                   </div>
-                </div>
               </div>
             </div>
           )}
@@ -306,6 +317,7 @@ export default function AdvancedBuilderPage() {
                      <div>
                         <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 block flex items-center gap-1.5"><Type className="w-3.5 h-3.5"/> Ana Başlık</label>
                         <textarea 
+                           ref={titleRef}
                            value={heroTitle}
                            onChange={(e) => setHeroTitle(e.target.value)}
                            className="w-full h-20 bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-[13px] font-medium transition-all shadow-sm resize-none" 
@@ -316,6 +328,7 @@ export default function AdvancedBuilderPage() {
                      <div>
                         <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 block flex items-center gap-1.5"><AlignLeft className="w-3.5 h-3.5"/> Alt Açıklama (Paragraf)</label>
                         <textarea 
+                           ref={subtitleRef}
                            value={heroSubtitle}
                            onChange={(e) => setHeroSubtitle(e.target.value)}
                            className="w-full h-24 bg-white border-2 border-slate-200 rounded-xl px-3 py-2 text-slate-800 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 text-[13px] font-medium transition-all shadow-sm resize-none" 
@@ -325,6 +338,7 @@ export default function AdvancedBuilderPage() {
                      <div className="pt-2 border-t border-slate-100">
                         <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-2 block flex items-center gap-1.5"><MousePointer2 className="w-3.5 h-3.5"/> Aksiyon Butonu (CTA)</label>
                         <input 
+                           ref={buttonRef}
                            type="text"
                            value={buttonText}
                            onChange={(e) => setButtonText(e.target.value)}
