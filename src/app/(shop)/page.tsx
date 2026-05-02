@@ -30,31 +30,20 @@ export default async function ShopHome() {
     if (settingsRes) {
       customCss = settingsRes.value;
     }
-  } catch (error) {
-    console.error("Veriler yüklenemedi:", error);
-  }
 
-  // If no blocks, add a default Hero block
-  if (blocks.length === 0) {
-    blocks = [{
-      id: "default-hero",
-      type: "Hero",
-      order: 0,
-      content: {
-        heroTitle: `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
-        heroSubtitle: "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
-        buttonText: "KOLEKSİYONU KEŞFET"
-      }
-    }];
-  }
+    // Fetch featured products for the renderer
+    const products = await prisma.product.findMany({
+      take: 8,
+      orderBy: { createdAt: "desc" }
+    });
 
-  return (
-    <div className="flex flex-col pb-0 bg-[#fbfaf9] overflow-hidden">
-      {/* Dynamic Style Injection for Saved CSS */}
-      {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
-      
-      {/* Universal Renderer for Multi-Block CMS */}
-      <StorefrontRenderer initialBlocks={blocks} />
+    return (
+      <div className="flex flex-col pb-0 bg-[#fbfaf9] overflow-hidden">
+        {/* Dynamic Style Injection for Saved CSS */}
+        {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
+        
+        {/* Universal Renderer for Multi-Block CMS */}
+        <StorefrontRenderer initialBlocks={blocks} products={products} />
 
       {/* Marquee Banner (Sticky Legacy Part) */}
       <div className="bg-[#1a120b] py-4 border-y border-white/10 overflow-hidden whitespace-nowrap flex relative">

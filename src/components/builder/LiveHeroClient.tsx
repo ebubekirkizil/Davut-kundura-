@@ -6,8 +6,8 @@ import { ArrowRight } from "lucide-react";
 
 export default function LiveHeroClient({ initialData }: { initialData: any }) {
   const [data, setData] = useState({
-    title: initialData?.heroTitle || `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
-    subtitle: initialData?.heroSubtitle || "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
+    title: initialData?.title || `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
+    subtitle: initialData?.subtitle || "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
     buttonText: initialData?.buttonText || "KOLEKSİYONU KEŞFET",
     imageUrl: initialData?.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
     customCss: initialData?.customCss || ""
@@ -16,8 +16,8 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
   useEffect(() => {
     if (initialData) {
       setData({
-        title: initialData.heroTitle || "",
-        subtitle: initialData.heroSubtitle || "",
+        title: initialData.title || "",
+        subtitle: initialData.subtitle || "",
         buttonText: initialData.buttonText || "",
         imageUrl: initialData.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
         customCss: initialData.customCss || ""
@@ -26,16 +26,12 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
   }, [initialData]);
 
   useEffect(() => {
-    // Listen for messages from the Shopify-like Builder iframe parent
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "BUILDER_SYNC") {
-        const myBlock = event.data.payload.blocks.find((b: any) => b.type === "Hero");
+        const myBlock = event.data.blocks?.find((b: any) => b.type === "Hero");
         if (myBlock && myBlock.content) {
           setData(prev => ({ ...prev, ...myBlock.content }));
         }
-      }
-      if (event.data?.type === "BUILDER_UPDATE") {
-        setData(prev => ({ ...prev, ...event.data.payload }));
       }
     };
     window.addEventListener("message", handleMessage);
@@ -68,14 +64,12 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
           </div>
           
           <h1 
-            onClick={() => selectElement("heroTitle")}
-            className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl cursor-pointer hover:ring-2 hover:ring-blue-500 rounded-lg transition-all" 
+            className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl" 
             dangerouslySetInnerHTML={{ __html: data.title }}
           />
           
           <p 
-            onClick={() => selectElement("heroSubtitle")}
-            className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl cursor-pointer hover:ring-2 hover:ring-blue-500 rounded-lg transition-all"
+            className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl"
           >
             {data.subtitle}
           </p>
