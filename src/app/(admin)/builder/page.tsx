@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { 
   Monitor, Smartphone, Tablet, Save, Eye, LayoutTemplate, 
   Palette, Type, FileImage, Settings, Plus, LayoutGrid, 
   AlignLeft, ArrowLeft, Paintbrush, Play, Layers, MousePointer2,
   BoxSelect, Move, Type as TypeIcon, Image as ImageIcon, Video, 
-  List, Sliders, ChevronDown, AlignCenter, AlignRight, Component, Search
+  List, Sliders, ChevronDown, AlignCenter, AlignRight, Component, Search, RefreshCw
 } from "lucide-react";
 import Link from "next/link";
 
@@ -24,6 +24,21 @@ export default function AdvancedBuilderPage() {
   const [heroSubtitle, setHeroSubtitle] = useState("1998'den beri el işçiliği ile üretilen, birinci sınıf deri kalitesini adımlarınıza taşıyan premium koleksiyon.");
   const [buttonText, setButtonText] = useState("Koleksiyonu İncele");
   const [isSaving, setIsSaving] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  // Sync state to iframe when changed
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({
+        type: "BUILDER_UPDATE",
+        payload: {
+          title: heroTitle,
+          subtitle: heroSubtitle,
+          buttonText: buttonText
+        }
+      }, "*");
+    }
+  }, [heroTitle, heroSubtitle, buttonText]);
 
   async function saveDesign() {
     setIsSaving(true);
@@ -328,39 +343,30 @@ export default function AdvancedBuilderPage() {
              <button className="p-1.5 hover:bg-[#2a2a2a] rounded"><Save className="w-4 h-4" /></button>
           </div>
           
-          <div className="flex-1 overflow-auto flex justify-center pt-8 pb-32">
+          <div className="flex-1 overflow-auto flex justify-center pt-8 pb-32 bg-[#000]">
             <div 
-              className="bg-[#ffffff] shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-300 relative border border-[#2a2a2a]"
+              className="bg-[#ffffff] shadow-[0_0_50px_rgba(0,0,0,0.5)] transition-all duration-300 relative border border-[#2a2a2a] overflow-hidden"
               style={{ 
                 width: deviceWidths[viewMode], 
-                minHeight: '100%',
+                height: '800px',
                 maxWidth: '100%'
               }}
             >
-              {/* Mockup of a deeply styled element in the builder */}
-              <div className="w-full h-[600px] relative overflow-hidden bg-[#111] group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
-                <div className="absolute inset-0 opacity-60 mix-blend-overlay scale-105 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center"></div>
-                
-                <div className="absolute inset-0 z-20 flex flex-col justify-center items-center text-center p-8">
-                  {/* Selected Element Simulation */}
-                  <div className="relative border-2 border-blue-500 rounded p-1">
-                     <div className="absolute -top-5 -left-0.5 bg-blue-500 text-white text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-t">H1.hero-title</div>
-                     <div className="absolute -right-2 -bottom-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full cursor-nwse-resize"></div>
-                     <h1 className="text-6xl font-bold text-white tracking-tighter shadow-2xl uppercase font-serif">
-                       {heroTitle}
-                     </h1>
-                  </div>
-                  
-                  <p className="text-[#d0d0d0] text-lg mt-6 max-w-2xl font-light tracking-wide border border-dashed border-transparent hover:border-blue-400 p-2 cursor-pointer transition-colors">
-                    {heroSubtitle}
-                  </p>
-                  
-                  <div className="mt-8 flex gap-4 border border-dashed border-transparent hover:border-blue-400 p-2 cursor-pointer transition-colors">
-                    <button className="px-8 py-3 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors">{buttonText}</button>
-                    <button className="px-8 py-3 bg-transparent border border-white text-white font-medium hover:bg-white hover:text-black transition-colors">Hikayemiz</button>
-                  </div>
-                </div>
+              {/* Canlı Site Iframe (Shopify Tarzı Gerçek Düzenleme) */}
+              <iframe 
+                 ref={iframeRef}
+                 src="/"
+                 className="w-full h-full border-0"
+                 title="Live Store Preview"
+              />
+              
+              {/* Editör Overlay Sınırları (Seçilen bileşen etrafında mavi kutu) */}
+              <div className="absolute top-0 left-0 right-0 h-[600px] pointer-events-none z-50">
+                 <div className="absolute top-[20%] left-[10%] right-[10%] bottom-[20%] border-2 border-blue-500 rounded p-1 shadow-[0_0_0_9999px_rgba(0,0,0,0.1)]">
+                    <div className="absolute -top-6 -left-0.5 bg-blue-500 text-white text-[10px] px-2 py-1 font-bold uppercase tracking-wider rounded-t shadow-md">
+                      Düzenleniyor: Ana Sayfa Hero Alanı
+                    </div>
+                 </div>
               </div>
             </div>
           </div>
