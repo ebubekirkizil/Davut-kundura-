@@ -16,8 +16,32 @@ type ActiveTab = "add" | "templates" | "layers" | "pages" | "design" | "settings
 export default function AdvancedBuilderPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("desktop");
   const [activeLeftTab, setActiveLeftTab] = useState<ActiveTab>("add");
-  const [activeRightTab, setActiveRightTab] = useState<"style" | "settings" | "interactions">("style");
+  const [activeRightTab, setActiveRightTab] = useState<"style" | "settings" | "interactions">("settings");
   const [isHoverStateActive, setIsHoverStateActive] = useState(false);
+
+  // Real Database State
+  const [heroTitle, setHeroTitle] = useState("İtalyan Zarafeti, Davut Kundura İmzası");
+  const [heroSubtitle, setHeroSubtitle] = useState("1998'den beri el işçiliği ile üretilen, birinci sınıf deri kalitesini adımlarınıza taşıyan premium koleksiyon.");
+  const [buttonText, setButtonText] = useState("Koleksiyonu İncele");
+  const [isSaving, setIsSaving] = useState(false);
+
+  async function saveDesign() {
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/admin/store-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ heroTitle, heroSubtitle, buttonText, buttonLink: "/products" })
+      });
+      if(res.ok) {
+        alert("Başarıyla yayınlandı! Sitenizin ön yüzünü kontrol edebilirsiniz.");
+      }
+    } catch(err) {
+      alert("Bir hata oluştu");
+    } finally {
+      setIsSaving(false);
+    }
+  }
 
   const deviceWidths = {
     desktop: "100%",
@@ -77,8 +101,8 @@ export default function AdvancedBuilderPage() {
           <button className="flex items-center gap-1.5 px-3 py-1.5 text-white bg-[#2a2a2a] hover:bg-[#333] border border-[#3a3a3a] rounded transition-colors">
             <Eye className="w-3.5 h-3.5" /> Önizleme
           </button>
-          <button className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-500 hover:to-indigo-500 rounded transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]">
-            <Save className="w-3.5 h-3.5" /> Yayına Al
+          <button onClick={saveDesign} disabled={isSaving} className="flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-500 hover:to-indigo-500 rounded transition-colors shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+            <Save className="w-3.5 h-3.5" /> {isSaving ? "Kaydediliyor..." : "Yayına Al"}
           </button>
         </div>
       </header>
@@ -324,17 +348,16 @@ export default function AdvancedBuilderPage() {
                      <div className="absolute -top-5 -left-0.5 bg-blue-500 text-white text-[9px] px-1.5 py-0.5 font-bold uppercase tracking-wider rounded-t">H1.hero-title</div>
                      <div className="absolute -right-2 -bottom-2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full cursor-nwse-resize"></div>
                      <h1 className="text-6xl font-bold text-white tracking-tighter shadow-2xl uppercase font-serif">
-                       İtalyan Zarafeti,<br/>
-                       <span className="text-amber-500">Davut Kundura</span> İmzası
+                       {heroTitle}
                      </h1>
                   </div>
                   
                   <p className="text-[#d0d0d0] text-lg mt-6 max-w-2xl font-light tracking-wide border border-dashed border-transparent hover:border-blue-400 p-2 cursor-pointer transition-colors">
-                    1998'den beri el işçiliği ile üretilen, birinci sınıf deri kalitesini adımlarınıza taşıyan premium koleksiyon.
+                    {heroSubtitle}
                   </p>
                   
                   <div className="mt-8 flex gap-4 border border-dashed border-transparent hover:border-blue-400 p-2 cursor-pointer transition-colors">
-                    <button className="px-8 py-3 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors">Koleksiyonu İncele</button>
+                    <button className="px-8 py-3 bg-amber-600 text-white font-medium hover:bg-amber-700 transition-colors">{buttonText}</button>
                     <button className="px-8 py-3 bg-transparent border border-white text-white font-medium hover:bg-white hover:text-black transition-colors">Hikayemiz</button>
                   </div>
                 </div>
@@ -481,6 +504,42 @@ export default function AdvancedBuilderPage() {
                 </div>
 
               </>
+            )}
+
+            {activeRightTab === "settings" && (
+               <div className="space-y-4">
+                  <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded text-blue-300 text-[11px] leading-relaxed">
+                     Bu menüden sayfadaki gerçek verileri (başlıklar, buton metinleri) düzenleyebilir ve veritabanına kaydedebilirsiniz.
+                  </div>
+
+                  <div>
+                     <label className="text-[10px] text-[#8a8a8a] mb-1 block uppercase">Ana Başlık (H1)</label>
+                     <textarea 
+                        value={heroTitle}
+                        onChange={(e) => setHeroTitle(e.target.value)}
+                        className="w-full h-16 bg-[#1c1c1c] border border-[#3a3a3a] rounded px-2 py-1.5 text-white outline-none focus:border-blue-500 text-[12px]" 
+                     />
+                  </div>
+
+                  <div>
+                     <label className="text-[10px] text-[#8a8a8a] mb-1 block uppercase">Alt Açıklama (P)</label>
+                     <textarea 
+                        value={heroSubtitle}
+                        onChange={(e) => setHeroSubtitle(e.target.value)}
+                        className="w-full h-24 bg-[#1c1c1c] border border-[#3a3a3a] rounded px-2 py-1.5 text-white outline-none focus:border-blue-500 text-[12px]" 
+                     />
+                  </div>
+
+                  <div>
+                     <label className="text-[10px] text-[#8a8a8a] mb-1 block uppercase">Buton Metni</label>
+                     <input 
+                        type="text"
+                        value={buttonText}
+                        onChange={(e) => setButtonText(e.target.value)}
+                        className="w-full bg-[#1c1c1c] border border-[#3a3a3a] rounded px-2 py-1.5 text-white outline-none focus:border-blue-500 text-[12px]" 
+                     />
+                  </div>
+               </div>
             )}
 
             {activeRightTab === "interactions" && (

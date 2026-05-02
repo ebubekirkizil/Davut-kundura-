@@ -9,19 +9,40 @@ export const dynamic = "force-dynamic";
 export default async function ShopHome() {
   // Veritabanı bağlantı hatalarında sayfa yine de açılsın
   let BestsellerProducts: any[] = [];
+  let heroData: any = null;
+
   try {
-    BestsellerProducts = await prisma.product.findMany({
-      where: { status: "ACTIVE" },
-      orderBy: { createdAt: "desc" },
-      take: 4,
-      include: {
-        variants: true,
-        reviews: true,
+    const [productsRes, pageRes] = await Promise.all([
+      prisma.product.findMany({
+        where: { status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+        take: 4,
+        include: {
+          variants: true,
+          reviews: true,
+        }
+      }),
+      prisma.storePage.findUnique({
+        where: { slug: "home" },
+        include: { blocks: true }
+      })
+    ]);
+    
+    BestsellerProducts = productsRes;
+    
+    if (pageRes && pageRes.blocks) {
+      const heroBlock = pageRes.blocks.find(b => b.type === "Hero");
+      if (heroBlock && heroBlock.content) {
+        heroData = heroBlock.content;
       }
-    });
+    }
   } catch (error) {
-    console.error("Ürünler yüklenemedi:", error);
+    console.error("Veriler yüklenemedi:", error);
   }
+
+  const displayHeroTitle = heroData?.heroTitle || `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`;
+  const displayHeroSubtitle = heroData?.heroSubtitle || "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.";
+  const displayButtonText = heroData?.buttonText || "KOLEKSİYONU KEŞFET";
 
   const hasProducts = BestsellerProducts.length > 0;
 
@@ -47,15 +68,14 @@ export default async function ShopHome() {
               <span className="text-white/80 text-xs font-medium tracking-widest uppercase">2026 İlkbahar / Yaz Koleksiyonu</span>
             </div>
             
-            <h1 className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl animate-fade-up opacity-0" style={{ animationDelay: '100ms' }}>
-              Zarafetin <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">
-                Adımları.
-              </span>
-            </h1>
+            <h1 
+              className="font-serif text-6xl md:text-8xl font-bold text-white leading-[1.05] tracking-tight drop-shadow-xl animate-fade-up opacity-0" 
+              style={{ animationDelay: '100ms' }}
+              dangerouslySetInnerHTML={{ __html: displayHeroTitle }}
+            />
             
             <p className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl animate-fade-up opacity-0" style={{ animationDelay: '300ms' }}>
-              Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.
+              {displayHeroSubtitle}
             </p>
             
             <div className="pt-6 animate-fade-up opacity-0" style={{ animationDelay: '500ms' }}>
@@ -63,8 +83,8 @@ export default async function ShopHome() {
                 href="/products" 
                 className="relative overflow-hidden inline-flex bg-[#d4af37] hover:bg-[#c2a373] text-[#1a120b] px-12 py-5 rounded-sm font-bold text-sm tracking-widest transition-all duration-300 shadow-[0_0_40px_-10px_rgba(212,175,55,0.4)] items-center gap-3 group shine-effect"
               >
-                <span className="relative z-10 flex items-center gap-3">
-                  KOLEKSİYONU KEŞFET
+                <span className="relative z-10 flex items-center gap-3 uppercase">
+                  {displayButtonText}
                   <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </Link>
