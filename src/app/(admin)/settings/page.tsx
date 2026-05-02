@@ -63,6 +63,19 @@ export default function SettingsCMSPage() {
     alert("CMS ayarları kaydedildi! ✅");
   }
 
+  // Enterprise Modülleri Toggle State'leri
+  const [modules, setModules] = useState({
+    production: true,
+    multiWarehouse: false,
+    b2b: false,
+    ticketing: true,
+    auditLogs: true
+  });
+
+  const toggleModule = (key: keyof typeof modules) => {
+    setModules(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       
@@ -210,6 +223,72 @@ export default function SettingsCMSPage() {
                 Şifreyi Güncelle
               </button>
             </form>
+          </div>
+
+          {/* ─── ENTERPRISE ERP MODÜL YÖNETİMİ ─── */}
+          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
+            <div className="flex items-center gap-2 mb-2 text-indigo-600 border-b border-slate-100 pb-4">
+              <Store className="h-5 w-5" />
+              <h2 className="font-semibold text-lg">Holding / Enterprise Modülleri</h2>
+            </div>
+            <p className="text-[13px] text-slate-500 mb-6">İleride sistemi başka firmalara (SaaS) sattığınızda, firmanın ihtiyacına göre sol menüdeki bu gelişmiş modülleri açıp kapatabilirsiniz.</p>
+            
+            <div className="space-y-4">
+               {/* Toggle 1 */}
+               <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-indigo-300 transition-colors">
+                  <div>
+                     <div className="font-semibold text-[14px] text-slate-800">Üretim & Atölye Yönetimi (Kanban)</div>
+                     <div className="text-[12px] text-slate-500">Fabrika üretim aşamalarını ve hammadde stoklarını takip eder.</div>
+                  </div>
+                  <button onClick={() => toggleModule('production')} className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${modules.production ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+                  </button>
+               </div>
+               
+               {/* Toggle 2 */}
+               <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-indigo-300 transition-colors">
+                  <div>
+                     <div className="font-semibold text-[14px] text-slate-800">Çoklu Depo Yönetimi</div>
+                     <div className="text-[12px] text-slate-500">Farklı şehirlerdeki depolar arası stok transferi ve lokasyon yönetimi.</div>
+                  </div>
+                  <button onClick={() => toggleModule('multiWarehouse')} className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${modules.multiWarehouse ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+                  </button>
+               </div>
+
+               {/* Toggle 3 */}
+               <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-indigo-300 transition-colors">
+                  <div>
+                     <div className="font-semibold text-[14px] text-slate-800">B2B Toptan Satış Portalı</div>
+                     <div className="text-[12px] text-slate-500">Bayilere özel açık hesap limitleri ve toptancı indirimleri.</div>
+                  </div>
+                  <button onClick={() => toggleModule('b2b')} className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${modules.b2b ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+                  </button>
+               </div>
+
+               {/* Toggle 4 */}
+               <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-indigo-300 transition-colors">
+                  <div>
+                     <div className="font-semibold text-[14px] text-slate-800">Gelişmiş Destek (Ticketing)</div>
+                     <div className="text-[12px] text-slate-500">Müşteri şikayetleri ve iade talepleri için profesyonel destek bilet sistemi.</div>
+                  </div>
+                  <button onClick={() => toggleModule('ticketing')} className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${modules.ticketing ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+                  </button>
+               </div>
+
+               {/* Toggle 5 */}
+               <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg hover:border-indigo-300 transition-colors">
+                  <div>
+                     <div className="font-semibold text-[14px] text-slate-800">Güvenlik ve Denetim (Audit Logs)</div>
+                     <div className="text-[12px] text-slate-500">Sistemdeki tüm personel işlemlerini saniye saniye kayıt altına alır.</div>
+                  </div>
+                  <button onClick={() => toggleModule('auditLogs')} className={`w-12 h-6 rounded-full flex items-center p-1 transition-colors ${modules.auditLogs ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                     <div className="w-4 h-4 bg-white rounded-full shadow-md"></div>
+                  </button>
+               </div>
+            </div>
           </div>
 
           {/* ─── Hero Section Edit ─── */}

@@ -456,3 +456,217 @@ model SiteSettings {
   value           String   @db.Text
   updatedAt       DateTime @updatedAt
 }
+
+// ─────────────────────────────────────────────
+// PRO VİTRİN & MAĞAZA TASARIMCISI (ADVANCED CMS)
+// ─────────────────────────────────────────────
+
+enum PageType {
+  HOME
+  CUSTOM
+  PRODUCT_TEMPLATE
+  CATEGORY_TEMPLATE
+  POLICY
+}
+
+model StoreTheme {
+  id          String   @id @default(cuid())
+  name        String   @default("Davut Kundura PRO Theme")
+  isActive    Boolean  @default(false)
+  colors      Json     // Primary, secondary, background, text colors
+  typography  Json     // H1, H2, body font family, size, weight
+  settings    Json     // Global settings (border radius, animations global state)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StorePage {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  type        PageType @default(CUSTOM)
+  isPublished Boolean  @default(false)
+  seoTitle    String?
+  seoDesc     String?
+  blocks      StoreBlock[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StoreBlock {
+  id          String    @id @default(cuid())
+  pageId      String?
+  page        StorePage? @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  type        String    // "Hero", "ProductGrid", "Slider", "RichText", "VideoBg", etc.
+  order       Int       @default(0) // Sayfa içindeki sırası
+  content     Json      // { title, subtitle, buttonText, imageUrl, etc }
+  style       Json      // { padding, margin, backgroundColor, animations, CSS filters }
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model StoreTemplate {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "Luxury Dark Hero", "Modern Product Grid"
+  category    String   // "Hero", "Features", "Testimonials", "Footers"
+  previewUrl  String?  // Thumbnail image of the template
+  structure   Json     // JSON tree representing the UI blocks
+  createdAt   DateTime @default(now())
+}
+
+model NavigationMenu {
+  id          String   @id @default(cuid())
+  name        String   @unique // "Header", "Footer", "Sidebar"
+  items       NavigationItem[]
+  createdAt   DateTime @default(now())
+}
+
+model NavigationItem {
+  id          String   @id @default(cuid())
+  menuId      String
+  menu        NavigationMenu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  label       String
+  url         String
+  order       Int      @default(0)
+  parentId    String?  // For dropdowns / mega menus
+  createdAt   DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// ENTERPRISE (HOLDİNG SEVİYESİ) ERP & YÖNETİM MODÜLLERİ
+// ─────────────────────────────────────────────
+
+// 1. Çoklu Depo ve Atölye Yönetimi (Multi-Warehouse)
+model Warehouse {
+  id          String   @id @default(cuid())
+  name        String   // "Merkez Depo", "İstanbul Şube", "Üretim Atölyesi"
+  code        String   @unique // "WH-001"
+  address     String?  @db.Text
+  managerName String?
+  isActive    Boolean  @default(true)
+  stockItems  WarehouseStock[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model WarehouseStock {
+  id          String   @id @default(cuid())
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  variantId   String
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  quantity    Int      @default(0)
+  reserved    Int      @default(0) // Sipariş verilmiş ama henüz kargolanmamış stok
+  shelfLoc    String?  // Depodaki raf konumu (Örn: A-12-B)
+  
+  @@unique([warehouseId, variantId])
+}
+
+// 2. Tedarikçi ve Hammadde Yönetimi (Supply Chain)
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String   // "Hakiki Deri A.Ş.", "Taban Plastik Sanayi"
+  contactName String?
+  email       String?
+  phone       String?
+  taxNumber   String?
+  address     String?  @db.Text
+  materials   RawMaterial[]
+  createdAt   DateTime @default(now())
+}
+
+model RawMaterial {
+  id          String   @id @default(cuid())
+  supplierId  String
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  name        String   // "Birinci Sınıf Dana Derisi (Siyah)"
+  sku         String   @unique
+  unit        String   // "m2", "Adet", "Kg"
+  stockQty    Float    @default(0)
+  costPerUnit Float
+  createdAt   DateTime @default(now())
+}
+
+// 3. Üretim / Atölye Takip Sistemi (Manufacturing)
+enum ProductionStatus {
+  PLANNING
+  CUTTING
+  SEWING
+  ASSEMBLY
+  QUALITY_CHECK
+  COMPLETED
+}
+
+model ProductionOrder {
+  id          String   @id @default(cuid())
+  orderNo     String   @unique // PRD-2024-001
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  targetDate  DateTime?
+  status      ProductionStatus @default(PLANNING)
+  costEst     Float?   // Tahmini maliyet
+  actualCost  Float?   // Gerçekleşen maliyet
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 4. B2B / Toptan Satış Yönetimi
+model B2BCompany {
+  id            String   @id @default(cuid())
+  companyName   String
+  taxOffice     String?
+  taxNumber     String?
+  discountTier  Float    @default(10.0) // %10 toptancı indirimi
+  creditLimit   Float?   // Açık hesap limiti
+  balanceOwed   Float    @default(0)    // Firmadan alacak
+  // Note: Added user relation using existing User model (needs relation field on User model if required, omitted for now)
+  createdAt     DateTime @default(now())
+}
+
+// 5. Gelişmiş Müşteri Hizmetleri (Ticketing & RMA)
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  ticketNo    String   @unique // TKT-9012
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  orderId     String?
+  order       Order?   @relation(fields: [orderId], references: [id])
+  subject     String
+  message     String   @db.Text
+  priority    TicketPriority @default(MEDIUM)
+  status      TicketStatus   @default(OPEN)
+  assignedTo  String?  // Admin User ID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 6. Denetim İzleri (Audit Logs) - Kim ne zaman ne yaptı? (Güvenlik)
+model AuditLog {
+  id          String   @id @default(cuid())
+  adminId     String   // İşlemi yapan yönetici
+  action      String   // "UPDATE_PRODUCT", "DELETE_ORDER", "CHANGE_PRICE"
+  entityType  String   // "Product", "Order", "User"
+  entityId    String   // Etkilenen verinin ID'si
+  oldData     Json?    // Değişiklik öncesi veri (Geri alma için)
+  newData     Json?    // Değişiklik sonrası veri
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+}

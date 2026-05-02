@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle, Activity } from "lucide-react";
+import { Home, PackageCheck, Users, ShoppingCart, Settings, Search, Bell, HelpCircle, Activity, Paintbrush, Factory, Warehouse, Building2, Ticket, ShieldCheck } from "lucide-react";
 
 export default function AdminShopifyLayout({
   children,
@@ -89,8 +89,57 @@ export default function AdminShopifyLayout({
             </span>
           </Link>
 
+          <div className="text-[11px] font-semibold text-[#8a8a8a] px-3 pt-6 pb-2 tracking-wider">HOLDİNG (ENTERPRISE)</div>
+          
+          <Link 
+            href="/production" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium`}
+          >
+            <Factory className="h-[18px] w-[18px] text-orange-400" />
+            <span className="text-[14px]">Üretim & Atölye</span>
+          </Link>
+          <Link 
+            href="/warehouses" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium`}
+          >
+            <Warehouse className="h-[18px] w-[18px] text-blue-400" />
+            <span className="text-[14px]">Çoklu Depo Yönetimi</span>
+          </Link>
+          <Link 
+            href="/b2b" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium`}
+          >
+            <Building2 className="h-[18px] w-[18px] text-purple-400" />
+            <span className="text-[14px]">B2B Toptan Müşteriler</span>
+          </Link>
+          <Link 
+            href="/support" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium`}
+          >
+            <Ticket className="h-[18px] w-[18px] text-green-400" />
+            <span className="text-[14px]">Destek (Ticketing)</span>
+          </Link>
+          <Link 
+            href="/audit" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium`}
+          >
+            <ShieldCheck className="h-[18px] w-[18px] text-red-400" />
+            <span className="text-[14px]">Güvenlik & Denetim</span>
+          </Link>
+
           <div className="text-[11px] font-semibold text-[#8a8a8a] px-3 pt-6 pb-2 tracking-wider">MAĞAZA (FRONTEND)</div>
           
+          <Link 
+            href="/builder" 
+            className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
+               pathname.startsWith('/builder') ? 'bg-[#333333] text-white font-semibold' : 'text-[#ebebeb] hover:bg-[#333333]/50 hover:text-white font-medium'
+             }`}
+          >
+            <Paintbrush className="h-[18px] w-[18px]" />
+            <span className="text-[14px]">Mağaza Tasarımcısı</span>
+            <span className="ml-auto flex items-center justify-center bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">YENİ</span>
+          </Link>
+
           <Link 
             href="/settings" 
             className={`flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors ${
