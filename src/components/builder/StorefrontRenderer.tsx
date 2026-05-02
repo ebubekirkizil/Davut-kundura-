@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star } from "lucide-react";
+import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star, Instagram } from "lucide-react";
 import LiveHeroClient from "./LiveHeroClient";
 import ProductCard from "../product/ProductCard";
 import { SECTION_SCHEMAS } from "@/store/schema";
@@ -73,6 +73,90 @@ export default function StorefrontRenderer({
                    </div>
                 </section>
               );
+
+            case "richTextV2":
+               return (
+                 <section key={section.id} className="container mx-auto px-6 py-24 text-center">
+                    <div className="max-w-2xl mx-auto">
+                       <h2 className="text-4xl font-serif font-bold mb-6 text-[var(--p-text)]">{section.settings?.title}</h2>
+                       <p className="text-lg text-[var(--p-text-subdued)] leading-relaxed italic">
+                          {section.settings?.content}
+                       </p>
+                    </div>
+                 </section>
+               );
+
+            case "richTextV3":
+               return (
+                 <section key={section.id} className="container mx-auto px-6 py-24 border-y border-gray-50">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+                       <div className="space-y-4">
+                          <h3 className="text-xl font-bold uppercase tracking-widest">{section.settings?.titleLeft}</h3>
+                          <p className="text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.textLeft}</p>
+                       </div>
+                       <div className="space-y-4">
+                          <h3 className="text-xl font-bold uppercase tracking-widest">{section.settings?.titleRight}</h3>
+                          <p className="text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.textRight}</p>
+                       </div>
+                    </div>
+                 </section>
+               );
+
+            case "imageWithText":
+               return (
+                 <section key={section.id} className="container mx-auto px-6 py-24">
+                    <div className={`flex flex-col md:flex-row items-center gap-16 ${section.settings?.layout === 'right' ? 'md:flex-row-reverse' : ''}`}>
+                       <div className="w-full md:w-1/2 aspect-square bg-gray-100 rounded-3xl overflow-hidden shadow-xl">
+                          {section.settings?.image ? (
+                            <img src={section.settings.image} className="w-full h-full object-cover" alt="Content" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-200"><ImageIcon size={48} className="text-gray-400" /></div>
+                          )}
+                       </div>
+                       <div className="w-full md:w-1/2 space-y-6">
+                          <h2 className="text-4xl md:text-5xl font-serif font-bold text-[var(--p-text)]">{section.settings?.title}</h2>
+                          <p className="text-lg text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.content}</p>
+                          <button className="px-8 py-3 bg-[var(--p-blue)] text-white font-bold rounded-full hover:shadow-lg transition-all">Daha Fazla Bilgi</button>
+                       </div>
+                    </div>
+                 </section>
+               );
+
+            case "stats":
+               return (
+                 <section key={section.id} className="py-20 bg-white border-y border-gray-50">
+                    <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                       {[1, 2, 3].map(i => (
+                         <div key={i} className="space-y-2">
+                            <div className="text-5xl font-bold text-[var(--p-blue)]">{section.settings?.[`n${i}`]}</div>
+                            <div className="text-sm font-bold text-gray-500 uppercase tracking-widest">{section.settings?.[`l${i}`]}</div>
+                         </div>
+                       ))}
+                    </div>
+                 </section>
+               );
+
+            case "socialGrid":
+               return (
+                 <section key={section.id} className="py-20">
+                    <div className="container mx-auto px-6 mb-12 text-center">
+                       <h2 className="text-3xl font-bold mb-4">{section.settings?.title}</h2>
+                       <div className="flex items-center justify-center gap-2 text-[var(--p-blue)] font-bold">
+                          <Instagram size={20} />
+                          <span>@davutkundura</span>
+                       </div>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                       {[1,2,3,4,5,6].map(i => (
+                         <div key={i} className="aspect-square bg-gray-100 relative group overflow-hidden cursor-pointer">
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                               <Instagram size={24} />
+                            </div>
+                         </div>
+                       ))}
+                    </div>
+                 </section>
+               );
 
             case "header":
                return (

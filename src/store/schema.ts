@@ -103,7 +103,7 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
   },
   featureColumns: {
     type: "featureColumns",
-    label: "Özellikler (3'lü)",
+    label: "Özellikler (İkonlu)",
     icon: "Grid",
     settings: [
       { id: "title1", type: "text", label: "Başlık 1", default: "Ücretsiz Kargo" },
@@ -114,79 +114,103 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
       { id: "text3", type: "textarea", label: "Metin 3", default: "14 gün içerisinde koşulsuz şartsız iade hakkı." }
     ]
   },
-  videoHero: {
-    type: "videoHero",
-    label: "Video Kahramanı",
-    icon: "Video",
+  richTextV2: {
+    type: "richTextV2",
+    label: "Zengin Metin (Ortalı)",
+    icon: "Type",
     settings: [
-      { id: "videoUrl", type: "text", label: "Video URL (MP4)", default: "https://cdn.shopify.com/videos/c/o/v/f9f1f1f1f1f1f1f1f1f1f1f1f1f1f1f1.mp4" },
-      { id: "title", type: "text", label: "Başlık", default: "Zanaatın Hikayesi" },
-      { id: "overlay", type: "range", label: "Karanlık Katman", default: 50, min: 0, max: 100 }
+      { id: "title", type: "text", label: "Ana Başlık", default: "Kalite Politikamız" },
+      { id: "content", type: "textarea", label: "Açıklama", default: "Mükemmelliği detaylarda arıyoruz." }
     ]
   },
-  collectionList: {
-    type: "collectionList",
-    label: "Koleksiyon Listesi",
-    icon: "Layers",
+  richTextV3: {
+    type: "richTextV3",
+    label: "Zengin Metin (İki Sütun)",
+    icon: "Type",
     settings: [
-      { id: "title", type: "text", label: "Başlık", default: "Koleksiyonlarımızı Keşfedin" },
-      { id: "items", type: "number", label: "Görünecek Sayı", default: 4 }
+      { id: "titleLeft", type: "text", label: "Sol Başlık", default: "Vizyonumuz" },
+      { id: "textLeft", type: "textarea", label: "Sol Metin", default: "Geleceğin ayakkabı trendlerini bugünden tasarlıyoruz." },
+      { id: "titleRight", type: "text", label: "Sağ Başlık", default: "Misyonumuz" },
+      { id: "textRight", type: "textarea", label: "Sağ Metin", default: "Her adımda konfor ve şıklığı bir araya getiriyoruz." }
+    ]
+  },
+  imageWithText: {
+    type: "imageWithText",
+    label: "Görsel + Yazı (Yan Yana)",
+    icon: "Layout",
+    settings: [
+      { id: "image", type: "image", label: "Görsel", default: "" },
+      { id: "title", type: "text", label: "Başlık", default: "Zanaatkar Eller" },
+      { id: "content", type: "textarea", label: "İçerik", default: "Ustamıza kulak verin: 'İyi bir ayakkabı, iyi bir yol arkadaşıdır.'" },
+      { id: "layout", type: "select", label: "Yerleşim", default: "left", options: [
+        { label: "Görsel Solda", value: "left" },
+        { label: "Görsel Sağda", value: "right" }
+      ]}
+    ]
+  },
+  productCarousel: {
+    type: "productCarousel",
+    label: "Ürün Kaydırıcı (Slider)",
+    icon: "ShoppingBag",
+    settings: [
+      { id: "title", type: "text", label: "Başlık", default: "Yeni Gelenler" },
+      { id: "limit", type: "number", label: "Ürün Sayısı", default: 8 }
+    ]
+  },
+  gallery: {
+    type: "gallery",
+    label: "Görsel Galeri (Mozaik)",
+    icon: "ImageIcon",
+    settings: [
+      { id: "title", type: "text", label: "Başlık", default: "Atölyemizden Kareler" }
+    ]
+  },
+  stats: {
+    type: "stats",
+    label: "İstatistikler (Sayaçlar)",
+    icon: "BarChart",
+    settings: [
+      { id: "n1", type: "text", label: "Sayı 1", default: "40+" },
+      { id: "l1", type: "text", label: "Etiket 1", default: "Yıllık Deneyim" },
+      { id: "n2", type: "text", label: "Sayı 2", default: "150k" },
+      { id: "l2", type: "text", label: "Etiket 2", default: "Mutlu Müşteri" },
+      { id: "n3", type: "text", label: "Sayı 3", default: "12" },
+      { id: "l3", type: "text", label: "Etiket 3", default: "Ülkeye İhracat" }
+    ]
+  },
+  videoHero: {
+    type: "videoHero",
+    label: "Video (Full Ekran)",
+    icon: "Video",
+    settings: [
+      { id: "videoUrl", type: "text", label: "Video URL", default: "" },
+      { id: "title", type: "text", label: "Başlık", default: "Zanaatın Hikayesi" }
+    ]
+  },
+  socialGrid: {
+    type: "socialGrid",
+    label: "Instagram Akışı",
+    icon: "Instagram",
+    settings: [
+      { id: "title", type: "text", label: "Başlık", default: "@davutkundura'yı takip edin" }
     ]
   },
   newsletter: {
     type: "newsletter",
-    label: "E-Bülten Kayıt",
+    label: "E-Bülten (Tip A)",
     icon: "Mail",
     settings: [
-      { id: "title", type: "text", label: "Başlık", default: "%10 İndirim Kazanın" },
-      { id: "subtitle", type: "textarea", label: "Alt Metin", default: "Bültenimize abone olun, ilk alışverişinizde geçerli indirim kodunu alın." }
+      { id: "title", type: "text", label: "Başlık", default: "Abone Olun" },
+      { id: "subtitle", type: "textarea", label: "Alt Metin", default: "İndirimlerden ilk siz haberdar olun." }
     ]
   },
   testimonials: {
     type: "testimonials",
-    label: "Müşteri Yorumları",
+    label: "Müşteri Yorumları (Tip A)",
     icon: "User",
     settings: [
-      { id: "quote1", type: "textarea", label: "Yorum 1", default: "Hayatımda giydiğim en rahat ayakkabı." },
-      { id: "author1", type: "text", label: "Yazar 1", default: "Ahmet Y." },
-      { id: "quote2", type: "textarea", label: "Yorum 2", default: "Zerafet ve kalite bir arada." },
-      { id: "author2", type: "text", label: "Yazar 2", default: "Mehmet K." }
-    ]
-  },
-  faq: {
-    type: "faq",
-    label: "Sıkça Sorulan Sorular",
-    icon: "HelpCircle",
-    settings: [
-      { id: "title", type: "text", label: "Başlık", default: "Merak Edilenler" },
-      { id: "q1", type: "text", label: "Soru 1", default: "Kargo ne zaman ulaşır?" },
-      { id: "a1", type: "textarea", label: "Cevap 1", default: "Siparişiniz 24 saat içinde kargoya verilir." }
-    ]
-  },
-  countdown: {
-    type: "countdown",
-    label: "Geri Sayım Sayacı",
-    icon: "Clock",
-    settings: [
-      { id: "title", type: "text", label: "Başlık", default: "Büyük Sezon Finali" },
-      { id: "endDate", type: "text", label: "Bitiş Tarihi (YYYY-MM-DD)", default: "2025-12-31" }
-    ]
-  },
-  brands: {
-    type: "brands",
-    label: "Marka Logoları",
-    icon: "Globe",
-    settings: [
-      { id: "title", type: "text", label: "Başlık", default: "İş Ortaklarımız" }
-    ]
-  },
-  contactForm: {
-    type: "contactForm",
-    label: "İletişim Formu",
-    icon: "MessageSquare",
-    settings: [
-      { id: "title", type: "text", label: "Başlık", default: "Bize Ulaşın" },
-      { id: "email", type: "text", label: "Alıcı E-posta", default: "info@davutkundura.com" }
+      { id: "quote1", type: "textarea", label: "Yorum 1", default: "Mükemmel hizmet." },
+      { id: "author1", type: "text", label: "Yazar 1", default: "Ali V." }
     ]
   }
 };

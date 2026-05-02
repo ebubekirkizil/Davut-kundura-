@@ -5,9 +5,8 @@ import {
   ArrowLeft, ChevronDown, Monitor, Smartphone, 
   Plus, X, Search, Settings, Eye, Box, 
   GripVertical, Star, ShoppingBag, Type, Megaphone,
-  Layers,
-  Layout,
-  CreditCard
+  Image as ImageIcon, Layers, Layout, CreditCard,
+  Mail, MessageSquare, Clock, Globe, HelpCircle
 } from "lucide-react";
 import Link from "next/link";
 import { useBuilderStore } from "@/store/useBuilderStore";
