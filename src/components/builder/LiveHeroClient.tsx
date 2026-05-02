@@ -1,62 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export default function LiveHeroClient({ initialData }: { initialData: any }) {
-  const [data, setData] = useState({
-    title: initialData?.title || `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
-    subtitle: initialData?.subtitle || "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
-    buttonText: initialData?.buttonText || "KOLEKSİYONU KEŞFET",
-    imageUrl: initialData?.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
-    customCss: initialData?.customCss || ""
-  });
-
-  useEffect(() => {
-    if (initialData) {
-      setData({
-        title: initialData.title || "",
-        subtitle: initialData.subtitle || "",
-        buttonText: initialData.buttonText || "",
-        imageUrl: initialData.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
-        customCss: initialData.customCss || ""
-      });
-    }
-  }, [initialData]);
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "BUILDER_SYNC") {
-        const myBlock = event.data.blocks?.find((b: any) => b.type === "Hero");
-        if (myBlock && myBlock.content) {
-          setData(prev => ({ ...prev, ...myBlock.content }));
-        }
-      }
-    };
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  const selectElement = (name: string) => {
-    window.parent.postMessage({ type: "SELECT_ELEMENT", payload: { name } }, "*");
+  const data = {
+    title: initialData?.title || "Zarafetin Adımları",
+    subtitle: initialData?.subtitle || "Premium Deri Koleksiyonu",
+    buttonText: initialData?.buttonText || "Keşfet",
+    backgroundImage: initialData?.backgroundImage || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
+    alignment: initialData?.alignment || "center",
+    overlayOpacity: initialData?.overlayOpacity ?? 40
   };
+
+  const alignmentClass = {
+    left: "text-left items-start",
+    center: "text-center items-center",
+    right: "text-right items-end"
+  }[data.alignment as "left" | "center" | "right"] || "text-center items-center";
 
   return (
     <section className="relative w-full h-[90vh] min-h-[600px] flex items-center overflow-hidden">
-      {/* Dynamic CSS Injection */}
-      <style dangerouslySetInnerHTML={{ __html: data.customCss }} />
-      
+      {/* Background & Overlay */}
       <div className="absolute inset-0 z-0 bg-[#1a120b]">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#1a120b]/90 via-[#1a120b]/50 to-[#1a120b]/10 z-10" />
+        <div 
+          className="absolute inset-0 z-10 transition-opacity duration-500" 
+          style={{ backgroundColor: `rgba(26, 18, 11, ${data.overlayOpacity / 100})` }}
+        />
         <img 
-          src={data.imageUrl}
+          src={data.backgroundImage}
           alt="Hero Background"
           className="w-full h-full object-cover object-center scale-[1.02] animate-[scale-up_10s_ease-out_forwards]"
         />
       </div>
 
-      <div className="container relative z-20 mx-auto px-6 lg:px-16 pt-20">
+      <div className={`container relative z-20 mx-auto px-6 lg:px-16 flex flex-col ${alignmentClass}`}>
         <div className="max-w-2xl space-y-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 border border-white/20 rounded-full bg-white/5 backdrop-blur-sm">
             <span className="w-2 h-2 rounded-full bg-[#d4af37] animate-pulse" />
@@ -69,7 +48,7 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
           />
           
           <p 
-            className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md max-w-xl"
+            className="text-xl md:text-2xl text-white/80 font-light leading-relaxed tracking-wide drop-shadow-md"
           >
             {data.subtitle}
           </p>
@@ -77,21 +56,14 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
           <div className="pt-6">
             <Link 
               href="/products" 
-              className="relative overflow-hidden inline-flex bg-[#d4af37] hover:bg-[#c2a373] text-[#1a120b] px-12 py-5 rounded-sm font-bold text-sm tracking-widest transition-all duration-300 shadow-[0_0_40px_-10px_rgba(212,175,55,0.4)] items-center gap-3 group shine-effect"
+              className="relative overflow-hidden inline-flex bg-[#d4af37] hover:bg-[#c2a373] text-[#1a120b] px-12 py-5 rounded-sm font-bold text-sm tracking-widest transition-all duration-300 shadow-xl items-center gap-3"
             >
               <span className="relative z-10 flex items-center gap-3 uppercase">
                 {data.buttonText}
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-4 w-4" />
               </span>
             </Link>
           </div>
-        </div>
-      </div>
-      
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
-        <span className="text-white/50 text-[10px] tracking-widest uppercase">Aşağı Kaydır</span>
-        <div className="w-[1px] h-12 bg-white/20 overflow-hidden relative">
-          <div className="w-full h-1/2 bg-white absolute top-0 animate-[fade-up_2s_infinite]" />
         </div>
       </div>
     </section>

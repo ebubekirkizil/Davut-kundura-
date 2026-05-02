@@ -4,109 +4,105 @@ import { useState, useEffect } from "react";
 import LiveHeroClient from "./LiveHeroClient";
 import ProductCard from "../product/ProductCard";
 
-interface Block {
+interface Section {
   id: string;
   type: string;
-  content: any;
-  order: number;
+  settings: any;
+  blocks: any[];
 }
 
 export default function StorefrontRenderer({ 
-  initialBlocks, 
+  initialSections = [], 
   products = [] 
 }: { 
-  initialBlocks: Block[], 
+  initialSections?: Section[], 
   products?: any[] 
 }) {
-  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
+  const [sections, setSections] = useState<Section[]>(initialSections);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [isBuilderMode, setIsBuilderMode] = useState(false);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "BUILDER_SYNC") {
-        const { blocks: newBlocks, customCss: newCss } = event.data;
-        if (newBlocks) setBlocks(newBlocks);
-        
-        if (newCss !== undefined) {
-          let styleTag = document.getElementById("builder-custom-css");
-          if (!styleTag) {
-            styleTag = document.createElement("style");
-            styleTag.id = "builder-custom-css";
-            document.head.appendChild(styleTag);
-          }
-          styleTag.innerHTML = newCss;
-        }
+        setIsBuilderMode(true);
+        const { page, selectedId: newSelectedId } = event.data;
+        if (page?.sections) setSections(page.sections);
+        setSelectedId(newSelectedId);
       }
     };
 
     window.addEventListener("message", handleMessage);
+    // Tell parent that preview is ready
+    window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
+    
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  const handleSectionClick = (id: string) => {
+    if (!isBuilderMode) return;
+    setSelectedId(id);
+    window.parent.postMessage({ type: "SELECT_SECTION", id }, "*");
+  };
+
   return (
     <div className="flex flex-col w-full overflow-hidden">
-      {blocks.sort((a, b) => a.order - b.order).map((block) => {
-        switch (block.type) {
-          case "Hero":
-            return <LiveHeroClient key={block.id} initialData={block.content} />;
-          
-          case "ProductGrid":
-            return (
-              <section key={block.id} className="container mx-auto px-6 lg:px-16 py-20">
-                 <div className="flex flex-col items-center mb-12">
-                   <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-[0.3em] mb-3">Koleksiyonlar</span>
-                   <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#1a120b] text-center">{block.content?.title || "Öne Çıkan Ürünler"}</h2>
-                   <div className="w-12 h-[2px] bg-[#d4af37] mt-4"></div>
-                 </div>
-                 
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
-                    {products.slice(0, block.content?.limit || 4).map(product => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                    {products.length === 0 && [1,2,3,4].map(i => (
-                      <div key={i} className="aspect-[3/4] bg-slate-100 rounded-xl animate-pulse flex items-center justify-center">
-                        <span className="text-[10px] text-gray-300 font-bold tracking-widest uppercase">Ürün Bekleniyor</span>
-                      </div>
-                    ))}
-                 </div>
-              </section>
-            );
+      {sections.map((section) => {
+        const isSelected = selectedId === section.id;
+        
+        const renderContent = () => {
+          switch (section.type) {
+            case "hero":
+              return <LiveHeroClient key={section.id} initialData={section.settings} />;
+            
+            case "productGrid":
+              return (
+                <section key={section.id} className="container mx-auto px-6 lg:px-16 py-20">
+                   <div className="flex flex-col items-center mb-12">
+                     <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-[0.3em] mb-3">Koleksiyonlar</span>
+                     <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#1a120b] text-center">{section.settings?.title || "Öne Çıkan Ürünler"}</h2>
+                     <div className="w-12 h-[2px] bg-[#d4af37] mt-4"></div>
+                   </div>
+                   
+                   <div className={`grid gap-x-8 gap-y-12 grid-cols-2 md:grid-cols-${section.settings?.columns || 4}`}>
+                      {products.slice(0, section.settings?.limit || 4).map(product => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                   </div>
+                </section>
+              );
 
-          case "Video":
-            return (
-              <section key={block.id} className="relative w-full h-[70vh] bg-black overflow-hidden flex items-center justify-center">
-                 <div className="absolute inset-0 opacity-40">
-                   <div className="w-full h-full bg-[#1a120b]" />
-                 </div>
-                 <div className="relative z-10 text-white text-center max-w-3xl px-6">
-                    <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-[0.3em] mb-4 block">Mağazamızı Tanıyın</span>
-                    <h2 className="text-4xl md:text-6xl font-serif font-bold mb-8 italic leading-tight">{block.content?.title || "Hikayemiz"}</h2>
-                    <div className="w-20 h-20 border-2 border-white/30 rounded-full mx-auto flex items-center justify-center cursor-pointer hover:scale-110 hover:border-white transition-all group">
-                       <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[15px] border-l-white border-b-[10px] border-b-transparent ml-1" />
+            case "richText":
+               return (
+                 <section key={section.id} className="container mx-auto px-6 lg:px-16 py-32 text-center bg-white border-y border-gray-50">
+                    <div className="max-w-4xl mx-auto space-y-8">
+                       <h2 className="text-4xl md:text-6xl font-serif font-bold text-[#1a120b] leading-tight italic">{section.settings?.title}</h2>
+                       <p className="text-[#6d7175] text-xl md:text-2xl font-light leading-relaxed tracking-wide italic">
+                          "{section.settings?.content}"
+                       </p>
                     </div>
-                 </div>
-              </section>
-            );
+                 </section>
+               );
 
-          case "RichText":
-             return (
-               <section key={block.id} className="container mx-auto px-6 lg:px-16 py-32 text-center bg-white border-y border-gray-50">
-                  <div className="max-w-4xl mx-auto space-y-8">
-                     <h2 className="text-4xl md:text-6xl font-serif font-bold text-[#1a120b] leading-tight italic">{block.content?.title || "Zanaat ve Tutku"}</h2>
-                     <p className="text-[#6d7175] text-xl md:text-2xl font-light leading-relaxed tracking-wide italic">
-                        "{block.content?.text || "Her bir ürünümüzde yılların deneyimini ve zanaatkarlığın ruhunu bulacaksınız. Davut Kundura, konforu lüksle harmanlıyor."}"
-                     </p>
-                     <div className="flex items-center justify-center gap-4 pt-4">
-                       <div className="h-[1px] w-12 bg-[#d4af37]"></div>
-                       <span className="font-serif italic text-[#d4af37]">Est. 1978</span>
-                       <div className="h-[1px] w-12 bg-[#d4af37]"></div>
-                     </div>
-                  </div>
-               </section>
-             );
+            default:
+              return <div key={section.id} className="p-10 border border-dashed text-center">Bölüm: {section.type}</div>;
+          }
+        };
 
-          default:
-            return <div key={block.id} className="p-10 border border-dashed text-center text-gray-300 text-xs tracking-widest uppercase">Tanımlanmamış Bölüm: {block.type}</div>;
-        }
+        return (
+          <div 
+            key={section.id}
+            onClick={() => handleSectionClick(section.id)}
+            className={`relative group cursor-pointer transition-all ${isBuilderMode ? 'hover:outline hover:outline-2 hover:outline-[#008060] hover:outline-offset-[-2px]' : ''} ${isSelected ? 'outline outline-2 outline-[#008060] outline-offset-[-2px] z-50' : ''}`}
+          >
+            {isBuilderMode && (
+              <div className={`absolute top-0 left-0 bg-[#008060] text-white text-[10px] font-bold px-2 py-1 z-[100] transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
+                {section.type.toUpperCase()}
+              </div>
+            )}
+            {renderContent()}
+          </div>
+        );
       })}
     </div>
   );
