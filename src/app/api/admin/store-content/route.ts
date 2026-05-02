@@ -30,7 +30,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { heroTitle, heroSubtitle, buttonText, buttonLink } = body;
+    const { heroTitle, heroSubtitle, buttonText, buttonLink, customCss } = body;
 
     // Create or update the 'home' page
     const page = await prisma.storePage.upsert({
@@ -59,7 +59,8 @@ export async function POST(req: Request) {
           heroTitle: heroTitle || "İtalyan Zarafeti, Davut Kundura İmzası",
           heroSubtitle: heroSubtitle || "1998'den beri el işçiliği ile üretilen premium koleksiyon.",
           buttonText: buttonText || "Koleksiyonu İncele",
-          buttonLink: buttonLink || "/products"
+          buttonLink: buttonLink || "/products",
+          customCss: customCss || ""
         },
         style: {}
       }

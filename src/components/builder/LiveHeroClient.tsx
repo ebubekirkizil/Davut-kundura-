@@ -9,7 +9,8 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
     title: initialData?.heroTitle || `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
     subtitle: initialData?.heroSubtitle || "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
     buttonText: initialData?.buttonText || "KOLEKSİYONU KEŞFET",
-    imageUrl: initialData?.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop"
+    imageUrl: initialData?.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
+    customCss: initialData?.customCss || ""
   });
 
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
 
   return (
     <section className="relative w-full h-[90vh] min-h-[600px] flex items-center overflow-hidden">
+      {/* Dynamic CSS Injection */}
+      <style dangerouslySetInnerHTML={{ __html: data.customCss }} />
+      
       <div className="absolute inset-0 z-0 bg-[#1a120b]">
         <div className="absolute inset-0 bg-gradient-to-r from-[#1a120b]/90 via-[#1a120b]/50 to-[#1a120b]/10 z-10" />
         <img 
