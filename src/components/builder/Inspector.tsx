@@ -13,13 +13,13 @@ export const Inspector: React.FC = () => {
   
   if (!selectedSection) {
     return (
-      <div className="h-full flex flex-col items-center justify-center text-center p-10">
-        <div className="w-20 h-20 bg-[#f6f6f7] rounded-full flex items-center justify-center mb-6">
-          <Settings size={32} className="text-gray-300" />
+      <div className="h-full flex flex-col items-center justify-center text-center p-10 bg-[var(--p-bg)]">
+        <div className="w-16 h-16 bg-white rounded-2xl shadow-[var(--p-shadow-100)] flex items-center justify-center mb-6">
+          <Settings size={28} className="text-gray-300" />
         </div>
-        <h3 className="text-sm font-bold text-gray-600 mb-2">Düzenlemek İçin Seçin</h3>
-        <p className="text-[12px] text-gray-400 leading-relaxed max-w-[200px]">
-          Sol menüden bir bölüm seçin veya önizleme üzerinde bir öğeye tıklayın.
+        <h3 className="text-sm font-semibold text-[var(--p-text)] mb-2">Bölüm seçin</h3>
+        <p className="text-[13px] text-gray-500 leading-relaxed max-w-[220px]">
+          Düzenlemek istediğiniz bölümü seçerek ayarlarını burada görebilirsiniz.
         </p>
       </div>
     );
@@ -34,54 +34,50 @@ export const Inspector: React.FC = () => {
       updateSection(activePage, selectedSection.id, { [setting.id]: newValue });
     };
 
-    switch (setting.type) {
-      case "text":
-        return (
-          <div key={setting.id} className="space-y-1.5">
-            <label className="text-[12px] font-semibold">{setting.label}</label>
+    return (
+      <div key={setting.id} className="space-y-1.5">
+        <div className="flex justify-between items-center">
+          <label className="text-[13px] font-medium text-[var(--p-text)]">{setting.label}</label>
+          {(setting.type === "range" || setting.type === "number") && (
+            <span className="text-[12px] text-gray-500">{value}</span>
+          )}
+        </div>
+
+        {setting.type === "text" && (
+          <input 
+            type="text" 
+            className="w-full px-3 py-1.5 text-[14px] bg-white border border-[var(--p-border)] rounded-[var(--p-radius)] focus:border-[var(--p-green)] focus:ring-[1px] focus:ring-[var(--p-green)] outline-none transition-all shadow-sm"
+            value={value}
+            onChange={(e) => handleChange(e.target.value)}
+          />
+        )}
+
+        {setting.type === "textarea" && (
+          <textarea 
+            className="w-full px-3 py-2 text-[14px] bg-white border border-[var(--p-border)] rounded-[var(--p-radius)] focus:border-[var(--p-green)] focus:ring-[1px] focus:ring-[var(--p-green)] outline-none min-h-[100px] resize-none transition-all shadow-sm"
+            value={value}
+            onChange={(e) => handleChange(e.target.value)}
+          />
+        )}
+
+        {setting.type === "range" && (
+          <div className="pt-2">
             <input 
-              type="text" 
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#008060] outline-none"
+              type="range" 
+              min={setting.min ?? 0} 
+              max={setting.max ?? 100} 
+              step={setting.step ?? 1}
+              className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[var(--p-green)]"
               value={value}
-              onChange={(e) => handleChange(e.target.value)}
+              onChange={(e) => handleChange(parseInt(e.target.value))}
             />
           </div>
-        );
-      case "textarea":
-        return (
-          <div key={setting.id} className="space-y-1.5">
-            <label className="text-[12px] font-semibold">{setting.label}</label>
-            <textarea 
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#008060] outline-none min-h-[100px] resize-none"
-              value={value}
-              onChange={(e) => handleChange(e.target.value)}
-            />
-          </div>
-        );
-      case "range":
-        return (
-          <div key={setting.id} className="space-y-1.5">
-            <label className="text-[12px] font-semibold">{setting.label}</label>
-            <div className="flex items-center gap-4">
-              <input 
-                type="range" 
-                min={setting.min ?? 0} 
-                max={setting.max ?? 100} 
-                step={setting.step ?? 1}
-                className="flex-1 h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-[#008060]"
-                value={value}
-                onChange={(e) => handleChange(parseInt(e.target.value))}
-              />
-              <span className="text-xs font-bold w-6">{value}</span>
-            </div>
-          </div>
-        );
-      case "select":
-        return (
-          <div key={setting.id} className="space-y-1.5">
-            <label className="text-[12px] font-semibold">{setting.label}</label>
+        )}
+
+        {setting.type === "select" && (
+          <div className="relative">
             <select 
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-1 focus:ring-[#008060] outline-none bg-white"
+              className="w-full px-3 py-1.5 text-[14px] bg-white border border-[var(--p-border)] rounded-[var(--p-radius)] focus:border-[var(--p-green)] focus:ring-[1px] focus:ring-[var(--p-green)] outline-none appearance-none cursor-pointer shadow-sm"
               value={value}
               onChange={(e) => handleChange(e.target.value)}
             >
@@ -90,64 +86,73 @@ export const Inspector: React.FC = () => {
               ))}
             </select>
           </div>
-        );
-      case "image":
-        return (
-          <div key={setting.id} className="space-y-1.5">
-            <label className="text-[12px] font-semibold">{setting.label}</label>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 cursor-pointer transition-colors">
-              <ImageIcon className="text-gray-300 mb-2" size={32} />
-              <span className="text-[11px] font-medium text-blue-600">Görsel Seç</span>
+        )}
+
+        {setting.type === "image" && (
+          <div className="space-y-2">
+            <div className="border border-[var(--p-border)] rounded-[var(--p-radius)] p-1 bg-[var(--p-bg)] hover:bg-gray-100 cursor-pointer transition-all">
+              <div className="bg-white rounded-[var(--p-radius)] p-4 flex flex-col items-center justify-center border border-dashed border-gray-300">
+                {value ? (
+                  <img src={value} alt="Preview" className="w-full h-24 object-contain rounded-sm mb-2" />
+                ) : (
+                  <ImageIcon className="text-gray-300 mb-2" size={24} />
+                )}
+                <span className="text-[12px] font-medium text-[var(--p-green)]">Görsel seç</span>
+              </div>
             </div>
             <input 
               type="text" 
-              placeholder="Veya URL yapıştırın..."
-              className="w-full px-3 py-2 mt-2 text-xs border border-gray-300 rounded-md outline-none"
+              placeholder="URL veya ID..."
+              className="w-full px-3 py-1.5 text-[12px] bg-white border border-[var(--p-border)] rounded-[var(--p-radius)] outline-none"
               value={value}
               onChange={(e) => handleChange(e.target.value)}
             />
           </div>
-        );
-      default:
-        return null;
-    }
+        )}
+      </div>
+    );
   };
 
   return (
-    <div className="h-full flex flex-col animate-in slide-in-from-right duration-200">
-      <div className="p-4 border-b border-[#d2d2d2] flex items-center justify-between bg-white sticky top-0 z-10">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Düzenleme</span>
-          <span className="font-bold text-[14px]">{schema?.label || selectedSection.type} Bölümü</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <button 
-            onClick={() => removeSection(activePage, selectedSection.id)} 
-            className="p-2 hover:bg-red-50 text-red-500 rounded-full transition-colors"
-          >
-            <Trash2 size={16} />
+    <div className="h-full flex flex-col bg-[var(--p-bg)] animate-in slide-in-from-right duration-200">
+      {/* Header */}
+      <div className="p-4 border-b border-[var(--p-border)] flex items-center justify-between bg-white shadow-sm">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setSelectedId(null)} className="p-1.5 hover:bg-gray-100 rounded-md transition-colors">
+            <X size={16} className="text-gray-500" />
           </button>
-          <button onClick={() => setSelectedId(null)} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <X size={18} />
-          </button>
+          <span className="font-semibold text-[14px] text-[var(--p-text)]">{schema?.label || selectedSection.type}</span>
         </div>
+        <button 
+          onClick={() => removeSection(activePage, selectedSection.id)} 
+          className="p-1.5 hover:bg-red-50 text-red-500 rounded-md transition-colors"
+          title="Bölümü Sil"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5 space-y-8">
-        <div className="space-y-6">
-          <h3 className="text-[12px] font-bold text-gray-400 uppercase tracking-widest pb-1 border-b">İçerik</h3>
-          {schema?.settings.map(renderSetting)}
-        </div>
+      {/* Settings List */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 space-y-6">
+          <div className="bg-white rounded-xl shadow-[var(--p-shadow-100)] border border-[var(--p-border)] p-4 space-y-5">
+            {schema?.settings.map(renderSetting)}
+          </div>
 
-        <div className="space-y-6 pt-4 border-t border-gray-100">
-          <h3 className="text-[12px] font-bold text-gray-400 uppercase tracking-widest pb-1 border-b">Tasarım</h3>
-          <button className="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-            <div className="flex items-center gap-2">
-              <Settings size={14} className="text-gray-400" />
-              <span>Özel CSS Kodları</span>
+          {/* Style Section */}
+          <div className="space-y-3">
+            <h3 className="px-1 text-[12px] font-semibold text-gray-500 uppercase tracking-wider">Görünüm</h3>
+            <div className="bg-white rounded-xl shadow-[var(--p-shadow-100)] border border-[var(--p-border)] divide-y divide-[var(--p-border)]">
+              <button className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all group text-left">
+                <span className="text-[13px] text-[var(--p-text)]">Kenar boşlukları</span>
+                <ChevronRight size={14} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              </button>
+              <button className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-all group text-left">
+                <span className="text-[13px] text-[var(--p-text)]">Özel CSS</span>
+                <ChevronRight size={14} className="text-gray-400 group-hover:translate-x-0.5 transition-transform" />
+              </button>
             </div>
-            <ChevronRight size={14} className="text-gray-400" />
-          </button>
+          </div>
         </div>
       </div>
     </div>

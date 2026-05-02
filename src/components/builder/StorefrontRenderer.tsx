@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import LiveHeroClient from "./LiveHeroClient";
 import ProductCard from "../product/ProductCard";
+import { SECTION_SCHEMAS } from "@/store/schema";
 
 interface Section {
   id: string;
@@ -93,13 +94,24 @@ export default function StorefrontRenderer({
           <div 
             key={section.id}
             onClick={() => handleSectionClick(section.id)}
-            className={`relative group cursor-pointer transition-all ${isBuilderMode ? 'hover:outline hover:outline-2 hover:outline-[#008060] hover:outline-offset-[-2px]' : ''} ${isSelected ? 'outline outline-2 outline-[#008060] outline-offset-[-2px] z-50' : ''}`}
+            className={`relative group cursor-pointer transition-all duration-200 ${
+              isBuilderMode ? 'hover:ring-2 hover:ring-[#2c6ecb] hover:ring-inset' : ''
+            } ${
+              isSelected ? 'ring-2 ring-[#2c6ecb] ring-inset z-50 bg-[#2c6ecb]/5' : ''
+            }`}
           >
             {isBuilderMode && (
-              <div className={`absolute top-0 left-0 bg-[#008060] text-white text-[10px] font-bold px-2 py-1 z-[100] transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
-                {section.type.toUpperCase()}
+              <div className={`absolute -top-[1px] left-0 right-0 h-[1px] bg-[#2c6ecb] z-[100] transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
+            )}
+            
+            {isBuilderMode && (
+              <div className={`absolute top-0 left-0 bg-[#2c6ecb] text-white text-[10px] font-bold px-2 py-1 z-[100] transition-all shadow-md transform ${
+                isSelected ? 'translate-y-0 opacity-100' : '-translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100'
+              }`}>
+                {SECTION_SCHEMAS[section.type]?.label || section.type.toUpperCase()}
               </div>
             )}
+            
             {renderContent()}
           </div>
         );
