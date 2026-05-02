@@ -130,6 +130,12 @@ export default function AdvancedBuilderPage() {
     }
   ];
 
+  const deviceWidths = {
+    desktop: "100%",
+    tablet: "768px",
+    mobile: "375px",
+  };
+
   return (
     <div className="fixed inset-0 z-[100] bg-[#f1f1f1] text-[#202223] flex flex-col font-sans select-none overflow-hidden text-[13px]">
       

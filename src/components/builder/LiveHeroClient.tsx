@@ -14,8 +14,26 @@ export default function LiveHeroClient({ initialData }: { initialData: any }) {
   });
 
   useEffect(() => {
+    if (initialData) {
+      setData({
+        title: initialData.heroTitle || "",
+        subtitle: initialData.heroSubtitle || "",
+        buttonText: initialData.buttonText || "",
+        imageUrl: initialData.imageUrl || "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=2000&auto=format&fit=crop",
+        customCss: initialData.customCss || ""
+      });
+    }
+  }, [initialData]);
+
+  useEffect(() => {
     // Listen for messages from the Shopify-like Builder iframe parent
     const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "BUILDER_SYNC") {
+        const myBlock = event.data.payload.blocks.find((b: any) => b.type === "Hero");
+        if (myBlock && myBlock.content) {
+          setData(prev => ({ ...prev, ...myBlock.content }));
+        }
+      }
       if (event.data?.type === "BUILDER_UPDATE") {
         setData(prev => ({ ...prev, ...event.data.payload }));
       }
