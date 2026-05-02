@@ -5,7 +5,7 @@ import {
   Monitor, Smartphone, Tablet, Save, LayoutTemplate, 
   Settings, Plus, Layers, Image as ImageIcon,
   Type, MousePointer2, Paintbrush, ChevronRight, CheckCircle2,
-  RefreshCw, Loader2, ArrowLeft, Globe, ShoppingBag
+  RefreshCw, Loader2, ArrowLeft, Globe, ShoppingBag, AlignLeft
 } from "lucide-react";
 import Link from "next/link";
 
