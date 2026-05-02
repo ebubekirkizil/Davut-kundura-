@@ -6,7 +6,7 @@ import {
   Palette, Type, FileImage, Settings, Plus, LayoutGrid, 
   AlignLeft, ArrowLeft, Paintbrush, Play, Layers, MousePointer2,
   BoxSelect, Move, Type as TypeIcon, Image as ImageIcon, Video, 
-  List, Sliders, ChevronDown, AlignCenter, AlignRight, Component
+  List, Sliders, ChevronDown, AlignCenter, AlignRight, Component, Search
 } from "lucide-react";
 import Link from "next/link";
 
