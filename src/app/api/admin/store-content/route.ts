@@ -1,73 +1,68 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-
+// GET: Fetch all blocks for the home page
 export async function GET() {
   try {
-    // Check if the home page exists
-    let homePage = await prisma.storePage.findUnique({
+    const page = await prisma.storePage.findUnique({
       where: { slug: "home" },
-      include: { blocks: true },
+      include: {
+        blocks: {
+          orderBy: { order: "asc" }
+        }
+      }
     });
 
-    if (!homePage) {
-       return NextResponse.json({ 
-         success: true, 
-         data: {
-           title: "Davut Kundura",
-           blocks: []
-         }
-       });
-    }
-
-    return NextResponse.json({ success: true, data: homePage });
+    return NextResponse.json({ success: true, data: page });
   } catch (error) {
-    return NextResponse.json({ success: false, error: "Veriler alınamadı" }, { status: 500 });
+    return NextResponse.json({ success: false, error: "Veri çekilemedi" }, { status: 500 });
   }
 }
 
+// POST: Sync all blocks (replaces or updates existing ones)
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { heroTitle, heroSubtitle, buttonText, buttonLink, customCss } = body;
+    const { blocks, customCss } = body; // Expected: Array of block objects [{type, content, order}, ...]
 
-    // Create or update the 'home' page
+    // 1. Get or create the 'home' page
     const page = await prisma.storePage.upsert({
       where: { slug: "home" },
       update: { title: "Ana Sayfa" },
-      create: {
-        slug: "home",
-        title: "Ana Sayfa",
-        isPublished: true,
-      }
+      create: { title: "Ana Sayfa", slug: "home", type: "HOME" }
     });
 
-    // We will save the Hero data as a StoreBlock
-    // First, clear existing Hero block for home page
+    // 2. Delete existing blocks for this page to perform a clean sync
+    // (In a more advanced version, we would upsert by ID)
     await prisma.storeBlock.deleteMany({
-      where: { pageId: page.id, type: "Hero" }
+      where: { pageId: page.id }
     });
 
-    // Create new Hero block
-    await prisma.storeBlock.create({
-      data: {
-        pageId: page.id,
-        type: "Hero",
-        order: 1,
-        content: {
-          heroTitle: heroTitle || "İtalyan Zarafeti, Davut Kundura İmzası",
-          heroSubtitle: heroSubtitle || "1998'den beri el işçiliği ile üretilen premium koleksiyon.",
-          buttonText: buttonText || "Koleksiyonu İncele",
-          buttonLink: buttonLink || "/products",
-          customCss: customCss || ""
-        },
-        style: {}
-      }
-    });
+    // 3. Create new blocks
+    if (blocks && Array.isArray(blocks)) {
+      await prisma.storeBlock.createMany({
+        data: blocks.map((block: any, index: number) => ({
+          pageId: page.id,
+          type: block.type,
+          order: index,
+          content: block.content || {},
+          style: block.style || {}
+        }))
+      });
+    }
 
-    return NextResponse.json({ success: true, message: "Canlı site güncellendi!" });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    // 4. Save Custom CSS globally if provided (using SiteSettings or Page meta)
+    if (customCss !== undefined) {
+      await prisma.siteSettings.upsert({
+        where: { key: "custom_css" },
+        update: { value: customCss },
+        create: { key: "custom_css", value: customCss }
+      });
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Save error:", error);
+    return NextResponse.json({ success: false, error: "Kaydedilemedi" }, { status: 500 });
   }
 }
