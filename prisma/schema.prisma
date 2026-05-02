@@ -32,6 +32,8 @@ model User {
   addresses     Address[]
   wishlistItems WishlistItem[]
   reviews       Review[]
+  supportTickets SupportTicket[]
+  b2bContact    B2BCompany?    @relation("B2BUser")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -138,6 +140,7 @@ model Product {
   inventory       InventoryTransaction[]
   reviews         Review[]
   wishlistItems   WishlistItem[]
+  productionOrders ProductionOrder[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -156,6 +159,7 @@ model ProductVariant {
   imageUrl   String?
 
   orderItems OrderItem[]
+  warehouseStocks WarehouseStock[]
 }
 
 // ─────────────────────────────────────────────
@@ -211,6 +215,7 @@ model Order {
   
   items           OrderItem[]
   invoice         Invoice?
+  supportTickets  SupportTicket[]
   
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
