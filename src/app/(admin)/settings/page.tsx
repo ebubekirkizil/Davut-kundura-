@@ -48,14 +48,6 @@ export default function SettingsCMSPage() {
     }
   }
 
-  // CMS ayarları state'leri
-  const [cmsLoading, setCmsLoading] = useState(false);
-  const [heroTitle, setHeroTitle] = useState("Konfor ve Tarz Bir Arada.");
-  const [heroSubtitle, setHeroSubtitle] = useState("Günlük Kullanıma Uygun Deri Ayakkabılar.");
-  const [phone, setPhone] = useState("+90 (555) 123 45 67");
-  const [email, setEmail] = useState("info@davutkundura.com");
-  const [address, setAddress] = useState("Merkez Mah. Ayakkabıcılar Çarşısı No:45 İstanbul");
-
   async function saveCMS() {
     setCmsLoading(true);
     await new Promise(r => setTimeout(r, 800)); // Simülasyon
@@ -97,8 +89,8 @@ export default function SettingsCMSPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-8">
+        <div className="space-y-6">
 
           {/* ─── Hesap & Güvenlik ─── */}
           <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
@@ -291,73 +283,6 @@ export default function SettingsCMSPage() {
             </div>
           </div>
 
-          {/* ─── Hero Section Edit ─── */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-2 mb-6 text-primary border-b border-slate-100 pb-4">
-              <Store className="h-5 w-5" />
-              <h2 className="font-semibold text-lg">Ana Sayfa Karşılama Ekranı (Hero)</h2>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ana Başlık</label>
-                <input type="text" value={heroTitle} onChange={e => setHeroTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Alt Başlık</label>
-                <input type="text" value={heroSubtitle} onChange={e => setHeroSubtitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none" />
-              </div>
-            </div>
-          </div>
-
-          {/* ─── İletişim ─── */}
-          <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-6">
-            <div className="flex items-center gap-2 mb-6 text-primary border-b border-slate-100 pb-4">
-              <Globe className="h-5 w-5" />
-              <h2 className="font-semibold text-lg">İletişim Bilgileri (Footer)</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Telefon</label>
-                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-md text-sm outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">E-Posta</label>
-                <input type="text" value={email} onChange={e => setEmail(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-md text-sm outline-none" />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 mb-1">Adres</label>
-                <input type="text" value={address} onChange={e => setAddress(e.target.value)}
-                  className="w-full px-4 py-2 border border-slate-300 rounded-md text-sm outline-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Önizleme */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-8 bg-slate-900 rounded-3xl p-4 shadow-xl border-4 border-slate-800 h-[500px] flex flex-col overflow-hidden relative">
-            <div className="flex justify-center mb-4">
-              <div className="h-4 w-32 bg-slate-800 rounded-bl-xl rounded-br-xl absolute top-0" />
-            </div>
-            <div className="bg-foreground flex-1 rounded-2xl overflow-hidden relative mt-4">
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1510443900742-c51000bb7097?q=80&w=400&auto=format&fit=crop')] bg-cover bg-center opacity-50" />
-              <div className="absolute inset-x-0 bottom-0 z-20 p-6">
-                <h2 className="text-white font-serif font-bold text-xl leading-tight mb-1">{heroTitle}</h2>
-                <p className="text-slate-300 text-[11px] mb-4">{heroSubtitle}</p>
-                <button className="bg-amber-600 text-white text-[12px] font-medium px-4 py-2 rounded-full w-full">
-                  Koleksiyonu Keşfet
-                </button>
-              </div>
-            </div>
-            <div className="mt-3 flex justify-center items-center text-white/50 text-xs gap-1">
-              <Smartphone className="h-3.5 w-3.5" /> Canlı Önizleme
-            </div>
-          </div>
         </div>
       </div>
     </div>

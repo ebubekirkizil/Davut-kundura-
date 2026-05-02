@@ -83,7 +83,7 @@ export default function AdminShopifyLayout({
              }`}
           >
             <Activity className="h-[18px] w-[18px]" />
-            <span className="text-[14px]">Canlı İzleme</span>
+            <span className="text-[14px]">Canlı Analiz</span>
             <span className="ml-auto flex items-center gap-1">
               <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
             </span>
