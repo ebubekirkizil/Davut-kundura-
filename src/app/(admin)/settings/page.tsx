@@ -71,22 +71,13 @@ export default function SettingsCMSPage() {
   return (
     <div className="space-y-8 max-w-7xl mx-auto pb-12">
       
-      {/* Başlık */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-primary">Mağaza Ayarları</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Vitrin içeriklerini ve hesap ayarlarınızı buradan yönetin.
+            Hesap ayarlarınızı ve kurumsal ERP özelliklerini buradan yönetin.
           </p>
         </div>
-        <button
-          onClick={saveCMS}
-          disabled={cmsLoading}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-md font-medium transition-colors shadow-sm disabled:opacity-60"
-        >
-          {cmsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Değişiklikleri Yayınla
-        </button>
       </div>
 
       <div className="grid grid-cols-1 gap-8">
