@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   ArrowLeft, ChevronDown, Monitor, Smartphone, 
   Plus, X, Search, Settings, Eye, Box, 
-  GripVertical, Star, ShoppingBag, Type, Megaphone,
+  GripVertical, Star, ShoppingBag, Type, Bell,
   Image as ImageIcon, Layers, Layout, CreditCard,
   Mail, MessageSquare, Clock, Globe, HelpCircle
 } from "lucide-react";
@@ -297,7 +297,7 @@ export default function ShopifyProfessionalBuilder() {
                   { id: 'images', label: 'Görsel & Video', icon: <ImageIcon size={16} /> },
                   { id: 'products', label: 'Ürünler', icon: <ShoppingBag size={16} /> },
                   { id: 'text', label: 'Yazı & İçerik', icon: <Type size={16} /> },
-                  { id: 'marketing', label: 'Pazarlama', icon: <Megaphone size={16} /> },
+                  { id: 'marketing', label: 'Pazarlama', icon: <Bell size={16} /> },
                 ].map(cat => (
                   <button key={cat.id} className={`w-full flex items-center gap-3 px-3 py-2.5 text-[13px] rounded-lg transition-all ${cat.id === 'popular' ? 'bg-white shadow-sm font-bold text-[var(--p-blue)]' : 'text-gray-600 hover:bg-gray-200'}`}>
                     {cat.icon}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star, Instagram } from "lucide-react";
+import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star, Camera } from "lucide-react";
 import LiveHeroClient from "./LiveHeroClient";
 import ProductCard from "../product/ProductCard";
 import { SECTION_SCHEMAS } from "@/store/schema";
@@ -142,7 +142,7 @@ export default function StorefrontRenderer({
                     <div className="container mx-auto px-6 mb-12 text-center">
                        <h2 className="text-3xl font-bold mb-4">{section.settings?.title}</h2>
                        <div className="flex items-center justify-center gap-2 text-[var(--p-blue)] font-bold">
-                          <Instagram size={20} />
+                          <Camera size={20} />
                           <span>@davutkundura</span>
                        </div>
                     </div>
@@ -150,7 +150,7 @@ export default function StorefrontRenderer({
                        {[1,2,3,4,5,6].map(i => (
                          <div key={i} className="aspect-square bg-gray-100 relative group overflow-hidden cursor-pointer">
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                               <Instagram size={24} />
+                               <Camera size={24} />
                             </div>
                          </div>
                        ))}
