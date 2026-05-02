@@ -63,6 +63,7 @@ interface BuilderState {
   updateBlock: (page: string, sectionId: string, blockId: string, settings: Record<string, any>) => void;
   
   updateThemeSettings: (settings: Partial<ThemeSettings>) => void;
+  resetState: () => void;
 }
 
 /**
@@ -243,7 +244,60 @@ export const useBuilderStore = create<BuilderState>()(
 
       updateThemeSettings: (newSettings) => set((state) => ({
         themeSettings: { ...state.themeSettings, ...newSettings }
-      }))
+      })),
+
+      resetState: () => set({
+        pages: {
+          index: {
+            sections: [
+              {
+                id: "header-1",
+                type: "header",
+                settings: {
+                  logoText: "DAVUT KUNDURA",
+                  logoSize: 24,
+                  menu1: "ANA SAYFA", link1: "/",
+                  menu2: "ERKEK", link2: "/collections/erkek",
+                  menu3: "KADIN", link3: "/collections/kadin",
+                  menu4: "KOLEKSİYON", link4: "/collections/all",
+                  sticky: true
+                },
+                blocks: []
+              },
+              {
+                id: "hero-1",
+                type: "hero",
+                settings: {
+                  title: "Zarafetin Adımları",
+                  subtitle: "Premium Deri Koleksiyonu",
+                  buttonText: "Keşfet",
+                  alignment: "center",
+                  overlayOpacity: 40
+                },
+                blocks: []
+              },
+              {
+                id: "footer-1",
+                type: "footer",
+                settings: {
+                  topBarText: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO",
+                  footerLogo: "DAVUT KUNDURA",
+                  footerAbout: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri, özel yapım kemerler ve profesyonel ayakkabı bakım ürünlerinde güvenilir adresiniz.",
+                  address: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul, Türkiye",
+                  phone: "+90 (555) 123 45 67",
+                  email: "info@davutkundura.com"
+                },
+                blocks: []
+              }
+            ]
+          },
+          products: { sections: [] },
+          collections: { sections: [] }
+        },
+        selectedId: null,
+        activePage: "index",
+        viewMode: "desktop"
+      })
     }),
     {
       name: "davut-builder-storage"

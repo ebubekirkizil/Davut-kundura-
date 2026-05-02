@@ -6,7 +6,7 @@ import {
   Plus, X, Search, Settings, Eye, Box, 
   GripVertical, Star, ShoppingBag, Type, Bell,
   Image as ImageIcon, Layers, Layout, CreditCard,
-  Mail, MessageSquare, Clock, Globe, HelpCircle
+  Mail, MessageSquare, Clock, Globe, HelpCircle, RefreshCw
 } from "lucide-react";
 import Link from "next/link";
 import { useBuilderStore } from "@/store/useBuilderStore";
@@ -28,7 +28,10 @@ export default function ShopifyProfessionalBuilder() {
     setActivePage,
     setSelectedId,
     setViewMode,
-    addSection
+    addSection,
+    removeSection,
+    reorderSections,
+    resetState
   } = useBuilderStore();
 
   const [isSaving, setIsSaving] = useState(false);
@@ -164,6 +167,19 @@ export default function ShopifyProfessionalBuilder() {
             <span className="text-[13px] text-gray-600 font-medium group-hover:text-[var(--p-text)]">Ana Sayfa</span>
             <ChevronDown size={14} className="text-gray-400 group-hover:text-gray-600" />
           </div>
+
+          <button 
+            onClick={() => {
+              if(confirm("Tüm sayfa içeriği sıfırlanacak ve yeni profesyonel şablon yüklenecek. Emin misiniz?")) {
+                resetState();
+                window.location.reload(); // Sayfayı yenileyerek temiz bir başlangıç yapalım
+              }
+            }}
+            className="flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold text-[var(--p-blue)] hover:bg-blue-50 rounded-lg transition-all border border-blue-100 uppercase tracking-widest"
+          >
+            <RefreshCw size={14} />
+            Sistemi Güncelle
+          </button>
         </div>
 
         {/* Device Toggles */}
