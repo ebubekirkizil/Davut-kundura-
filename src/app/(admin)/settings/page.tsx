@@ -345,7 +345,7 @@ export default function SettingsCMSPage() {
             </div>
             <div className="bg-foreground flex-1 rounded-2xl overflow-hidden relative mt-4">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-              <img src="https://images.unsplash.com/photo-1510443900742-c51000bb7097?q=80&w=400&auto=format&fit=crop" className="opacity-50 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1510443900742-c51000bb7097?q=80&w=400&auto=format&fit=crop')] bg-cover bg-center opacity-50" />
               <div className="absolute inset-x-0 bottom-0 z-20 p-6">
                 <h2 className="text-white font-serif font-bold text-xl leading-tight mb-1">{heroTitle}</h2>
                 <p className="text-slate-300 text-[11px] mb-4">{heroSubtitle}</p>

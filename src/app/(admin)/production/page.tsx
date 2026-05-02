@@ -42,7 +42,7 @@ export default function ProductionDashboard() {
   const [items, setItems] = useState<ProductionItem[]>(initialProductionItems);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const stages: { key: ProductionStage; label: string; color: string; icon: any }[] = [
+  const stages: { key: ProductionStage; label: string; color: string; icon: React.ElementType }[] = [
     { key: "PLANNING", label: "1. Planlama", color: "bg-slate-100 border-slate-300 text-slate-700", icon: Clock },
     { key: "CUTTING", label: "2. Kesim", color: "bg-orange-50 border-orange-200 text-orange-700", icon: Scissors },
     { key: "SEWING", label: "3. Dikim", color: "bg-blue-50 border-blue-200 text-blue-700", icon: Factory },

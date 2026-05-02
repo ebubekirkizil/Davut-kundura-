@@ -284,12 +284,8 @@ export default function AdvancedBuilderPage() {
         </aside>
 
         {/* Center Canvas (Visual Builder Grid) */}
-        <div className="flex-1 bg-[#0a0a0a] flex flex-col relative overflow-hidden dotted-bg">
+        <div className="flex-1 bg-[#0a0a0a] flex flex-col relative overflow-hidden">
           <style dangerouslySetInnerHTML={{__html: `
-            .dotted-bg {
-              background-image: radial-gradient(#2a2a2a 1px, transparent 1px);
-              background-size: 20px 20px;
-            }
             .custom-scrollbar::-webkit-scrollbar { width: 4px; }
             .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 4px; }
@@ -320,7 +316,7 @@ export default function AdvancedBuilderPage() {
               {/* Mockup of a deeply styled element in the builder */}
               <div className="w-full h-[600px] relative overflow-hidden bg-[#111] group">
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
-                <img src="/api/placeholder/1920/1080" alt="Hero" className="w-full h-full object-cover opacity-60 mix-blend-overlay scale-105" />
+                <div className="absolute inset-0 opacity-60 mix-blend-overlay scale-105 bg-[url('/api/placeholder/1920/1080')] bg-cover bg-center"></div>
                 
                 <div className="absolute inset-0 z-20 flex flex-col justify-center items-center text-center p-8">
                   {/* Selected Element Simulation */}
