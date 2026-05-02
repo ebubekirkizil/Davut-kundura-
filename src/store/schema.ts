@@ -109,8 +109,11 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
     settings: [
       { id: "topBarText", type: "text", label: "Üst Bant Yazısı", default: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO" },
       { id: "footerLogo", type: "text", label: "Alt Logo Metni", default: "DAVUT KUNDURA" },
-      { id: "footerAbout", type: "textarea", label: "Hakkımızda Özeti", default: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri sunuyoruz." },
-      { id: "address", type: "textarea", label: "Adres Bilgisi", default: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul" },
+      { id: "footerAbout", type: "textarea", label: "Hakkımızda Özeti", default: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri, özel yapım kemerler ve profesyonel ayakkabı bakım ürünlerinde güvenilir adresiniz." },
+      { id: "titleMenu", type: "text", label: "Menü Başlığı", default: "HIZLI MENÜ" },
+      { id: "titleCats", type: "text", label: "Kategoriler Başlığı", default: "KATEGORİLER" },
+      { id: "titleContact", type: "text", label: "İletişim Başlığı", default: "İLETİŞİM" },
+      { id: "address", type: "textarea", label: "Adres Bilgisi", default: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul, Türkiye" },
       { id: "phone", type: "text", label: "Telefon", default: "+90 (555) 123 45 67" },
       { id: "email", type: "text", label: "E-posta", default: "info@davutkundura.com" }
     ]

@@ -130,6 +130,9 @@ export const useBuilderStore = create<BuilderState>()(
                 topBarText: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO",
                 footerLogo: "DAVUT KUNDURA",
                 footerAbout: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri, özel yapım kemerler ve profesyonel ayakkabı bakım ürünlerinde güvenilir adresiniz.",
+                titleMenu: "HIZLI MENÜ",
+                titleCats: "KATEGORİLER",
+                titleContact: "İLETİŞİM",
                 address: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul, Türkiye",
                 phone: "+90 (555) 123 45 67",
                 email: "info@davutkundura.com"

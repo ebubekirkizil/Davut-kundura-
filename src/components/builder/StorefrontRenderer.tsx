@@ -13,6 +13,40 @@ interface Section {
   blocks: any[];
 }
 
+// HEADER BILESENI (Hata almamak için dışarıda tanımlandı)
+const HeaderComponent = ({ section }: { section: any }) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header className={`${section.settings?.sticky ? 'sticky top-0 z-[100]' : ''} bg-white border-b border-gray-100 shadow-sm transition-all duration-300 ${isScrolled ? 'h-16' : 'h-24'}`}>
+      <div className="container mx-auto px-6 h-full flex items-center justify-between">
+        <div 
+          className="font-bold tracking-tighter text-[#1a120b] cursor-pointer transition-all duration-300"
+          style={{ fontSize: isScrolled ? '18px' : `${section.settings?.logoSize || 24}px` }}
+        >
+          {isScrolled ? "DK" : section.settings?.logoText}
+        </div>
+        <nav className="hidden lg:flex items-center gap-10">
+          {[1, 2, 3, 4].map(i => (
+            <a key={i} href={section.settings?.[`link${i}`] || "#"} className="text-[12px] font-bold text-[#1a120b] hover:text-[var(--p-blue)] tracking-[0.15em] transition-colors uppercase">
+              {section.settings?.[`menu${i}`]}
+            </a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-6">
+          <Search size={20} className="text-gray-600" />
+          <div className="lg:hidden flex flex-col gap-1"><div className="w-5 h-0.5 bg-black"></div><div className="w-5 h-0.5 bg-black"></div></div>
+        </div>
+      </div>
+    </header>
+  );
+};
+
 export default function StorefrontRenderer({ 
   initialSections = [], 
   products = [] 
@@ -35,9 +69,7 @@ export default function StorefrontRenderer({
     };
 
     window.addEventListener("message", handleMessage);
-    // Tell parent that preview is ready
     window.parent.postMessage({ type: "PREVIEW_READY" }, "*");
-    
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
@@ -54,19 +86,62 @@ export default function StorefrontRenderer({
         
         const renderContent = () => {
           switch (section.type) {
+            case "header":
+              return <HeaderComponent section={section} />;
+            
+            case "footer":
+              return (
+                <footer className="w-full">
+                  <div className="bg-[#1a120b] text-[#f4ecd8] py-4 text-center overflow-hidden">
+                    <div className="container mx-auto px-6 whitespace-nowrap animate-marquee">
+                      <span className="text-[11px] font-bold tracking-[0.3em] uppercase opacity-90">{section.settings?.topBarText}</span>
+                    </div>
+                  </div>
+                  <div className="bg-[#f4ecd8] py-20 px-6 border-t border-black/5">
+                    <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+                      <div className="space-y-6">
+                        <h2 className="text-xl font-serif font-bold text-[#1a120b] tracking-tight leading-tight max-w-[200px] break-words">
+                          {section.settings?.footerLogo}
+                        </h2>
+                        <p className="text-sm text-[#1a120b]/70 leading-relaxed font-medium">{section.settings?.footerAbout}</p>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{section.settings?.titleMenu || "HIZLI MENÜ"}</h4>
+                        <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
+                          <li><a href="#" className="hover:text-black">Tüm Ürünler</a></li>
+                          <li><a href="#" className="hover:text-black">Hakkımızda</a></li>
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{section.settings?.titleCats || "KATEGORİLER"}</h4>
+                        <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
+                          <li><a href="#" className="hover:text-black">Ortopedik Tabanlar</a></li>
+                          <li><a href="#" className="hover:text-black">Deri Kemerler</a></li>
+                        </ul>
+                      </div>
+                      <div className="space-y-6">
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{section.settings?.titleContact || "İLETİŞİM"}</h4>
+                        <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80"><Box size={18} className="shrink-0 opacity-40" /><span>{section.settings?.address}</span></div>
+                        <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80"><Settings size={18} className="shrink-0 opacity-40" /><span>{section.settings?.phone}</span></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-[#f4ecd8] py-8 border-t border-black/5 text-center">
+                    <p className="text-[10px] text-[#1a120b]/40 font-bold uppercase tracking-[0.2em]">© 2026 {section.settings?.footerLogo}. TÜM HAKLARI SAKLIDIR.</p>
+                  </div>
+                </footer>
+              );
+
             case "hero":
               return <LiveHeroClient key={section.id} initialData={section.settings} />;
             
             case "productGrid":
               return (
-                <section key={section.id} className="container mx-auto px-6 lg:px-16 py-20">
+                <section className="container mx-auto px-6 py-20">
                    <div className="flex flex-col items-center mb-12">
-                     <span className="text-[10px] font-bold text-[#d4af37] uppercase tracking-[0.3em] mb-3">Koleksiyonlar</span>
-                     <h2 className="text-4xl md:text-5xl font-serif font-bold text-[#1a120b] text-center">{section.settings?.title || "Öne Çıkan Ürünler"}</h2>
-                     <div className="w-12 h-[2px] bg-[#d4af37] mt-4"></div>
+                     <h2 className="text-4xl font-serif font-bold text-[#1a120b]">{section.settings?.title || "Öne Çıkan Ürünler"}</h2>
                    </div>
-                   
-                   <div className={`grid gap-x-8 gap-y-12 grid-cols-2 md:grid-cols-${section.settings?.columns || 4}`}>
+                   <div className={`grid gap-8 grid-cols-2 md:grid-cols-${section.settings?.columns || 4}`}>
                       {products.slice(0, section.settings?.limit || 4).map(product => (
                         <ProductCard key={product.id} product={product} />
                       ))}
@@ -74,364 +149,18 @@ export default function StorefrontRenderer({
                 </section>
               );
 
-            case "richTextV2":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-24 text-center">
-                    <div className="max-w-2xl mx-auto">
-                       <h2 className="text-4xl font-serif font-bold mb-6 text-[var(--p-text)]">{section.settings?.title}</h2>
-                       <p className="text-lg text-[var(--p-text-subdued)] leading-relaxed italic">
-                          {section.settings?.content}
-                       </p>
-                    </div>
-                 </section>
-               );
-
-            case "richTextV3":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-24 border-y border-gray-50">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
-                       <div className="space-y-4">
-                          <h3 className="text-xl font-bold uppercase tracking-widest">{section.settings?.titleLeft}</h3>
-                          <p className="text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.textLeft}</p>
-                       </div>
-                       <div className="space-y-4">
-                          <h3 className="text-xl font-bold uppercase tracking-widest">{section.settings?.titleRight}</h3>
-                          <p className="text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.textRight}</p>
-                       </div>
-                    </div>
-                 </section>
-               );
-
-            case "imageWithText":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-24">
-                    <div className={`flex flex-col md:flex-row items-center gap-16 ${section.settings?.layout === 'right' ? 'md:flex-row-reverse' : ''}`}>
-                       <div className="w-full md:w-1/2 aspect-square bg-gray-100 rounded-3xl overflow-hidden shadow-xl">
-                          {section.settings?.image ? (
-                            <img src={section.settings.image} className="w-full h-full object-cover" alt="Content" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-200"><ImageIcon size={48} className="text-gray-400" /></div>
-                          )}
-                       </div>
-                       <div className="w-full md:w-1/2 space-y-6">
-                          <h2 className="text-4xl md:text-5xl font-serif font-bold text-[var(--p-text)]">{section.settings?.title}</h2>
-                          <p className="text-lg text-[var(--p-text-subdued)] leading-relaxed">{section.settings?.content}</p>
-                          <button className="px-8 py-3 bg-[var(--p-blue)] text-white font-bold rounded-full hover:shadow-lg transition-all">Daha Fazla Bilgi</button>
-                       </div>
-                    </div>
-                 </section>
-               );
-
-            case "stats":
-               return (
-                 <section key={section.id} className="py-20 bg-white border-y border-gray-50">
-                    <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-                       {[1, 2, 3].map(i => (
-                         <div key={i} className="space-y-2">
-                            <div className="text-5xl font-bold text-[var(--p-blue)]">{section.settings?.[`n${i}`]}</div>
-                            <div className="text-sm font-bold text-gray-500 uppercase tracking-widest">{section.settings?.[`l${i}`]}</div>
-                         </div>
-                       ))}
-                    </div>
-                 </section>
-               );
-
-            case "socialGrid":
-               return (
-                 <section key={section.id} className="py-20">
-                    <div className="container mx-auto px-6 mb-12 text-center">
-                       <h2 className="text-3xl font-bold mb-4">{section.settings?.title}</h2>
-                       <div className="flex items-center justify-center gap-2 text-[var(--p-blue)] font-bold">
-                          <Camera size={20} />
-                          <span>@davutkundura</span>
-                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                       {[1,2,3,4,5,6].map(i => (
-                         <div key={i} className="aspect-square bg-gray-100 relative group overflow-hidden cursor-pointer">
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                               <Camera size={24} />
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                 </section>
-               );
-
-            case "header":
-               const [isScrolled, setIsScrolled] = useState(false);
-               useEffect(() => {
-                 const handleScroll = () => setIsScrolled(window.scrollY > 50);
-                 window.addEventListener("scroll", handleScroll);
-                 return () => window.removeEventListener("scroll", handleScroll);
-               }, []);
-
-               return (
-                 <header key={section.id} className={`${section.settings?.sticky ? 'sticky top-0 z-[100]' : ''} bg-white border-b border-gray-100 shadow-sm transition-all duration-300 ${isScrolled ? 'h-16' : 'h-24'}`}>
-                    <div className="container mx-auto px-6 h-full flex items-center justify-between">
-                       {/* Logo - Akıllı Boyutlandırma */}
-                       <div 
-                         className="font-bold tracking-tighter text-[#1a120b] cursor-pointer transition-all duration-300"
-                         style={{ fontSize: isScrolled ? '18px' : `${section.settings?.logoSize || 24}px` }}
-                       >
-                          {isScrolled ? "DK" : section.settings?.logoText}
-                       </div>
-                       
-                       {/* Desktop Menu */}
-                       <nav className="hidden lg:flex items-center gap-10">
-                          {[1, 2, 3, 4].map(i => (
-                            <a 
-                              key={i} 
-                              href={section.settings?.[`link${i}`] || "#"} 
-                              className={`text-[12px] font-bold text-[#1a120b] hover:text-[var(--p-blue)] tracking-[0.15em] transition-colors uppercase`}
-                            >
-                               {section.settings?.[`menu${i}`]}
-                            </a>
-                          ))}
-                       </nav>
-
-                       {/* Icons */}
-                       <div className="flex items-center gap-6">
-                          <Search size={20} className="text-gray-600 cursor-pointer hover:text-[var(--p-blue)]" />
-                          <div className="lg:hidden flex flex-col gap-1">
-                             <div className="w-5 h-0.5 bg-black"></div>
-                             <div className="w-5 h-0.5 bg-black"></div>
-                          </div>
-                       </div>
-                    </div>
-                 </header>
-               );
-
-            case "footer":
-               return (
-                 <footer key={section.id} className="w-full">
-                    {/* Top Announcement Bar */}
-                    <div className="bg-[#1a120b] text-[#f4ecd8] py-4 text-center overflow-hidden">
-                       <div className="container mx-auto px-6 whitespace-nowrap animate-marquee">
-                          <span className="text-[11px] font-bold tracking-[0.3em] uppercase opacity-90">
-                             {section.settings?.topBarText}
-                          </span>
-                       </div>
-                    </div>
-
-                    {/* Main Footer Body */}
-                    <div className="bg-[#f4ecd8] py-20 px-6 border-t border-black/5">
-                       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
-                          {/* About Section */}
-                          <div className="space-y-6">
-                             <h2 className="text-2xl font-serif font-bold text-[#1a120b] tracking-tight">{section.settings?.footerLogo}</h2>
-                             <p className="text-sm text-[#1a120b]/70 leading-relaxed font-medium">{section.settings?.footerAbout}</p>
-                             <div className="flex gap-4 pt-4">
-                                <Camera size={18} className="text-[#1a120b]/60" />
-                                <Mail size={18} className="text-[#1a120b]/60" />
-                             </div>
-                          </div>
-
-                          {/* Quick Menus */}
-                          <div>
-                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">HIZLI MENÜ</h4>
-                             <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
-                                <li><a href="#" className="hover:text-black transition-colors">Tüm Ürünler</a></li>
-                                <li><a href="#" className="hover:text-black transition-colors">Hakkımızda</a></li>
-                                <li><a href="#" className="hover:text-black transition-colors">Sıkça Sorulan Sorular</a></li>
-                                <li><a href="#" className="hover:text-black transition-colors">İade Politikası</a></li>
-                             </ul>
-                          </div>
-
-                          <div>
-                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">KATEGORİLER</h4>
-                             <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
-                                <li><a href="#" className="hover:text-black transition-colors">Ortopedik Tabanlar</a></li>
-                                <li><a href="#" className="hover:text-black transition-colors">Hakiki Deri Kemerler</a></li>
-                                <li><a href="#" className="hover:text-black transition-colors">Bakım Setleri</a></li>
-                             </ul>
-                          </div>
-
-                          {/* Contact Info */}
-                          <div className="space-y-6">
-                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">İLETİŞİM</h4>
-                             <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80 leading-relaxed">
-                                <Box size={18} className="shrink-0 opacity-40" />
-                                <span>{section.settings?.address}</span>
-                             </div>
-                             <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80 leading-relaxed">
-                                <Settings size={18} className="shrink-0 opacity-40" />
-                                <span>{section.settings?.phone}</span>
-                             </div>
-                          </div>
-                       </div>
-                    </div>
-                    
-                    {/* Bottom Copyright */}
-                    <div className="bg-[#f4ecd8] py-8 border-t border-black/5">
-                       <div className="container mx-auto px-6 text-center">
-                          <p className="text-[10px] text-[#1a120b]/40 font-bold uppercase tracking-[0.2em]">
-                             © 2026 DAVUT KUNDURA. TÜM HAKLARI SAKLIDIR.
-                          </p>
-                       </div>
-                    </div>
-                 </footer>
-               );
-
-            case "imageBanner":
-               return (
-                 <section key={section.id} className="relative w-full h-[600px] overflow-hidden bg-gray-100">
-                    {section.settings?.image ? (
-                      <img src={section.settings.image} className="w-full h-full object-cover" alt="Banner" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200">
-                        <ImageIcon size={64} className="text-gray-300" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/20 flex flex-col items-center justify-center text-white p-6 text-center">
-                       <h2 className="text-5xl md:text-7xl font-serif font-bold mb-6 drop-shadow-lg">{section.settings?.title}</h2>
-                       <button className="px-10 py-4 bg-white text-black font-bold rounded-full hover:bg-[var(--p-blue)] hover:text-white transition-all shadow-xl">
-                          Şimdi Keşfet
-                       </button>
-                    </div>
-                 </section>
-               );
-
-            case "featureColumns":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-20 border-y border-gray-50 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-                       {[1, 2, 3].map(i => (
-                         <div key={i} className="flex flex-col items-center text-center space-y-4 group">
-                            <div className="w-16 h-16 bg-[var(--p-bg)] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform text-[var(--p-blue)]">
-                               {i === 1 && <Box size={28} />}
-                               {i === 2 && <CreditCard size={28} />}
-                               {i === 3 && <Settings size={28} />}
-                            </div>
-                            <h3 className="text-lg font-bold text-[#1a120b]">{section.settings?.[`title${i}`]}</h3>
-                            <p className="text-sm text-gray-500 leading-relaxed max-w-[250px]">
-                               {section.settings?.[`text${i}`]}
-                            </p>
-                         </div>
-                       ))}
-                    </div>
-                 </section>
-               );
-
-            case "videoHero":
-               return (
-                 <section key={section.id} className="relative w-full h-[600px] bg-black overflow-hidden">
-                    <div className="absolute inset-0 z-0">
-                       <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60">
-                          <source src={section.settings?.videoUrl} type="video/mp4" />
-                       </video>
-                    </div>
-                    <div className="relative z-10 h-full flex flex-col items-center justify-center text-white p-6">
-                       <h2 className="text-6xl font-serif font-bold mb-4">{section.settings?.title}</h2>
-                       <div className="w-20 h-20 rounded-full border border-white/30 flex items-center justify-center backdrop-blur-sm cursor-pointer hover:scale-110 transition-transform">
-                          <div className="w-0 h-0 border-t-[10px] border-t-transparent border-l-[15px] border-l-white border-b-[10px] border-b-transparent ml-2"></div>
-                       </div>
-                    </div>
-                 </section>
-               );
-
-            case "collectionList":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-20">
-                    <h2 className="text-3xl font-bold mb-10 text-center">{section.settings?.title}</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                       {[1,2,3,4].map(i => (
-                         <div key={i} className="aspect-square bg-gray-100 rounded-2xl flex flex-col items-center justify-center group cursor-pointer overflow-hidden relative">
-                            <div className="w-full h-full bg-gray-200 transition-transform group-hover:scale-105 duration-500"></div>
-                            <div className="absolute bottom-6 left-6">
-                               <span className="bg-white px-4 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">Koleksiyon {i}</span>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                 </section>
-               );
-
-            case "newsletter":
-               return (
-                 <section key={section.id} className="py-24 bg-[var(--p-bg)]">
-                    <div className="max-w-3xl mx-auto px-6 text-center">
-                       <Mail size={40} className="mx-auto mb-6 text-[var(--p-blue)]" />
-                       <h2 className="text-4xl font-serif font-bold mb-4">{section.settings?.title}</h2>
-                       <p className="text-gray-500 mb-8">{section.settings?.subtitle}</p>
-                       <div className="flex flex-col sm:flex-row gap-3">
-                          <input type="email" placeholder="E-posta adresiniz" className="flex-1 px-6 py-4 rounded-full border border-gray-200 outline-none focus:border-[var(--p-blue)]" />
-                          <button className="px-10 py-4 bg-black text-white font-bold rounded-full hover:bg-[var(--p-blue)] transition-all">Abone Ol</button>
-                       </div>
-                    </div>
-                 </section>
-               );
-
-            case "testimonials":
-               return (
-                 <section key={section.id} className="container mx-auto px-6 py-24 bg-white">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                       {[1, 2].map(i => (
-                         <div key={i} className="bg-[var(--p-bg)] p-12 rounded-[var(--p-radius)] space-y-6">
-                            <div className="flex gap-1 text-yellow-400">
-                               {[1,2,3,4,5].map(s => <Star key={s} size={16} fill="currentColor" />)}
-                            </div>
-                            <p className="text-xl italic font-serif text-gray-700">"{section.settings?.[`quote${i}`]}"</p>
-                            <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
-                               <div className="w-12 h-12 rounded-full bg-gray-300"></div>
-                               <span className="font-bold text-sm uppercase tracking-widest">{section.settings?.[`author${i}`]}</span>
-                            </div>
-                         </div>
-                       ))}
-                    </div>
-                 </section>
-               );
-
-            case "faq":
-               return (
-                 <section key={section.id} className="max-w-4xl mx-auto px-6 py-24">
-                    <h2 className="text-3xl font-bold mb-12 text-center">{section.settings?.title}</h2>
-                    <div className="space-y-4">
-                       <div className="border border-gray-100 rounded-2xl p-6 bg-white hover:border-[var(--p-blue)] cursor-pointer transition-all">
-                          <div className="flex justify-between items-center mb-4">
-                             <h3 className="font-bold">{section.settings?.q1}</h3>
-                             <ChevronDown size={20} />
-                          </div>
-                          <p className="text-gray-500 text-sm leading-relaxed">{section.settings?.a1}</p>
-                       </div>
-                    </div>
-                 </section>
-               );
-
-            case "countdown":
-               return (
-                 <section key={section.id} className="py-20 bg-black text-white text-center">
-                    <div className="container mx-auto px-6">
-                       <h2 className="text-2xl font-bold mb-10 tracking-[0.3em] uppercase">{section.settings?.title}</h2>
-                       <div className="flex justify-center gap-8">
-                          {['GÜN', 'SAAT', 'DAKİKA', 'SANİYE'].map(unit => (
-                            <div key={unit} className="flex flex-col gap-2">
-                               <span className="text-6xl font-bold font-mono">00</span>
-                               <span className="text-[10px] tracking-widest opacity-60 font-bold">{unit}</span>
-                            </div>
-                          ))}
-                       </div>
-                       <button className="mt-12 px-10 py-3 border border-white/30 rounded-full hover:bg-white hover:text-black transition-all font-bold text-sm">
-                          İNDİRİMİ KAÇIRMA
-                       </button>
-                    </div>
-                 </section>
-               );
-
             case "richText":
                return (
-                 <section key={section.id} className="container mx-auto px-6 lg:px-16 py-32 text-center bg-white border-y border-gray-50">
+                 <section className="container mx-auto px-6 py-32 text-center bg-white">
                     <div className="max-w-4xl mx-auto space-y-8">
-                       <h2 className="text-4xl md:text-6xl font-serif font-bold text-[#1a120b] leading-tight italic">{section.settings?.title}</h2>
-                       <p className="text-[#6d7175] text-xl md:text-2xl font-light leading-relaxed tracking-wide italic">
-                          "{section.settings?.content}"
-                       </p>
+                       <h2 className="text-4xl font-serif font-bold text-[#1a120b] italic">{section.settings?.title}</h2>
+                       <p className="text-[#6d7175] text-xl font-light italic leading-relaxed">"{section.settings?.content}"</p>
                     </div>
                  </section>
                );
 
             default:
-              return <div key={section.id} className="p-10 border border-dashed text-center">Bölüm: {section.type}</div>;
+              return <div className="p-10 border border-dashed text-center">Bölüm: {section.type}</div>;
           }
         };
 
@@ -445,54 +174,16 @@ export default function StorefrontRenderer({
               isSelected ? 'ring-2 ring-[var(--p-blue)] ring-inset z-50 bg-[var(--p-blue)]/5' : ''
             }`}
           >
-            {/* Top Border Indicator */}
             {isBuilderMode && (
-              <div className={`absolute -top-[1px] left-0 right-0 h-[1px] bg-[var(--p-blue)] z-[100] transition-opacity ${isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
-            )}
-            
-            {/* Floating Action Bar (Shopify Style) */}
-            {isBuilderMode && (
-              <div className={`absolute -top-10 left-1/2 -translate-x-1/2 flex items-center bg-white shadow-[var(--p-shadow-200)] border border-[var(--p-border)] rounded-lg px-2 py-1 gap-2 z-[200] transition-all transform ${
-                isSelected ? 'scale-100 opacity-100 visible' : 'scale-95 opacity-0 invisible group-hover:visible group-hover:opacity-100 group-hover:scale-100'
+              <div className={`absolute -top-10 left-1/2 -translate-x-1/2 flex items-center bg-white shadow-xl border rounded-lg px-2 py-1 gap-2 z-[200] transition-all ${
+                isSelected ? 'scale-100 opacity-100' : 'opacity-0 invisible group-hover:visible group-hover:opacity-100'
               }`}>
-                <span className="text-[11px] font-bold text-[var(--p-text)] px-1 border-r border-gray-100 mr-1">
-                  {SECTION_SCHEMAS[section.type]?.label || section.type}
-                </span>
-                <div className="flex items-center gap-1">
-                   <button 
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       window.parent.postMessage({ type: "MOVE_SECTION", id: section.id, direction: "up" }, "*");
-                     }}
-                     className="p-1 hover:bg-gray-100 rounded text-gray-500 transition-colors"
-                     title="Yukarı Taşı"
-                   >
-                     <ChevronDown className="rotate-180" size={14} />
-                   </button>
-                   <button 
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       window.parent.postMessage({ type: "MOVE_SECTION", id: section.id, direction: "down" }, "*");
-                     }}
-                     className="p-1 hover:bg-gray-100 rounded text-gray-500 transition-colors"
-                     title="Aşağı Taşı"
-                   >
-                     <ChevronDown size={14} />
-                   </button>
-                   <button 
-                     onClick={(e) => {
-                       e.stopPropagation();
-                       window.parent.postMessage({ type: "REMOVE_SECTION", id: section.id }, "*");
-                     }}
-                     className="p-1 hover:bg-red-50 text-red-500 rounded transition-colors"
-                     title="Bölümü Sil"
-                   >
-                     <Trash2 size={14} />
-                   </button>
-                </div>
+                <span className="text-[11px] font-bold text-gray-500 px-1 border-r mr-1">{SECTION_SCHEMAS[section.type]?.label || section.type}</span>
+                <button onClick={(e) => { e.stopPropagation(); window.parent.postMessage({ type: "MOVE_SECTION", id: section.id, direction: "up" }, "*"); }} className="p-1 hover:bg-gray-100 rounded"><ChevronDown className="rotate-180" size={14} /></button>
+                <button onClick={(e) => { e.stopPropagation(); window.parent.postMessage({ type: "MOVE_SECTION", id: section.id, direction: "down" }, "*"); }} className="p-1 hover:bg-gray-100 rounded"><ChevronDown size={14} /></button>
+                <button onClick={(e) => { e.stopPropagation(); window.parent.postMessage({ type: "REMOVE_SECTION", id: section.id }, "*"); }} className="p-1 hover:bg-red-50 text-red-500 rounded"><Trash2 size={14} /></button>
               </div>
             )}
-            
             {renderContent()}
           </div>
         );
