@@ -159,12 +159,22 @@ export default function StorefrontRenderer({
                );
 
             case "header":
+               const [isScrolled, setIsScrolled] = useState(false);
+               useEffect(() => {
+                 const handleScroll = () => setIsScrolled(window.scrollY > 50);
+                 window.addEventListener("scroll", handleScroll);
+                 return () => window.removeEventListener("scroll", handleScroll);
+               }, []);
+
                return (
-                 <header key={section.id} className={`${section.settings?.sticky ? 'sticky top-0 z-[100]' : ''} bg-white border-b border-gray-100 shadow-sm transition-all`}>
-                    <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-                       {/* Logo */}
-                       <div className="text-2xl font-bold tracking-tighter text-[#1a120b] cursor-pointer">
-                          {section.settings?.logoText}
+                 <header key={section.id} className={`${section.settings?.sticky ? 'sticky top-0 z-[100]' : ''} bg-white border-b border-gray-100 shadow-sm transition-all duration-300 ${isScrolled ? 'h-16' : 'h-24'}`}>
+                    <div className="container mx-auto px-6 h-full flex items-center justify-between">
+                       {/* Logo - Akıllı Boyutlandırma */}
+                       <div 
+                         className="font-bold tracking-tighter text-[#1a120b] cursor-pointer transition-all duration-300"
+                         style={{ fontSize: isScrolled ? '18px' : `${section.settings?.logoSize || 24}px` }}
+                       >
+                          {isScrolled ? "DK" : section.settings?.logoText}
                        </div>
                        
                        {/* Desktop Menu */}
@@ -173,24 +183,94 @@ export default function StorefrontRenderer({
                             <a 
                               key={i} 
                               href={section.settings?.[`link${i}`] || "#"} 
-                              className="text-[13px] font-bold text-[#1a120b] hover:text-[var(--p-blue)] tracking-[0.1em] transition-colors"
+                              className={`text-[12px] font-bold text-[#1a120b] hover:text-[var(--p-blue)] tracking-[0.15em] transition-colors uppercase`}
                             >
                                {section.settings?.[`menu${i}`]}
                             </a>
                           ))}
                        </nav>
 
-                       {/* Icons & Mobile Toggle */}
+                       {/* Icons */}
                        <div className="flex items-center gap-6">
                           <Search size={20} className="text-gray-600 cursor-pointer hover:text-[var(--p-blue)]" />
-                          <div className="lg:hidden">
-                             <div className="w-6 h-0.5 bg-black mb-1.5"></div>
-                             <div className="w-6 h-0.5 bg-black mb-1.5"></div>
-                             <div className="w-6 h-0.5 bg-black"></div>
+                          <div className="lg:hidden flex flex-col gap-1">
+                             <div className="w-5 h-0.5 bg-black"></div>
+                             <div className="w-5 h-0.5 bg-black"></div>
                           </div>
                        </div>
                     </div>
                  </header>
+               );
+
+            case "footer":
+               return (
+                 <footer key={section.id} className="w-full">
+                    {/* Top Announcement Bar */}
+                    <div className="bg-[#1a120b] text-[#f4ecd8] py-4 text-center overflow-hidden">
+                       <div className="container mx-auto px-6 whitespace-nowrap animate-marquee">
+                          <span className="text-[11px] font-bold tracking-[0.3em] uppercase opacity-90">
+                             {section.settings?.topBarText}
+                          </span>
+                       </div>
+                    </div>
+
+                    {/* Main Footer Body */}
+                    <div className="bg-[#f4ecd8] py-20 px-6 border-t border-black/5">
+                       <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+                          {/* About Section */}
+                          <div className="space-y-6">
+                             <h2 className="text-2xl font-serif font-bold text-[#1a120b] tracking-tight">{section.settings?.footerLogo}</h2>
+                             <p className="text-sm text-[#1a120b]/70 leading-relaxed font-medium">{section.settings?.footerAbout}</p>
+                             <div className="flex gap-4 pt-4">
+                                <Camera size={18} className="text-[#1a120b]/60" />
+                                <Mail size={18} className="text-[#1a120b]/60" />
+                             </div>
+                          </div>
+
+                          {/* Quick Menus */}
+                          <div>
+                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">HIZLI MENÜ</h4>
+                             <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
+                                <li><a href="#" className="hover:text-black transition-colors">Tüm Ürünler</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">Hakkımızda</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">Sıkça Sorulan Sorular</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">İade Politikası</a></li>
+                             </ul>
+                          </div>
+
+                          <div>
+                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">KATEGORİLER</h4>
+                             <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
+                                <li><a href="#" className="hover:text-black transition-colors">Ortopedik Tabanlar</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">Hakiki Deri Kemerler</a></li>
+                                <li><a href="#" className="hover:text-black transition-colors">Bakım Setleri</a></li>
+                             </ul>
+                          </div>
+
+                          {/* Contact Info */}
+                          <div className="space-y-6">
+                             <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">İLETİŞİM</h4>
+                             <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80 leading-relaxed">
+                                <Box size={18} className="shrink-0 opacity-40" />
+                                <span>{section.settings?.address}</span>
+                             </div>
+                             <div className="flex gap-3 text-sm font-medium text-[#1a120b]/80 leading-relaxed">
+                                <Settings size={18} className="shrink-0 opacity-40" />
+                                <span>{section.settings?.phone}</span>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                    
+                    {/* Bottom Copyright */}
+                    <div className="bg-[#f4ecd8] py-8 border-t border-black/5">
+                       <div className="container mx-auto px-6 text-center">
+                          <p className="text-[10px] text-[#1a120b]/40 font-bold uppercase tracking-[0.2em]">
+                             © 2026 DAVUT KUNDURA. TÜM HAKLARI SAKLIDIR.
+                          </p>
+                       </div>
+                    </div>
+                 </footer>
                );
 
             case "imageBanner":

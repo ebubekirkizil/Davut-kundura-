@@ -80,6 +80,7 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
     icon: "Layout",
     settings: [
       { id: "logoText", type: "text", label: "Logo Metni", default: "DAVUT KUNDURA" },
+      { id: "logoSize", type: "range", label: "Logo Boyutu", default: 24, min: 16, max: 40 },
       { id: "menu1", type: "text", label: "Menü 1", default: "ANA SAYFA" },
       { id: "link1", type: "text", label: "Link 1", default: "/" },
       { id: "menu2", type: "text", label: "Menü 2", default: "ERKEK" },
@@ -99,6 +100,19 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
       { id: "image", type: "image", label: "Banner Görseli", default: "" },
       { id: "title", type: "text", label: "Başlık", default: "Sezon İndirimi" },
       { id: "buttonLink", type: "text", label: "Buton Linki", default: "/collections/all" }
+    ]
+  },
+  footer: {
+    type: "footer",
+    label: "Alt Menü (Footer)",
+    icon: "Layout",
+    settings: [
+      { id: "topBarText", type: "text", label: "Üst Bant Yazısı", default: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO" },
+      { id: "footerLogo", type: "text", label: "Alt Logo Metni", default: "DAVUT KUNDURA" },
+      { id: "footerAbout", type: "textarea", label: "Hakkımızda Özeti", default: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri sunuyoruz." },
+      { id: "address", type: "textarea", label: "Adres Bilgisi", default: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul" },
+      { id: "phone", type: "text", label: "Telefon", default: "+90 (555) 123 45 67" },
+      { id: "email", type: "text", label: "E-posta", default: "info@davutkundura.com" }
     ]
   },
   featureColumns: {
