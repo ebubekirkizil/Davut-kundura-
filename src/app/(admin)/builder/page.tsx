@@ -6,14 +6,17 @@ import {
   Settings, Plus, Layers, Image as ImageIcon,
   Type, MousePointer2, Paintbrush, ChevronRight, CheckCircle2,
   RefreshCw, Loader2, ArrowLeft, Globe, ShoppingBag, AlignLeft,
-  Video, Grid, List, Search, Box, Palette, Code, Star, MessageSquare, Info
+  Video, Grid, List, Search, Box, Palette, Code, Star, MessageSquare, Info,
+  MoreHorizontal, Undo2, Redo2, Eye, Layout, ChevronDown, Trash2, GripVertical
 } from "lucide-react";
 import Link from "next/link";
 
 export default function AdvancedBuilderPage() {
   const [viewMode, setViewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
-  const [activeLeftTab, setActiveLeftTab] = useState<"add" | "templates" | "layers">("templates");
+  const [activeLeftTab, setActiveLeftTab] = useState<"sections" | "design" | "settings">("sections");
   const [activeRightTab, setActiveRightTab] = useState<"content" | "style">("content");
+  const [isAddSectionOpen, setIsAddSectionOpen] = useState(false);
+  const [hoveredTemplate, setHoveredTemplate] = useState<string | null>(null);
   
   // Real Database State
   const [heroTitle, setHeroTitle] = useState("Yükleniyor...");
@@ -43,10 +46,6 @@ export default function AdvancedBuilderPage() {
             setHeroSubtitle(heroBlock.content.heroSubtitle || "");
             setButtonText(heroBlock.content.buttonText || "");
             setCustomCss(heroBlock.content.customCss || "");
-          } else {
-             setHeroTitle("Zarafetin Adımları.");
-             setHeroSubtitle("Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor.");
-             setButtonText("KOLEKSİYONU KEŞFET");
           }
         }
       } catch (err) {
@@ -58,7 +57,7 @@ export default function AdvancedBuilderPage() {
     fetchData();
   }, []);
 
-  // Sync state to iframe when changed
+  // Sync state to iframe
   useEffect(() => {
     if (!isLoadingData && iframeRef.current && iframeRef.current.contentWindow) {
       iframeRef.current.contentWindow.postMessage({
@@ -68,7 +67,7 @@ export default function AdvancedBuilderPage() {
     }
   }, [heroTitle, heroSubtitle, buttonText, customCss, isLoadingData]);
 
-  // Listen for element selection from iframe
+  // Listen for element selection
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "SELECT_ELEMENT") {
@@ -105,20 +104,22 @@ export default function AdvancedBuilderPage() {
     }
   }
 
-  const applyTemplate = (tpl: any) => {
-    if (tpl.title === "Karanlık Hero") {
-      setHeroTitle("Zarafetin Adımları.");
-      setHeroSubtitle("Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor.");
-      setButtonText("KOLEKSİYONU KEŞFET");
-    } else if (tpl.title === "Modern Minimal") {
-      setHeroTitle("Yeni Sezon: Minimalist Dokunuş");
-      setHeroSubtitle("Sadelik, lüksün en saf halidir. Yeni koleksiyonumuzla tanışın.");
-      setButtonText("ŞİMDİ AL");
-    } else if (tpl.title === "Vintage Luxury") {
-      setHeroTitle("1998'den Beri Gelen Miras");
-      setHeroSubtitle("Geleneksel el işçiliği, modern tasarım anlayışı ile buluştu.");
-      setButtonText("HİKAYEMİZİ KEŞFET");
-    }
+  const sectionTemplates = {
+    "Banner'lar": [
+      { id: "hero-split", name: "Bölünmüş Vitrin", img: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=400" },
+      { id: "hero-logo", name: "Büyük Logo", img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400" },
+      { id: "hero-main", name: "Hero", img: "https://images.unsplash.com/photo-1441984904996-e0b6ba687e12?q=80&w=400" },
+      { id: "hero-low", name: "Hero: Alt Hizalı", img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=400" },
+    ],
+    "Düzen": [
+      { id: "divider", name: "Ayırıcı", img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=400" },
+      { id: "liquid", name: "Özel Liquid", img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=400" }
+    ],
+    "Hikaye anlatımı": [
+      { id: "blog-grid", name: "Blog gönderileri: Izgara", img: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=400" },
+      { id: "video", name: "Video", img: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?q=80&w=400" },
+      { id: "carousel", name: "Karusel", img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=400" }
+    ]
   };
 
   const deviceWidths = {
@@ -128,318 +129,309 @@ export default function AdvancedBuilderPage() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-[#f4f5f7] text-[#1e293b] flex flex-col font-sans select-none">
+    <div className="fixed inset-0 z-[100] bg-[#f1f1f1] text-[#202223] flex flex-col font-sans select-none overflow-hidden">
       
-      {/* ─── HEADER ─── */}
-      <header className="h-[60px] bg-white border-b border-slate-200 flex items-center justify-between px-4 shadow-sm z-20">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-500">
-            <ArrowLeft className="w-5 h-5" />
+      {/* ─── SHOPIFY TOP BAR ─── */}
+      <header className="h-[48px] bg-white border-b border-[#e1e3e5] flex items-center justify-between px-3 z-30">
+        <div className="flex items-center gap-3">
+          <Link href="/dashboard" className="p-1 hover:bg-[#f1f1f1] rounded transition-colors text-[#5c5f62]">
+            <Layout className="w-5 h-5" />
           </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center shadow-md">
-               <Palette className="w-4 h-4 text-white" />
-            </div>
-            <div>
-               <h1 className="font-bold text-[15px] text-slate-800 leading-tight tracking-tight">Enterprise Store Builder <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded ml-1">PRO</span></h1>
-               <p className="text-[11px] font-medium text-slate-500">davutkundura.shop • Canlı Tasarım Modu</p>
-            </div>
+          <div className="flex items-center gap-1.5 text-[13px] font-medium text-[#202223]">
+             <span>Horizon</span>
+             <span className="bg-[#e3f1df] text-[#008060] px-2 py-0.5 rounded-full text-[11px] font-bold">Yayında</span>
+          </div>
+          <div className="w-px h-4 bg-[#e1e3e5] mx-2"></div>
+          <div className="flex items-center gap-1 text-[13px] text-[#5c5f62]">
+             <Globe className="w-4 h-4" /> <span>Ana sayfa</span> <ChevronDown className="w-3 h-3" />
           </div>
         </div>
 
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-inner">
-          <button onClick={() => setViewMode("desktop")} className={`p-2 rounded-lg transition-all ${viewMode === "desktop" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-            <Monitor className="w-[18px] h-[18px]" />
-          </button>
-          <button onClick={() => setViewMode("tablet")} className={`p-2 rounded-lg transition-all ${viewMode === "tablet" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-            <Tablet className="w-[18px] h-[18px]" />
-          </button>
-          <button onClick={() => setViewMode("mobile")} className={`p-2 rounded-lg transition-all ${viewMode === "mobile" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}>
-            <Smartphone className="w-[18px] h-[18px]" />
-          </button>
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0.5 bg-[#f1f1f1] p-1 rounded-md">
+           <button onClick={() => setViewMode("desktop")} className={`p-1.5 rounded ${viewMode === "desktop" ? "bg-white shadow-sm text-blue-600" : "text-[#5c5f62]"}`}><Monitor className="w-4 h-4"/></button>
+           <button onClick={() => setViewMode("tablet")} className={`p-1.5 rounded ${viewMode === "tablet" ? "bg-white shadow-sm text-blue-600" : "text-[#5c5f62]"}`}><Tablet className="w-4 h-4"/></button>
+           <button onClick={() => setViewMode("mobile")} className={`p-1.5 rounded ${viewMode === "mobile" ? "bg-white shadow-sm text-blue-600" : "text-[#5c5f62]"}`}><Smartphone className="w-4 h-4"/></button>
         </div>
 
-        <div className="flex items-center gap-3">
-          {saveSuccess && (
-            <span className="flex items-center gap-1.5 text-green-600 bg-green-50 px-3 py-1.5 rounded-full text-[12px] font-bold animate-fade-in border border-green-200">
-              <CheckCircle2 className="w-4 h-4" /> Yayınlandı
-            </span>
-          )}
-          <button onClick={saveDesign} disabled={isSaving || isLoadingData} className="flex items-center gap-2 px-6 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-[13px] font-bold transition-all shadow-md disabled:opacity-50">
-            {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isSaving ? "İşleniyor..." : "Değişiklikleri Yayınla"}
-          </button>
+        <div className="flex items-center gap-2">
+           <div className="flex items-center gap-1 mr-2">
+             <button className="p-1.5 text-[#babfc3]"><Undo2 className="w-4 h-4"/></button>
+             <button className="p-1.5 text-[#babfc3]"><Redo2 className="w-4 h-4"/></button>
+           </div>
+           <button onClick={saveDesign} disabled={isSaving} className={`px-4 py-1.5 rounded font-bold text-[13px] transition-all shadow-sm ${saveSuccess ? 'bg-[#008060] text-white' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>
+             {isSaving ? "Kaydediliyor..." : saveSuccess ? "Kaydedildi!" : "Kaydet"}
+           </button>
         </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden relative">
         
-        {/* ─── LEFT SIDEBAR ─── */}
-        <aside className="w-[340px] bg-white border-r border-slate-200 flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-           <div className="flex p-3 gap-1 border-b border-slate-100 bg-slate-50/50">
-              <button onClick={()=>setActiveLeftTab("add")} className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all ${activeLeftTab === 'add' ? 'bg-white text-blue-600 shadow-sm border border-slate-200 font-bold' : 'text-slate-500 hover:bg-slate-100'}`}>
-                <Plus className="w-5 h-5" /> <span className="text-[10px] font-bold uppercase tracking-wider">Bileşenler</span>
+        {/* ─── SHOPIFY LEFT SIDEBAR ─── */}
+        <aside className="w-[300px] bg-white border-r border-[#e1e3e5] flex flex-col z-20">
+           <div className="flex border-b border-[#e1e3e5]">
+              <button onClick={()=>setActiveLeftTab("sections")} className={`flex-1 py-3 flex justify-center border-b-2 transition-colors ${activeLeftTab === 'sections' ? 'border-blue-600 text-blue-600' : 'border-transparent text-[#5c5f62]'}`}>
+                <LayoutTemplate className="w-5 h-5" />
               </button>
-              <button onClick={()=>setActiveLeftTab("templates")} className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all ${activeLeftTab === 'templates' ? 'bg-white text-blue-600 shadow-sm border border-slate-200 font-bold' : 'text-slate-500 hover:bg-slate-100'}`}>
-                <LayoutTemplate className="w-5 h-5" /> <span className="text-[10px] font-bold uppercase tracking-wider">Şablonlar</span>
+              <button onClick={()=>setActiveLeftTab("settings")} className={`flex-1 py-3 flex justify-center border-b-2 transition-colors ${activeLeftTab === 'settings' ? 'border-blue-600 text-blue-600' : 'border-transparent text-[#5c5f62]'}`}>
+                <Settings className="w-5 h-5" />
               </button>
-              <button onClick={()=>setActiveLeftTab("layers")} className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl transition-all ${activeLeftTab === 'layers' ? 'bg-white text-blue-600 shadow-sm border border-slate-200 font-bold' : 'text-slate-500 hover:bg-slate-100'}`}>
-                <Layers className="w-5 h-5" /> <span className="text-[10px] font-bold uppercase tracking-wider">Katmanlar</span>
+              <button onClick={()=>setActiveLeftTab("design")} className={`flex-1 py-3 flex justify-center border-b-2 transition-colors ${activeLeftTab === 'design' ? 'border-blue-600 text-blue-600' : 'border-transparent text-[#5c5f62]'}`}>
+                <Palette className="w-5 h-5" />
               </button>
            </div>
 
-           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-              {activeLeftTab === "add" && (
-                <div className="space-y-6">
-                   <div>
-                     <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Medya & Metin</h3>
-                     <div className="grid grid-cols-2 gap-3">
-                       {[
-                         { icon: Type, label: "Ana Başlık" },
-                         { icon: AlignLeft, label: "Paragraf" },
-                         { icon: ImageIcon, label: "Görsel" },
-                         { icon: Video, label: "Video" },
-                         { icon: Box, label: "Kutu (Div)" },
-                         { icon: MousePointer2, label: "Buton" }
-                       ].map((item, idx) => (
-                         <div key={idx} className="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md p-4 rounded-2xl cursor-pointer transition-all flex flex-col items-center gap-2.5 text-slate-700 group">
-                           <item.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" /> 
-                           <span className="text-[12px] font-bold">{item.label}</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-
-                   <div>
-                     <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">E-Ticaret Modülleri</h3>
-                     <div className="grid grid-cols-2 gap-3">
-                       {[
-                         { icon: ShoppingBag, label: "Ürün Kartı" },
-                         { icon: Grid, label: "Ürün Izgarası" },
-                         { icon: List, label: "Kategoriler" },
-                         { icon: Star, label: "Yorumlar" }
-                       ].map((item, idx) => (
-                         <div key={idx} className="bg-white border border-slate-200 hover:border-blue-500 hover:shadow-md p-4 rounded-2xl cursor-pointer transition-all flex flex-col items-center gap-2.5 text-slate-700 group">
-                           <item.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-500 transition-colors" /> 
-                           <span className="text-[12px] font-bold">{item.label}</span>
-                         </div>
-                       ))}
-                     </div>
-                   </div>
-                </div>
-              )}
-
-              {activeLeftTab === "templates" && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                     <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Premium Seksiyonlar</h3>
-                     <span className="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded">12+ Hazır</span>
-                  </div>
+           <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {activeLeftTab === "sections" && (
+                <div className="p-0">
+                  <div className="px-4 py-3 font-bold text-[13px] border-b border-[#f1f1f1]">Ana sayfa</div>
                   
-                  <div className="space-y-4">
-                    {[
-                      { title: "Karanlık Hero", desc: "Premium Gece Modu", color: "bg-slate-900" },
-                      { title: "Modern Minimal", desc: "Temiz ve Aydınlık", color: "bg-blue-600" },
-                      { title: "Vintage Luxury", desc: "Klasik ve Şık", color: "bg-amber-800" },
-                      { title: "Video Background", desc: "Hareketli Deneyim", color: "bg-purple-700" },
-                      { title: "Split Screen", desc: "Yarı Metin Yarı Görsel", color: "bg-emerald-600" }
-                    ].map((tpl, i) => (
-                      <div 
-                        key={i} 
-                        onClick={() => applyTemplate(tpl)}
-                        className="group border border-slate-200 rounded-2xl overflow-hidden hover:border-blue-500 cursor-pointer transition-all shadow-sm hover:shadow-lg bg-white"
-                      >
-                        <div className={`h-28 ${tpl.color} p-3 flex items-center justify-center relative overflow-hidden`}>
-                           <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                           <div className="w-full h-full bg-white/10 rounded-lg border border-white/20 flex flex-col items-center justify-center gap-1.5 backdrop-blur-sm">
-                             <div className="w-1/2 h-2 bg-white/40 rounded"></div>
-                             <div className="w-1/3 h-1.5 bg-white/20 rounded"></div>
-                           </div>
-                        </div>
-                        <div className="p-4 flex justify-between items-center">
-                           <div>
-                              <span className="text-[13px] font-bold text-slate-800 block">{tpl.title}</span>
-                              <span className="text-[11px] text-slate-500 font-medium">{tpl.desc}</span>
-                           </div>
-                           <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
-                        </div>
-                      </div>
-                    ))}
+                  {/* Header Section */}
+                  <div className="bg-[#f6f6f7] px-4 py-2 text-[11px] font-bold text-[#5c5f62] uppercase tracking-wider flex justify-between items-center">
+                    <span>Header</span>
+                  </div>
+                  <div className="divide-y divide-[#f1f1f1]">
+                     <div className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#f6f6f7] cursor-pointer text-[13px]">
+                        <ChevronRight className="w-4 h-4 text-[#babfc3]" /> <Layout className="w-4 h-4 text-[#5c5f62]" /> <span>Duyuru çubuğu</span>
+                     </div>
+                     <div className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#f6f6f7] cursor-pointer text-[13px]">
+                        <ChevronRight className="w-4 h-4 text-[#babfc3]" /> <Layout className="w-4 h-4 text-[#5c5f62]" /> <span>Üstbilgi</span>
+                     </div>
+                     <button onClick={()=>setIsAddSectionOpen(true)} className="w-full px-10 py-2 text-left text-blue-600 text-[12px] font-medium flex items-center gap-2 hover:bg-blue-50">
+                        <Plus className="w-3.5 h-3.5" /> Bölüm ekle
+                     </button>
+                  </div>
+
+                  {/* Main Template Section */}
+                  <div className="bg-[#f6f6f7] px-4 py-2 text-[11px] font-bold text-[#5c5f62] uppercase tracking-wider mt-4">
+                    Şablon
+                  </div>
+                  <div className="divide-y divide-[#f1f1f1]">
+                     <div onClick={() => titleRef.current?.focus()} className="px-4 py-2.5 flex items-center gap-3 bg-blue-50/50 border-l-4 border-blue-600 cursor-pointer text-[13px] font-bold">
+                        <ChevronRight className="w-4 h-4 text-blue-600 transform rotate-90" /> <ImageIcon className="w-4 h-4 text-blue-600" /> <span>Hero Alanı</span>
+                     </div>
+                     <div className="pl-10 space-y-1 py-2 bg-white">
+                        <div onClick={() => titleRef.current?.focus()} className="flex items-center gap-2 py-1 text-[12px] text-[#5c5f62] hover:text-[#202223] cursor-pointer"><GripVertical className="w-3 h-3 text-[#babfc3]"/> Ana Başlık</div>
+                        <div onClick={() => subtitleRef.current?.focus()} className="flex items-center gap-2 py-1 text-[12px] text-[#5c5f62] hover:text-[#202223] cursor-pointer"><GripVertical className="w-3 h-3 text-[#babfc3]"/> Alt Açıklama</div>
+                        <div onClick={() => buttonRef.current?.focus()} className="flex items-center gap-2 py-1 text-[12px] text-[#5c5f62] hover:text-[#202223] cursor-pointer"><GripVertical className="w-3 h-3 text-[#babfc3]"/> Aksiyon Butonu</div>
+                     </div>
+                     <div className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#f6f6f7] cursor-pointer text-[13px]">
+                        <ChevronRight className="w-4 h-4 text-[#babfc3]" /> <Grid className="w-4 h-4 text-[#5c5f62]" /> <span>Featured collection</span>
+                     </div>
+                     <button onClick={()=>setIsAddSectionOpen(true)} className="w-full px-10 py-2 text-left text-blue-600 text-[12px] font-medium flex items-center gap-2 hover:bg-blue-50">
+                        <Plus className="w-3.5 h-3.5" /> Bölüm ekle
+                     </button>
+                  </div>
+
+                  {/* Footer Section */}
+                  <div className="bg-[#f6f6f7] px-4 py-2 text-[11px] font-bold text-[#5c5f62] uppercase tracking-wider mt-4">
+                    Footer
+                  </div>
+                  <div className="divide-y divide-[#f1f1f1]">
+                     <button onClick={()=>setIsAddSectionOpen(true)} className="w-full px-10 py-2 text-left text-blue-600 text-[12px] font-medium flex items-center gap-2 hover:bg-blue-50">
+                        <Plus className="w-3.5 h-3.5" /> Bölüm ekle
+                     </button>
+                     <div className="px-4 py-2.5 flex items-center gap-3 hover:bg-[#f6f6f7] cursor-pointer text-[13px]">
+                        <ChevronRight className="w-4 h-4 text-[#babfc3]" /> <Layout className="w-4 h-4 text-[#5c5f62]" /> <span>Altbilgi</span>
+                     </div>
                   </div>
                 </div>
               )}
 
-              {activeLeftTab === "layers" && (
-                <div className="space-y-1">
-                   <div className="flex items-center gap-2 p-3 hover:bg-slate-50 rounded-xl cursor-pointer text-slate-700 group transition-colors">
-                     <ChevronRight className="w-4 h-4 text-slate-300" /> <Globe className="w-4 h-4 text-blue-500" /> <span className="text-[13px] font-bold">Header (Ana Menü)</span>
-                   </div>
-                   <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-xl cursor-pointer text-blue-800 font-bold shadow-sm">
-                     <ChevronRight className="w-4 h-4 text-blue-400 transform rotate-90" /> <ImageIcon className="w-4 h-4 text-blue-600" /> <span className="text-[13px]">Hero Alanı</span>
-                   </div>
-                   <div className="pl-10 space-y-2 mt-2">
-                     <div onClick={() => titleRef.current?.focus()} className="flex items-center gap-3 p-2 hover:bg-slate-100 rounded-lg text-slate-600 text-[12px] font-medium transition-colors cursor-pointer"><Type className="w-4 h-4 text-slate-400" /> Ana Başlık (H1)</div>
-                     <div onClick={() => subtitleRef.current?.focus()} className="flex items-center gap-3 p-2 hover:bg-slate-100 rounded-lg text-slate-600 text-[12px] font-medium transition-colors cursor-pointer"><AlignLeft className="w-4 h-4 text-slate-400" /> Açıklama (P)</div>
-                     <div onClick={() => buttonRef.current?.focus()} className="flex items-center gap-3 p-2 hover:bg-slate-100 rounded-lg text-slate-600 text-[12px] font-medium transition-colors cursor-pointer"><MousePointer2 className="w-4 h-4 text-slate-400" /> Keşfet Butonu</div>
-                   </div>
-                   <div className="flex items-center gap-2 p-3 hover:bg-slate-50 rounded-xl cursor-pointer text-slate-700 transition-colors">
-                     <ChevronRight className="w-4 h-4 text-slate-300" /> <Layers className="w-4 h-4 text-purple-500" /> <span className="text-[13px] font-bold">Kayan Yazı (Marquee)</span>
-                   </div>
-                   <div className="flex items-center gap-2 p-3 hover:bg-slate-50 rounded-xl cursor-pointer text-slate-700 transition-colors opacity-50">
-                     <ChevronRight className="w-4 h-4 text-slate-300" /> <Grid className="w-4 h-4 text-emerald-500" /> <span className="text-[13px] font-bold">Yeni Gelenler (Ürünler)</span>
+              {activeLeftTab === "design" && (
+                <div className="p-4 space-y-4">
+                   <h3 className="font-bold text-[13px]">Tema ayarları</h3>
+                   <div className="space-y-2">
+                      <div className="p-3 bg-[#f6f6f7] rounded-md flex justify-between items-center cursor-pointer hover:bg-[#f1f1f1]">
+                         <span className="text-[13px]">Renkler</span> <ChevronRight className="w-4 h-4 text-[#babfc3]"/>
+                      </div>
+                      <div className="p-3 bg-[#f6f6f7] rounded-md flex justify-between items-center cursor-pointer hover:bg-[#f1f1f1]">
+                         <span className="text-[13px]">Tipografi</span> <ChevronRight className="w-4 h-4 text-[#babfc3]"/>
+                      </div>
+                      <div className="p-3 bg-[#f6f6f7] rounded-md flex justify-between items-center cursor-pointer hover:bg-[#f1f1f1]">
+                         <span className="text-[13px]">Düğmeler</span> <ChevronRight className="w-4 h-4 text-[#babfc3]"/>
+                      </div>
                    </div>
                 </div>
               )}
            </div>
         </aside>
 
-        {/* ─── CENTER PREVIEW ─── */}
-        <main className="flex-1 overflow-auto flex justify-center py-8 bg-[#f8fafc] relative">
-          {isLoadingData ? (
-             <div className="flex flex-col items-center justify-center h-full text-slate-500">
-               <RefreshCw className="w-8 h-8 animate-spin mb-4 text-blue-500" />
-               <p className="font-bold text-[13px] tracking-tight">Sistem Verileri Senkronize Ediliyor...</p>
-             </div>
-          ) : (
+        {/* ─── MAIN PREVIEW ─── */}
+        <main className="flex-1 bg-[#f4f6f8] flex flex-col relative overflow-hidden">
+          
+          {/* Iframe Content */}
+          <div className="flex-1 overflow-auto flex justify-center p-4 relative z-0">
             <div 
-              className="bg-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-500 relative rounded-2xl border border-slate-300 overflow-hidden"
-              style={{ width: deviceWidths[viewMode], height: '800px', maxWidth: '100%' }}
+              className="bg-white shadow-2xl transition-all duration-300 relative border border-[#e1e3e5] overflow-hidden"
+              style={{ width: deviceWidths[viewMode], height: '100%', minHeight: '800px' }}
             >
-              {/* Browser Mockup */}
-              <div className="h-10 bg-slate-100 border-b border-slate-200 flex items-center px-4 gap-4 z-50 relative">
-                 <div className="flex gap-2">
-                   <div className="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
-                   <div className="w-3 h-3 rounded-full bg-[#febc2e]"></div>
-                   <div className="w-3 h-3 rounded-full bg-[#28c840]"></div>
-                 </div>
-                 <div className="flex-1 bg-white border border-slate-200 text-slate-400 text-[11px] px-4 py-1 rounded-lg flex items-center gap-2 max-w-md mx-auto shadow-inner">
-                    <Globe className="w-3.5 h-3.5 text-slate-300" /> 
-                    <span className="font-medium">davutkundura.shop/anasayfa</span>
-                 </div>
-              </div>
-
-              <div className="absolute top-10 bottom-0 left-0 right-0">
+              {isLoadingData ? (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-[60]">
+                   <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
+                   <p className="text-[12px] font-bold text-[#5c5f62]">Düzenleyici Yükleniyor...</p>
+                </div>
+              ) : (
                 <iframe 
                    ref={iframeRef}
                    src="/"
                    className="w-full h-full border-0"
-                   title="Live Store Preview"
                 />
+              )}
+              
+              {/* Overlay for Bölüm Ekle Button in Preview */}
+              <div className="absolute inset-x-0 bottom-[20%] flex justify-center pointer-events-none">
+                 <button onClick={()=>setIsAddSectionOpen(true)} className="pointer-events-auto bg-[#202223] text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-xl hover:bg-[#1a1a1a] flex items-center gap-1.5 transition-all">
+                    Bölüm ekle
+                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* ─── ADD SECTION MODAL (SHOPIFY CLONE) ─── */}
+          {isAddSectionOpen && (
+            <div className="absolute inset-0 z-[100] flex items-start justify-center pt-10 px-4 animate-fade-in">
+               <div className="absolute inset-0 bg-black/10" onClick={()=>setIsAddSectionOpen(false)}></div>
+               
+               <div className="relative w-full max-w-[800px] bg-white rounded-lg shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-[#e1e3e5] flex h-[600px] overflow-hidden">
+                  {/* Modal Left: Search & Categories */}
+                  <div className="w-[300px] border-r border-[#e1e3e5] flex flex-col">
+                     <div className="p-3 border-b border-[#e1e3e5] relative">
+                        <Search className="w-4 h-4 absolute left-6 top-6 text-[#5c5f62]" />
+                        <input type="text" placeholder="Bölüm ara" className="w-full bg-[#f6f6f7] border border-[#e1e3e5] rounded-md py-2 pl-10 pr-3 text-[13px] outline-none focus:border-blue-600" />
+                     </div>
+                     <div className="flex border-b border-[#e1e3e5]">
+                        <button className="flex-1 py-2 text-[12px] font-bold border-b-2 border-blue-600 bg-blue-50/20">Bölümler</button>
+                        <button className="flex-1 py-2 text-[12px] font-bold text-[#5c5f62]">Uygulamalar</button>
+                     </div>
+                     <div className="flex-1 overflow-y-auto p-2 space-y-6 custom-scrollbar">
+                        {Object.entries(sectionTemplates).map(([category, items]) => (
+                          <div key={category}>
+                             <div className="px-2 py-1 text-[11px] font-bold text-[#5c5f62] uppercase tracking-wider">{category}</div>
+                             <div className="mt-1 space-y-0.5">
+                                {items.map(item => (
+                                  <div 
+                                    key={item.id} 
+                                    onMouseEnter={() => setHoveredTemplate(item.img)}
+                                    className="px-3 py-2 text-[13px] hover:bg-[#f6f6f7] rounded cursor-pointer flex items-center gap-3 group"
+                                  >
+                                     <ImageIcon className="w-4 h-4 text-[#babfc3] group-hover:text-[#5c5f62]" />
+                                     <span>{item.name}</span>
+                                  </div>
+                                ))}
+                             </div>
+                          </div>
+                        ))}
+                     </div>
+                  </div>
+
+                  {/* Modal Right: Preview */}
+                  <div className="flex-1 bg-[#f4f6f8] flex flex-col items-center justify-center p-8 relative">
+                     {hoveredTemplate ? (
+                       <div className="w-full h-full flex flex-col items-center animate-fade-in">
+                          <img src={hoveredTemplate} alt="Preview" className="w-full h-[300px] object-cover rounded-lg shadow-2xl border-4 border-white mb-6" />
+                          <p className="text-[#5c5f62] text-[13px] text-center max-w-xs font-medium">Bu bölümü ekleyerek sitenizin görünümünü anında değiştirebilirsiniz.</p>
+                       </div>
+                     ) : (
+                       <div className="text-center space-y-4">
+                          <div className="text-purple-600 font-bold text-lg">Bir fikriniz mi var?</div>
+                          <div className="text-[#5c5f62] text-[14px]">Hadi hayata geçirelim. Sola bakarak bir bölüm seçin.</div>
+                       </div>
+                     )}
+                     
+                     <div className="absolute bottom-6 flex gap-1">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
+                     </div>
+                  </div>
+               </div>
             </div>
           )}
         </main>
 
-        {/* ─── RIGHT SIDEBAR ─── */}
-        <aside className="w-[360px] bg-white border-l border-slate-200 flex flex-col z-10 shadow-[-4px_0_24px_rgba(0,0,0,0.02)]">
-          <div className="flex border-b border-slate-100 p-2 gap-1 bg-slate-50/50">
-            <button onClick={() => setActiveRightTab("content")} className={`flex-1 py-3 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all ${activeRightTab === 'content' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:bg-slate-100'}`}>
-               İçerik
-            </button>
-            <button onClick={() => setActiveRightTab("style")} className={`flex-1 py-3 text-[11px] font-bold uppercase tracking-widest rounded-xl transition-all ${activeRightTab === 'style' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:bg-slate-100'}`}>
-               Tasarım (CSS)
-            </button>
+        {/* ─── SHOPIFY RIGHT SIDEBAR (SETTINGS) ─── */}
+        <aside className="w-[300px] bg-white border-l border-[#e1e3e5] flex flex-col z-20 shadow-[-10px_0_30px_rgba(0,0,0,0.02)]">
+          <div className="p-4 border-b border-[#e1e3e5] flex items-center justify-between">
+             <h2 className="font-bold text-[14px]">Hero Alanı</h2>
+             <MoreHorizontal className="w-4 h-4 text-[#5c5f62]" />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-6">
             
             {activeRightTab === "content" && (
                <div className="space-y-6 animate-fade-in">
-                  <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-4 rounded-2xl shadow-lg shadow-blue-500/20">
-                     <div className="flex items-center gap-2 text-white mb-2">
-                        <Info className="w-4 h-4" />
-                        <span className="text-[12px] font-bold uppercase tracking-widest">Akıllı Editör</span>
-                     </div>
-                     <p className="text-[12px] text-blue-50/90 leading-relaxed font-medium">
-                        Yaptığınız her harf değişikliği sol taraftaki önizlemede <strong>anlık olarak</strong> güncellenir.
-                     </p>
-                  </div>
-
-                  <div className="space-y-5">
-                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2"><Type className="w-4 h-4 text-blue-500"/> Ana Başlık (Hero Title)</label>
+                  <div className="space-y-4">
+                     <div className="space-y-1.5">
+                        <label className="text-[12px] font-medium text-[#202223]">Ana Başlık</label>
                         <textarea 
                            ref={titleRef}
                            value={heroTitle}
                            onChange={(e) => setHeroTitle(e.target.value)}
-                           className="w-full h-24 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 text-[14px] font-semibold transition-all resize-none" 
+                           className="w-full h-20 bg-white border border-[#babfc3] rounded-md px-3 py-2 text-[13px] outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none shadow-inner" 
                         />
                      </div>
 
-                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2"><AlignLeft className="w-4 h-4 text-blue-500"/> Alt Açıklama (Subtitle)</label>
+                     <div className="space-y-1.5">
+                        <label className="text-[12px] font-medium text-[#202223]">Alt Açıklama</label>
                         <textarea 
                            ref={subtitleRef}
                            value={heroSubtitle}
                            onChange={(e) => setHeroSubtitle(e.target.value)}
-                           className="w-full h-32 bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 text-[13px] font-medium transition-all resize-none" 
+                           className="w-full h-24 bg-white border border-[#babfc3] rounded-md px-3 py-2 text-[13px] outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none shadow-inner" 
                         />
                      </div>
 
-                     <div className="pt-4 border-t border-slate-100 space-y-2">
-                        <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2"><MousePointer2 className="w-4 h-4 text-blue-500"/> Buton Metni</label>
+                     <div className="space-y-1.5">
+                        <label className="text-[12px] font-medium text-[#202223]">Düğme Etiketi</label>
                         <input 
                            ref={buttonRef}
                            type="text"
                            value={buttonText}
                            onChange={(e) => setButtonText(e.target.value)}
-                           className="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-slate-800 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 text-[13px] font-bold transition-all" 
+                           className="w-full bg-white border border-[#babfc3] rounded-md px-3 py-2 text-[13px] outline-none focus:border-blue-600 shadow-inner" 
                         />
                      </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#f1f1f1]">
+                     <button onClick={()=>setCustomCss("h1 { color: #d4af37 !important; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }\nbutton { border-radius: 50px !important; }")} className="w-full py-2 bg-[#f6f6f7] border border-[#e1e3e5] rounded text-[12px] font-bold text-[#202223] hover:bg-[#f1f1f1] transition-colors">
+                        Altın Stilini Uygula (Custom CSS)
+                     </button>
                   </div>
                </div>
             )}
 
-            {activeRightTab === "style" && (
-               <div className="space-y-6 animate-fade-in">
-                  <div className="bg-slate-900 p-5 rounded-2xl shadow-xl border border-slate-800">
-                     <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-2 text-white">
-                           <Code className="w-5 h-5 text-emerald-400" />
-                           <span className="text-[12px] font-bold uppercase tracking-widest">Custom CSS Engine</span>
-                        </div>
-                        <div className="flex gap-1">
-                           <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                           <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                           <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                        </div>
-                     </div>
-                     <p className="text-[11px] text-slate-400 mb-4 leading-relaxed italic">
-                        Buraya yazdığınız profesyonel CSS kodları doğrudan ön yüze enjekte edilir. Sınırsız özelleştirme gücü!
-                     </p>
+            {activeRightTab === "design" && (
+               <div className="space-y-4">
+                  <div className="space-y-2">
+                     <label className="text-[12px] font-medium">Özel CSS</label>
                      <textarea 
                         value={customCss}
                         onChange={(e) => setCustomCss(e.target.value)}
-                        placeholder="h1 { color: #d4af37; text-transform: uppercase; }"
-                        className="w-full h-96 bg-[#0a0a0a] border border-slate-700 rounded-xl p-4 text-emerald-400 font-mono text-[13px] outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all custom-scrollbar" 
+                        placeholder="Örn: h1 { color: red; }"
+                        className="w-full h-96 bg-[#0a0a0a] border border-slate-700 rounded-md p-3 text-emerald-400 font-mono text-[12px] outline-none focus:border-emerald-500 custom-scrollbar" 
                      />
-                  </div>
-                  
-                  <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
-                     <div className="flex items-center gap-2 text-amber-800 font-bold text-[11px] mb-2 uppercase">
-                        <Settings className="w-4 h-4" /> CSS Rehberi
-                     </div>
-                     <ul className="text-[11px] text-amber-800/80 space-y-1.5 font-medium list-disc pl-4">
-                        <li>H1, P ve Buton sınıflarına müdahale edebilirsiniz.</li>
-                        <li>!important kullanmanız gerekebilir.</li>
-                        <li>Animasyonlar ve gradientler ekleyebilirsiniz.</li>
-                     </ul>
                   </div>
                </div>
             )}
-            
+          </div>
+
+          <div className="p-3 border-t border-[#e1e3e5] bg-[#f6f6f7]">
+             <button className="w-full py-2 bg-white border border-[#e1e3e5] rounded flex items-center justify-center gap-2 text-red-600 text-[12px] font-bold hover:bg-red-50 transition-colors">
+                <Trash2 className="w-4 h-4" /> Bölümü kaldır
+             </button>
           </div>
         </aside>
 
       </div>
 
       <style dangerouslySetInnerHTML={{__html: `
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #babfc3; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #5c5f62; }
         @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fade-in 0.2s ease-out forwards; }
       `}} />
     </div>
   );
