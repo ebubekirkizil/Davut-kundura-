@@ -15,7 +15,7 @@
 
 @layer base {
   ::selection {
-    background-color: var(--color-gold);
+    background-color: rgb(212, 175, 55);
     color: white;
   }
 
@@ -33,12 +33,23 @@
 
 @layer utilities {
   .glass-header {
-    @apply bg-white/70 backdrop-blur-md border-b border-white/20 shadow-sm;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   }
+  
   .glass-modal {
-    @apply bg-[rgb(13,13,13)]/95 backdrop-blur-xl border border-[rgb(212,175,55)]/20;
+    background-color: rgba(13, 13, 13, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
   }
+  
   .text-gradient-gold {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-[#F3E5AB];
+    background: linear-gradient(to right, rgb(212, 175, 55), rgb(243, 229, 171));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
   }
 }
