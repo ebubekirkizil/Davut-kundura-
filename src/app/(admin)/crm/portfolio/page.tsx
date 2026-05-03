@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import AdminLayout from '../../../../components/ui/AdminLayout'
 
 type PortfolioItem = { id: string; name: string; email: string; phone: string; lastInteraction?: string; notes?: string; status?: string; };
 
@@ -21,7 +22,8 @@ export default function PortfolioPage() {
   }, []);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <AdminLayout>
+      <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-brand font-bold text-[var(--text-primary)]">Müşteri İlişkileri Portföyü</h1>
         <span className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black rounded-full uppercase tracking-widest border border-[var(--accent)]/20">Premium CRM</span>
@@ -73,6 +75,7 @@ export default function PortfolioPage() {
           </table>
         </div>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

@@ -15,10 +15,7 @@ export default async function ProductsPage() {
     products = await prisma.product.findMany({
       where: { status: "ACTIVE" },
       orderBy: { createdAt: "desc" },
-      include: {
-        variants: true,
-        reviews: true,
-      }
+      include: { variants: true, reviews: true },
     });
   } catch (error) {
     console.error("Ürünler yüklenemedi:", error);

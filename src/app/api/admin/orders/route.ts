@@ -1,90 +1,40 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-
-function isAdmin(session: any) {
-  return session?.user?.role === "ADMIN";
-}
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '../../../../lib/prisma'
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!isAdmin(session)) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
+  try {
+    const url = new URL(req.url)
+    const search = url.searchParams.get('search') ?? ''
+    const page = parseInt(url.searchParams.get('page') ?? '1', 10)
+    const limit = parseInt(url.searchParams.get('limit') ?? '10', 10)
+    const take = Number.isFinite(limit) ? limit : 10
+    const skip = ((Number.isFinite(page) ? page : 1) - 1) * take
+    const status = url.searchParams.get('status') ?? undefined
 
-  const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "20");
-  const status = searchParams.get("status") || "";
-  const search = searchParams.get("search") || "";
+    const where: any = {}
+    if (status) where.status = status
+    if (search) where.OR = [{ id: { contains: search, mode: 'insensitive' } }]
 
-  const where: any = {};
-  if (status) where.status = status;
-  if (search) where.OR = [
-    { orderNumber: { contains: search, mode: "insensitive" } },
-    { user: { name: { contains: search, mode: "insensitive" } } },
-  ];
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({ where, take, skip, orderBy: { createdAt: 'desc' }, include: { orderItems: true } }),
+      prisma.order.count({ where }),
+    ])
 
-  const [orders, total] = await Promise.all([
-    prisma.order.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: { select: { name: true, email: true, phone: true } },
-        address: true,
-        items: {
-          include: {
-            product: { select: { name: true, imageUrls: true } },
-            variant: true,
-          },
-        },
-        discountCode: true,
-      },
-    }),
-    prisma.order.count({ where }),
-  ]);
+    const items = orders.map((o: any) => {
+      const revenue = o.total ?? o.orderItems?.reduce((acc: number, it: any) => acc + ((it.price ?? it.unitPrice) * (it.quantity ?? 1)), 0) ?? 0
+      const customerName = o.customerName ?? o.customer?.name ?? ''
+      return {
+        id: o.id,
+        customer: customerName,
+        date: o.createdAt?.toISOString?.() ?? '',
+        status: o.status,
+        revenue,
+      }
+    })
 
-  return NextResponse.json({ orders, total, page, limit });
-}
-
-export async function PATCH(req: NextRequest) {
-  const session = await auth();
-  if (!isAdmin(session)) return NextResponse.json({ error: "Yetkisiz" }, { status: 401 });
-
-  const { id, status, cargoCompany, cargoTrackingNo, adminNotes, paymentStatus } = await req.json();
-
-  const updateData: any = {};
-  if (status) updateData.status = status;
-  if (paymentStatus) updateData.paymentStatus = paymentStatus;
-  if (cargoCompany) updateData.cargoCompany = cargoCompany;
-  if (cargoTrackingNo) updateData.cargoTrackingNo = cargoTrackingNo;
-  if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
-  if (status === "SHIPPED") updateData.cargoSentAt = new Date();
-
-  const order = await prisma.order.update({
-    where: { id },
-    data: updateData,
-  });
-
-  // Bildirim oluştur
-  if (status) {
-    const messages: Record<string, string> = {
-      PROCESSING: "Sipariş hazırlanmaya başlandı",
-      SHIPPED: `Sipariş kargoya verildi${cargoCompany ? ` (${cargoCompany})` : ""}`,
-      DELIVERED: "Sipariş teslim edildi",
-      CANCELLED: "Sipariş iptal edildi",
-    };
-    if (messages[status]) {
-      await prisma.notification.create({
-        data: {
-          type: status === "SHIPPED" ? "CARGO_DELIVERED" : "NEW_ORDER",
-          title: `#${order.orderNumber} Güncellendi`,
-          message: messages[status],
-          link: `/orders/${id}`,
-        },
-      });
-    }
+    return NextResponse.json({ items, total, page, limit })
+  } catch (err) {
+    console.error('Orders route error', err)
+    return NextResponse.json({ error: 'DB_ERROR', detail: (err as any)?.message ?? '' }, { status: 500 })
   }
-
-  return NextResponse.json(order);
 }
