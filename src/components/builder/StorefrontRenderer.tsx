@@ -17,10 +17,6 @@ const failsafeStyles = `
   .luxe-button:hover { background: var(--accent); transform: scale(1.05); }
 `;
 
-const HeaderComponent = ({ section, selectedId, onSelect }: any) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 50);
 function HeaderComponent({ section, selectedId, onSelect }: { section: any, selectedId: string | null, onSelect: any }) {
   return (
     <header className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl">
@@ -36,7 +32,7 @@ function HeaderComponent({ section, selectedId, onSelect }: { section: any, sele
         <div className="flex items-center gap-6">
            <Search size={18} className="text-[var(--text-secondary)] hover:text-[var(--accent)] cursor-pointer transition-colors" />
            <div className="relative group cursor-pointer">
-              <ShoppingCart size={18} className="text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors" />
+              <ShoppingBag size={18} className="text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors" />
               <span className="absolute -top-2 -right-2 w-4 h-4 bg-[var(--accent)] text-white text-[8px] font-black flex items-center justify-center rounded-full animate-bounce">0</span>
            </div>
            <button className="hidden sm:block px-6 py-2.5 bg-[var(--text-primary)] text-white rounded-full text-[10px] font-black tracking-widest hover:bg-[var(--accent)] transition-all">GİRİŞ</button>
@@ -49,57 +45,34 @@ function HeaderComponent({ section, selectedId, onSelect }: { section: any, sele
 function FooterComponent({ section }: { section: any }) {
   return (
     <footer className="bg-[var(--text-primary)] text-white py-32 px-10 border-t border-white/5 relative overflow-hidden">
-      {/* Decorative BG */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--accent)]/5 rounded-full blur-[150px] -mr-[250px] -mt-[250px]"></div>
-      
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-20 relative z-10">
         <div className="space-y-8">
           <div className="text-3xl font-brand font-bold tracking-tighter">DAVUT KUNDURA</div>
           <p className="text-[14px] text-white/50 leading-relaxed italic">
-            "1990'dan beri zanaatın ve asaletin Pendik'teki tek adresi. Her adımda bir hikaye, her dikişte bir miras."
+            "1990'dan beri zanaatın ve asaletin Pendik'teki tek adresi."
           </p>
-          <div className="flex items-center gap-6">
-             <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all cursor-pointer"><Instagram size={18} /></div>
-             <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:border-[var(--accent)] hover:text-[var(--accent)] transition-all cursor-pointer"><Twitter size={18} /></div>
-          </div>
         </div>
-        
         <div className="space-y-8">
            <div className="text-[11px] font-black tracking-[0.3em] uppercase text-[var(--accent)]">KOLEKSİYONLAR</div>
            <nav className="flex flex-col gap-4 text-[13px] font-medium text-white/60">
-              <a href="#" className="hover:text-white transition-colors">Klasik Oxford</a>
-              <a href="#" className="hover:text-white transition-colors">Modern Loafer</a>
-              <a href="#" className="hover:text-white transition-colors">Özel Dikim</a>
-              <a href="#" className="hover:text-white transition-colors">Bakım Ürünleri</a>
+              <a href="#">Klasik Oxford</a>
+              <a href="#">Modern Loafer</a>
            </nav>
         </div>
-
         <div className="space-y-8">
            <div className="text-[11px] font-black tracking-[0.3em] uppercase text-[var(--accent)]">KURUMSAL</div>
            <nav className="flex flex-col gap-4 text-[13px] font-medium text-white/60">
-              <a href="#" className="hover:text-white transition-colors">Atölye Hikayemiz</a>
-              <a href="#" className="hover:text-white transition-colors">Sürdürülebilirlik</a>
-              <a href="#" className="hover:text-white transition-colors">Kariyer</a>
-              <a href="#" className="hover:text-white transition-colors">Mağazalarımız</a>
+              <a href="#">Atölye Hikayemiz</a>
+              <a href="#">Mağazalarımız</a>
            </nav>
         </div>
-
         <div className="space-y-8">
            <div className="text-[11px] font-black tracking-[0.3em] uppercase text-[var(--accent)]">BÜLTEN</div>
-           <p className="text-[13px] text-white/50">Özel koleksiyonlar ve etkinliklerden ilk siz haberdar olun.</p>
            <div className="relative group">
-              <input type="email" placeholder="E-posta adresiniz" className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-[12px] focus:border-[var(--accent)] outline-none transition-all" />
-              <button className="absolute right-2 top-2 bottom-2 px-6 bg-white text-black rounded-full text-[10px] font-black hover:bg-[var(--accent)] hover:text-white transition-all">KATIL</button>
+              <input type="email" placeholder="E-posta" className="w-full bg-white/5 border border-white/10 rounded-full px-6 py-4 text-[12px]" />
            </div>
         </div>
-      </div>
-      
-      <div className="max-w-7xl mx-auto mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-         <div className="text-[10px] font-medium text-white/30 uppercase tracking-widest">© 2026 DAVUT KUNDURA. TÜM HAKLARI SAKLIDIR.</div>
-         <div className="flex gap-8 text-[10px] font-medium text-white/30 uppercase tracking-widest">
-            <a href="#" className="hover:text-white">GİZLİLİK POLİTİKASI</a>
-            <a href="#" className="hover:text-white">ÇEREZ AYARLARI</a>
-         </div>
       </div>
     </footer>
   )

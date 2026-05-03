@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../../../../components/ui/AdminLayout'
 
 type PortfolioItem = { id: string; name: string; email: string; phone: string; lastInteraction?: string; notes?: string; status?: string; };
 
@@ -22,8 +21,7 @@ export default function PortfolioPage() {
   }, []);
 
   return (
-    <AdminLayout>
-      <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-brand font-bold text-[var(--text-primary)]">Müşteri İlişkileri Portföyü</h1>
         <span className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black rounded-full uppercase tracking-widest border border-[var(--accent)]/20">Premium CRM</span>
@@ -48,34 +46,32 @@ export default function PortfolioPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[var(--bg-secondary)]/30 border-b border-[var(--border)]">
-                <th className="px-6 py-4 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Müşteri</th>
-                <th className="px-6 py-4 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">İletişim</th>
-                <th className="px-6 py-4 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Son Etkileşim</th>
-                <th className="px-6 py-4 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-widest">Durum</th>
+              <tr className="bg-[var(--bg-secondary)] border-b border-[var(--border)]">
+                <th className="px-8 py-6 text-[10px] font-black tracking-widest text-[var(--text-secondary)] uppercase">Ad Soyad</th>
+                <th className="px-8 py-6 text-[10px] font-black tracking-widest text-[var(--text-secondary)] uppercase">İletişim</th>
+                <th className="px-8 py-6 text-[10px] font-black tracking-widest text-[var(--text-secondary)] uppercase">Durum</th>
+                <th className="px-8 py-6 text-[10px] font-black tracking-widest text-[var(--text-secondary)] uppercase">Son İşlem</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[var(--border)] text-[13px]">
+            <tbody className="divide-y divide-[var(--border)]">
               {loading ? (
-                <tr><td colSpan={4} className="px-6 py-12 text-center text-[var(--text-secondary)] italic">Veriler yükleniyor...</td></tr>
-              ) : items.map((it) => (
-                <tr key={it.id} className="hover:bg-[var(--bg-secondary)]/50 transition-colors group">
-                  <td className="px-6 py-4 font-bold">{it.name}</td>
-                  <td className="px-6 py-4">
-                    <div className="font-medium">{it.email}</div>
-                    <div className="text-[11px] text-[var(--text-secondary)]">{it.phone}</div>
+                <tr><td colSpan={4} className="px-8 py-20 text-center text-[var(--text-secondary)] italic">Müşteri verileri yükleniyor...</td></tr>
+              ) : items.length === 0 ? (
+                <tr><td colSpan={4} className="px-8 py-20 text-center text-[var(--text-secondary)] italic">Henüz kayıtlı müşteri bulunamadı.</td></tr>
+              ) : items.map((item) => (
+                <tr key={item.id} className="hover:bg-[var(--bg-secondary)]/50 transition-colors group cursor-pointer">
+                  <td className="px-8 py-6 font-bold">{item.name}</td>
+                  <td className="px-8 py-6 text-[var(--text-secondary)] text-sm">{item.email}<br/>{item.phone}</td>
+                  <td className="px-8 py-6">
+                    <span className="px-3 py-1 bg-green-50 text-green-700 text-[10px] font-black rounded-full border border-green-100">AKTİF</span>
                   </td>
-                  <td className="px-6 py-4">{it.lastInteraction ?? '-'}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold uppercase tracking-tighter">{it.status ?? 'Yeni'}</span>
-                  </td>
+                  <td className="px-8 py-6 text-[var(--text-secondary)] text-sm">—</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
-      </div>
-    </AdminLayout>
+    </div>
   );
 }
