@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import AdminLayout from '../../../../components/ui/AdminLayout';
 import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package, Sparkles, Plus } from "lucide-react";
 
 export default function OrdersPage() {
@@ -45,8 +44,7 @@ export default function OrdersPage() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="space-y-1">
@@ -217,7 +215,6 @@ export default function OrdersPage() {
         </div>
 
       </div>
-      </div>
-    </AdminLayout>
+    </div>
   );
 }

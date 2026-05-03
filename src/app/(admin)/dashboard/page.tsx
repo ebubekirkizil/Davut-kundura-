@@ -1,7 +1,5 @@
 "use client";
 
-import AdminLayout from '../../../../components/ui/AdminLayout';
-
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, Building2, Receipt, Search, Download, Plus, X, Pencil, Sparkles, CreditCard, PieChart } from "lucide-react";
@@ -73,8 +71,7 @@ export default function RechartsFinanceDashboard() {
   };
 
   return (
-    <AdminLayout>
-      <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
       
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -99,7 +96,6 @@ export default function RechartsFinanceDashboard() {
            </button>
         </div>
       </div>
-    </AdminLayout>
       {/* KPI Stats - Premium Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[ 
