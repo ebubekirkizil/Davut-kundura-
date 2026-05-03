@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Box, Phone, MapPin, ShoppingBag, ArrowRight, Sparkles, Camera, Share2, Mail, Play, Volume2, Globe, Heart } from "lucide-react";
+import { Search, Box, Phone, MapPin, ShoppingBag, ArrowRight, Sparkles, Camera, Share2, Mail, Play, Volume2, Globe, Heart, X } from "lucide-react";
 
 // --- KRİTİK TASARIM KORUMASI ---
 const failsafeStyles = `
