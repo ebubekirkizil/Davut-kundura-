@@ -61,18 +61,47 @@ export const useBuilderStore = create<BuilderState>()(
             {
               id: "hero-1",
               type: "hero",
-              settings: { title: "Zarafetin Adımları", subtitle: "Premium Deri Koleksiyonu", buttonText: "Keşfet" },
+              settings: { 
+                title: "Zanaatın Geleceği", 
+                subtitle: "Pendik'te Geleneksel Deri İşçiliği ve Profesyonel Bakım", 
+                buttonText: "Katalogları Gör" 
+              },
               blocks: []
+            },
+            {
+              id: "about-1",
+              type: "richText",
+              settings: {
+                title: "Zanaatın Hikayesi",
+                content: "Davut Kundura, Pendik'te zanaatı ve ustalığı modern dokunuşlarla birleştiren köklü bir aile geleneğidir. Deri işçiliğindeki hassasiyetimiz ve profesyonel yaklaşımımızla yıllardır müşterilerimize hizmet vermekteyiz."
+              },
+              blocks: []
+            },
+            {
+              id: "category-grid-1",
+              type: "categoryGrid",
+              settings: {
+                title: "ÜRÜN KATALOGLARIMIZ",
+                subtitle: "Pendik Mağazamızdan Seçkin Zanaat Ürünleri"
+              },
+              blocks: [
+                { id: "cat-1", type: "category_item", settings: { title: "Hakiki Deri Kemerler" } },
+                { id: "cat-2", type: "category_item", settings: { title: "Ortopedik Tabanlıklar" } },
+                { id: "cat-3", type: "category_item", settings: { title: "Ayakkabı Bakım Ürünleri" } },
+                { id: "cat-4", type: "category_item", settings: { title: "Deri Aksesuarlar" } },
+                { id: "cat-5", type: "category_item", settings: { title: "Valiz Yedek Parçaları" } },
+                { id: "cat-6", type: "category_item", settings: { title: "Profesyonel Tamir Servisi" } }
+              ]
             },
             {
               id: "footer-1",
               type: "footer",
-              settings: { topBarText: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO", backgroundColor: "#f4ecd8" },
+              settings: { topBarText: "PENDİK DAVUT KUNDURA • EL İŞÇİLİĞİ • GÜVENİLİR TAMİR", backgroundColor: "#f4ecd8" },
               blocks: [
-                { id: "f-b-1", type: "footer_text", settings: { title: "DAVUT KUNDURA", content: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri, özel yapım kemerler ve profesyonel ayakkabı bakım ürünlerinde güvenilir adresiniz." } },
-                { id: "f-b-2", type: "footer_menu", settings: { title: "HIZLI MENÜ", links: "Tüm Ürünler\nHakkımızda\nSıkça Sorulan Sorular\nİade Politikası" } },
-                { id: "f-b-3", type: "footer_menu", settings: { title: "KATEGORİLER", links: "Ortopedik Tabanlar\n Hakiki Deri Kemerler\n Ayakkabı Bakım Setleri" } },
-                { id: "f-b-4", type: "footer_contact", settings: { title: "İLETİŞİM", address: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul, Türkiye", phone: "+90 (555) 123 45 67" } }
+                { id: "f-b-1", type: "footer_text", settings: { title: "DAVUT KUNDURA PENDİK", content: "Doğu Mahallesi, Flurya Sokak, No: 2/B, Pendik/İstanbul. Uzman ekibimizle tamir, bakım ve aksesuar ihtiyaçlarınızda yanınızdayız." } },
+                { id: "f-b-2", type: "footer_menu", settings: { title: "ÜRÜN KATALOĞU", links: "Hakiki Deri Kemerler\nOrtopedik Tabanlıklar\nAyakkabı Bakım Ürünleri\nValiz Yedek Parçaları" } },
+                { id: "f-b-3", type: "footer_menu", settings: { title: "PROFESYONEL SERVİS", links: "Ayakkabı Tamiri\nBoya & Bakım\nLeke Çıkarma\nTamir Siparişi" } },
+                { id: "f-b-4", type: "footer_contact", settings: { title: "BİZE ULAŞIN", address: "Doğu Mah. Flurya Sok. No:2/B Pendik", phone: "+90 538 625 87 92" } }
               ]
             }
           ]

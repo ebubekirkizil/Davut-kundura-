@@ -47,5 +47,21 @@ export const SECTION_SCHEMAS: Record<string, any> = {
       { id: "title", type: "text", label: "Başlık", default: "Zarafetin Adımları" },
       { id: "buttonText", type: "text", label: "Buton", default: "Keşfet" }
     ]
+  },
+  categoryGrid: {
+    type: "categoryGrid",
+    label: "Ürün Katalog Galerisi",
+    icon: "Layout",
+    settings: [
+      { id: "title", type: "text", label: "Bölüm Başlığı", default: "ÜRÜN KATALOGLARIMIZ" },
+      { id: "subtitle", type: "text", label: "Alt Başlık", default: "Pendik'ten Seçkin Zanaat Ürünleri" }
+    ],
+    blocks: [
+      { type: "category_item", label: "Kategori Kutusu", settings: [
+        { id: "title", type: "text", label: "Kategori Adı", default: "Kemerler" },
+        { id: "image", type: "image", label: "Kategori Görseli" },
+        { id: "link", type: "text", label: "Link", default: "#" }
+      ]}
+    ]
   }
 };

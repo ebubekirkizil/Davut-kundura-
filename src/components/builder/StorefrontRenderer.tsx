@@ -69,6 +69,42 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
         const renderContent = () => {
           switch (section.type) {
             case "header": return <HeaderComponent section={section} selectedId={selectedId} onSelect={handleSectionClick} />;
+            case "categoryGrid":
+              return (
+                <section className="container mx-auto px-6 py-24 bg-white">
+                  <div className="text-center mb-16">
+                    <h2 className="text-4xl font-serif font-bold text-[#1a120b] mb-4">{section.settings?.title}</h2>
+                    <p className="text-lg text-[#1a120b]/60 italic">{section.settings?.subtitle}</p>
+                    <div className="w-20 h-1 bg-[#d4af37] mx-auto mt-6"></div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                    {section.blocks?.map((block: any) => {
+                      const isBlockSelected = selectedId === block.id;
+                      return (
+                        <div 
+                          key={block.id} 
+                          onClick={(e) => handleSectionClick(e, block.id)}
+                          className={`group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer shadow-lg transition-all border-2 ${isBlockSelected ? 'border-blue-500 ring-4 ring-blue-500/20 scale-105' : 'border-transparent hover:scale-[1.02]'}`}
+                        >
+                          {block.settings?.image ? (
+                            <img src={block.settings.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={block.settings.title} />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-[#1a120b]/5 to-[#1a120b]/10 flex flex-col items-center justify-center p-6 text-center">
+                              <ImageIcon size={32} className="text-[#1a120b]/20 mb-4" />
+                              <span className="text-xs font-bold text-[#1a120b]/30 uppercase tracking-widest">{block.settings?.title} Görseli</span>
+                            </div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
+                            <h3 className="text-xl md:text-2xl font-serif font-bold text-white mb-2">{block.settings?.title}</h3>
+                            <div className="w-0 group-hover:w-12 h-0.5 bg-[#d4af37] transition-all duration-300"></div>
+                            <span className="text-[10px] font-bold text-[#d4af37] mt-4 uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity">Kataloğu İncele</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
             case "hero": return <div className="bg-[#f4ecd8] py-32 text-center"><h1 className="text-6xl font-serif font-bold mb-4">{section.settings?.title}</h1><button className="px-8 py-3 bg-black text-white rounded-full mt-6">{section.settings?.buttonText}</button></div>;
             case "footer":
               return (
