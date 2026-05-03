@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star, Camera } from "lucide-react";
-import LiveHeroClient from "./LiveHeroClient";
 
+// HEADER BILESENI
 const HeaderComponent = ({ section, selectedId, onSelect }: { section: any, selectedId: string | null, onSelect: (e: React.MouseEvent, id: string) => void }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -20,10 +20,10 @@ const HeaderComponent = ({ section, selectedId, onSelect }: { section: any, sele
           className={`font-bold tracking-tighter text-[#1a120b] cursor-pointer transition-all duration-300 p-2 rounded-lg border border-transparent hover:border-blue-200 ${selectedId === section.id ? 'border-blue-500 bg-blue-50/10' : ''}`}
           style={{ fontSize: isScrolled ? '18px' : `${section.settings?.logoSize || 24}px` }}
         >
-          {isScrolled ? "DK" : section.settings?.logoText}
+          {isScrolled ? "DK" : (section.settings?.logoText || "DAVUT KUNDURA")}
         </div>
         <nav className="hidden lg:flex items-center gap-10">
-          {section.blocks?.filter((b: any) => b.type === 'menu_item').map((block: any) => (
+          {(section.blocks || []).filter((b: any) => b.type === 'menu_item').map((block: any) => (
             <a 
               key={block.id} 
               href="#" 
@@ -64,11 +64,34 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
   };
 
   return (
-    <div className="flex flex-col w-full min-h-screen">
+    <div className="flex flex-col w-full min-h-screen bg-gray-50">
       {sections.map((section: any) => {
         const renderContent = () => {
           switch (section.type) {
-            case "header": return <HeaderComponent section={section} selectedId={selectedId} onSelect={handleSectionClick} />;
+            case "header": 
+              return <HeaderComponent section={section} selectedId={selectedId} onSelect={handleSectionClick} />;
+            
+            case "hero": 
+              return (
+                <div className="bg-[#f4ecd8] py-32 text-center">
+                  <h1 className="text-6xl font-serif font-bold mb-4 text-[#1a120b]">{section.settings?.title}</h1>
+                  <p className="text-xl text-[#1a120b]/60 italic mb-8">{section.settings?.subtitle}</p>
+                  <button className="px-10 py-4 bg-black text-white rounded-full font-bold hover:bg-[#d4af37] transition-all">
+                    {section.settings?.buttonText}
+                  </button>
+                </div>
+              );
+
+            case "richText":
+              return (
+                <section className="container mx-auto px-6 py-24 text-center bg-white border-y border-gray-100">
+                  <div className="max-w-4xl mx-auto space-y-6">
+                    <h2 className="text-4xl font-serif font-bold text-[#1a120b] italic">{section.settings?.title}</h2>
+                    <p className="text-[#1a120b]/70 text-xl leading-relaxed italic">"{section.settings?.content}"</p>
+                  </div>
+                </section>
+              );
+
             case "categoryGrid":
               return (
                 <section className="container mx-auto px-6 py-24 bg-white">
@@ -78,7 +101,7 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                     <div className="w-20 h-1 bg-[#d4af37] mx-auto mt-6"></div>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-                    {section.blocks?.map((block: any) => {
+                    {(section.blocks || []).map((block: any) => {
                       const isBlockSelected = selectedId === block.id;
                       return (
                         <div 
@@ -86,14 +109,10 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                           onClick={(e) => handleSectionClick(e, block.id)}
                           className={`group relative aspect-[4/5] overflow-hidden rounded-2xl cursor-pointer shadow-lg transition-all border-2 ${isBlockSelected ? 'border-blue-500 ring-4 ring-blue-500/20 scale-105' : 'border-transparent hover:scale-[1.02]'}`}
                         >
-                          {block.settings?.image ? (
-                            <img src={block.settings.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={block.settings.title} />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-[#1a120b]/5 to-[#1a120b]/10 flex flex-col items-center justify-center p-6 text-center">
-                              <ImageIcon size={32} className="text-[#1a120b]/20 mb-4" />
-                              <span className="text-xs font-bold text-[#1a120b]/30 uppercase tracking-widest">{block.settings?.title} Görseli</span>
-                            </div>
-                          )}
+                          <div className="w-full h-full bg-gradient-to-br from-[#1a120b]/5 to-[#1a120b]/10 flex flex-col items-center justify-center p-6 text-center">
+                            <ImageIcon size={32} className="text-[#1a120b]/20 mb-4" />
+                            <span className="text-xs font-bold text-[#1a120b]/30 uppercase tracking-widest">{block.settings?.title}</span>
+                          </div>
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8">
                             <h3 className="text-xl md:text-2xl font-serif font-bold text-white mb-2">{block.settings?.title}</h3>
                             <div className="w-0 group-hover:w-12 h-0.5 bg-[#d4af37] transition-all duration-300"></div>
@@ -105,7 +124,7 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                   </div>
                 </section>
               );
-            case "hero": return <div className="bg-[#f4ecd8] py-32 text-center"><h1 className="text-6xl font-serif font-bold mb-4">{section.settings?.title}</h1><button className="px-8 py-3 bg-black text-white rounded-full mt-6">{section.settings?.buttonText}</button></div>;
+
             case "footer":
               return (
                 <footer className="w-full">
@@ -116,7 +135,7 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                   </div>
                   <div style={{ backgroundColor: section.settings?.backgroundColor || "#f4ecd8" }} className="py-20 px-6 border-t border-black/5">
                     <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20">
-                      {section.blocks?.map((block: any) => {
+                      {(section.blocks || []).map((block: any) => {
                         const isBlockSelected = selectedId === block.id;
                         return (
                           <div 
@@ -134,7 +153,7 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                               <>
                                 <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{block.settings?.title}</h4>
                                 <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
-                                  {block.settings?.links?.split('\n').map((link: string, i: number) => (
+                                  {(block.settings?.links || "").split('\n').map((link: string, i: number) => (
                                     <li key={i}><span className="hover:text-black transition-colors">{link}</span></li>
                                   ))}
                                 </ul>
@@ -159,12 +178,17 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
                   </div>
                 </footer>
               );
-            default: return <div className="p-10 border border-dashed text-center">Bölüm: {section.type}</div>;
+
+            default: return <div key={section.id} className="p-10 border border-dashed text-center">Bölüm: {section.type}</div>;
           }
         };
 
         return (
-          <div key={section.id} onClick={() => window.parent.postMessage({ type: "SELECT_SECTION", id: section.id }, "*")} className={`relative group transition-all duration-200 ${selectedId === section.id ? 'ring-2 ring-blue-500 z-10' : 'hover:ring-1 hover:ring-blue-300'}`}>
+          <div 
+            key={section.id} 
+            onClick={(e) => handleSectionClick(e, section.id)} 
+            className={`relative group transition-all duration-200 ${selectedId === section.id ? 'ring-2 ring-blue-500 z-10' : 'hover:ring-1 hover:ring-blue-300'}`}
+          >
              {renderContent()}
           </div>
         );
