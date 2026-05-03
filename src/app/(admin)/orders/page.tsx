@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package, Sparkles } from "lucide-react";
+import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package, Sparkles, Plus } from "lucide-react";
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState("ALL");
