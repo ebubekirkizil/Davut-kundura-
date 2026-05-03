@@ -34,6 +34,15 @@ export default function ShopifyProfessionalBuilder() {
     resetState
   } = useBuilderStore();
 
+  useEffect(() => {
+    // Hafıza Çakışması Kontrolü (Beyaz ekranı bitiren hamle)
+    const stored = localStorage.getItem("davut-builder-storage");
+    if (stored && !stored.includes("categoryGrid")) {
+      console.log("Eski versiyon tespit edildi, otomatik güncelleniyor...");
+      resetState();
+    }
+  }, [resetState]);
+
   const [isSaving, setIsSaving] = useState(false);
   const [showAddSection, setShowAddSection] = useState(false);
   const [activeSidebarTab, setActiveSidebarTab] = useState<"layers" | "blocks" | "settings">("layers");
