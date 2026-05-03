@@ -1,108 +1,39 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Outfit:wght@100;300;400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg-primary: #FDFBF7;
-  --bg-secondary: #F7F3EE;
-  --text-primary: #12100E;
-  --text-secondary: #4A4540;
-  --accent: #C5A059;
-  --accent-dark: #A37F3D;
-  --border: rgba(18, 16, 14, 0.08);
-  --radius-sm: 4px;
-  --radius-md: 12px;
-  --radius-lg: 24px;
+@theme {
+  --font-serif: "Cinzel", serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --color-espresso: rgb(13, 13, 13);
+  --color-cream: rgb(253, 251, 247);
+  --color-gold: rgb(212, 175, 55);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  body {
+    background-color: var(--color-cream);
+    color: var(--color-espresso);
+    font-family: var(--font-sans);
+    @apply antialiased selection:bg-gold selection:text-white;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
 }
 
-body {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: 'Outfit', sans-serif;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4, .font-brand {
-  font-family: 'Cinzel', serif;
-  letter-spacing: -0.02em;
-}
-
-/* --- LUXE COMPONENTS --- */
-
-.luxe-section {
-  padding: 160px 0;
-  position: relative;
-}
-
-.luxe-container {
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 40px;
-}
-
-.luxe-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px 48px;
-  background: var(--text-primary);
-  color: white;
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  border-radius: var(--radius-sm);
-  transition: all 0.5s cubic-bezier(0.2, 1, 0.3, 1);
-  border: none;
-  cursor: pointer;
-}
-
-.luxe-button:hover {
-  background: var(--accent);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 40px rgba(197, 160, 89, 0.2);
-}
-
-.luxe-card {
-  background: white;
-  border: 1px solid var(--border);
-  padding: 60px 40px;
-  transition: all 0.7s cubic-bezier(0.2, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.luxe-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-20px);
-  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.05);
-}
-
-.text-gold { color: var(--accent); }
-.bg-gold { background-color: var(--accent); }
-
-/* Custom Animations */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-luxe {
-  animation: fadeInUp 1.2s cubic-bezier(0.2, 1, 0.3, 1) forwards;
-}
-
-/* Header Glassmorphism */
-.glass-nav {
-  background: rgba(253, 251, 247, 0.8);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(18, 16, 14, 0.05);
+@layer utilities {
+  .glass-header {
+    @apply bg-white/70 backdrop-blur-md border-b border-white/20 shadow-sm;
+  }
+  .glass-modal {
+    @apply bg-[rgb(13,13,13)]/95 backdrop-blur-xl border border-[rgb(212,175,55)]/20;
+  }
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-gold to-[#F3E5AB];
+  }
 }
