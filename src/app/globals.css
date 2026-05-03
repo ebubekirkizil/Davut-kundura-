@@ -1,50 +1,94 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @theme {
+  /* Typography */
   --font-serif: "Cinzel", serif;
   --font-sans: "Inter", sans-serif;
-  
+  --font-brand: "Cinzel", serif;
+
+  /* Color Palette - Luxe Theme */
   --color-espresso: rgb(13, 13, 13);
   --color-cream: rgb(253, 251, 247);
   --color-gold: rgb(212, 175, 55);
+
+  /* Design System Variables */
+  --text-primary: rgb(13, 13, 13);
+  --text-secondary: rgb(107, 114, 128);
+  --accent: rgb(212, 175, 55);
+  --bg-primary: rgb(253, 251, 247);
+  --bg-secondary: rgb(249, 247, 243);
+  --border: rgb(229, 231, 235);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  --shadow-premium: 0 25px 50px -12px rgba(212, 175, 55, 0.25);
 }
 
 @layer base {
+  /* Selection */
   ::selection {
     background-color: rgb(212, 175, 55);
     color: white;
   }
 
+  /* Body */
   body {
-    background-color: var(--color-cream);
-    color: var(--color-espresso);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: var(--font-sans);
     @apply antialiased;
   }
-  
+
+  /* Headings */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-serif);
+  }
+
+  /* Scrollbar Styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+    transition: background 0.3s;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
   }
 }
 
 @layer utilities {
+  /* Glass Effects */
   .glass-header {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   }
-  
+
   .glass-modal {
     background-color: rgba(13, 13, 13, 0.95);
     backdrop-filter: blur(24px);
     border: 1px solid rgba(212, 175, 55, 0.2);
   }
-  
+
+  /* Text Gradients */
   .text-gradient-gold {
     background: linear-gradient(to right, rgb(212, 175, 55), rgb(243, 229, 171));
     -webkit-background-clip: text;
@@ -52,4 +96,98 @@
     background-clip: text;
     color: transparent;
   }
+
+  /* Animations */
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 3s linear infinite;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(212, 175, 55, 0.3) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  /* Fade In Animation */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-in {
+    animation: fade-in 0.5s ease-out;
+  }
+
+  @keyframes slide-in-from-right {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+
+  .slide-in-from-right {
+    animation: slide-in-from-right 0.3s ease-out;
+  }
+
+  @keyframes slide-in-from-bottom-10 {
+    from { transform: translateY(2.5rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  .slide-in-from-bottom-10 {
+    animation: slide-in-from-bottom-10 0.5s ease-out;
+  }
+
+  @keyframes zoom-in-95 {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .zoom-in-95 {
+    animation: zoom-in-95 0.3s ease-out;
+  }
+
+  @keyframes zoom-in-50 {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .zoom-in-50 {
+    animation: zoom-in-50 0.3s ease-out;
+  }
+
+  /* Duration utilities */
+  .duration-1000 {
+    transition-duration: 1000ms;
+  }
+
+  .duration-700 {
+    transition-duration: 700ms;
+  }
+
+  .duration-500 {
+    transition-duration: 500ms;
+  }
+
+  .duration-300 {
+    transition-duration: 300ms;
+  }
 }
+
