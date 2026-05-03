@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AdminLayout from '../../../../components/ui/AdminLayout';
 import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package, Sparkles, Plus } from "lucide-react";
 
 export default function OrdersPage() {
@@ -14,6 +15,15 @@ export default function OrdersPage() {
     { id: "ORD-2026-9009", customer: "Ebru Çelik", email: "ebru_celik@hotmail.com", date: "Dün, 09:20", amount: "2,400 ₺", status: "DELIVERED", payment: "PAID", items: 1 },
     { id: "ORD-2026-9008", customer: "Kemal T.", email: "kemal.t@sirket.com", date: "01 Mayıs, 15:00", amount: "4,600 ₺", status: "CANCELLED", payment: "REFUNDED", items: 2 },
   ];
+
+  const filteredOrders = orders.filter((o) => {
+    const q = search.toLowerCase();
+    return (
+      o.id.toLowerCase().includes(q) ||
+      o.customer.toLowerCase().includes(q) ||
+      o.email.toLowerCase().includes(q)
+    );
+  });
 
   const getStatusBadge = (status: string) => {
     switch(status) {
@@ -35,7 +45,8 @@ export default function OrdersPage() {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
+    <AdminLayout>
+      <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div className="space-y-1">
@@ -44,6 +55,15 @@ export default function OrdersPage() {
             <span className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black rounded-full uppercase tracking-widest border border-[var(--accent)]/20">Aktif Operasyon</span>
           </div>
           <p className="text-[14px] text-[var(--text-secondary)] font-light italic">"Zanaatın her adımını titizlikle takip edin."</p>
+        </div>
+        <div className="w-full lg:w-auto mt-2">
+          <input
+            type="text"
+            placeholder="Ara: müşteri / sipariş / e-posta"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-2 border border-[var(--border)] rounded-xl bg-white shadow-sm"
+          />
         </div>
         <div className="flex items-center gap-3">
            <button className="px-6 py-3 border border-[var(--border)] rounded-xl text-[13px] font-bold text-[var(--text-primary)] bg-white hover:bg-[var(--bg-secondary)] transition-all flex items-center gap-2 shadow-sm">
@@ -138,7 +158,7 @@ export default function OrdersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border)]">
-              {orders.map((order) => (
+        {filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-[var(--bg-secondary)]/50 transition-all duration-300 group cursor-pointer relative">
                   <td className="px-8 py-6">
                     <span className="text-[13px] font-black text-[var(--accent)] group-hover:scale-105 inline-block transition-transform">
@@ -197,6 +217,7 @@ export default function OrdersPage() {
         </div>
 
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

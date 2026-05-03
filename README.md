@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Admin UI Upgrade
+- Unified AdminLayout with design tokens implemented for consistent look.
+- Design doc: docs/design-admin-ui.md
+- Next steps: unify all admin pages.
+
 ## Getting Started
 
 First, run the development server:
