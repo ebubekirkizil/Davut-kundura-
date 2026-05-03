@@ -43,27 +43,54 @@ export default async function ShopHome() {
     console.error("Veriler yüklenemedi:", error);
   }
 
-  // If no blocks, add a default Hero block
+  // Eğer veri tabanı boşsa, lüks ve dolu bir tasarım göster
   if (blocks.length === 0) {
-    blocks = [{
-      id: "default-hero",
-      type: "Hero",
-      order: 0,
-      content: {
-        title: `Zarafetin <br /> <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] italic font-light">Adımları.</span>`,
-        subtitle: "Usta ellerde işlenen hakiki deri, modern silüetlerle buluşuyor. Tarzınızı yansıtacak eşsiz bir deneyime hazır olun.",
-        buttonText: "KOLEKSİYONU KEŞFET"
+    blocks = [
+      {
+        id: "header-1",
+        type: "header",
+        settings: { logoText: "DAVUT KUNDURA", logoSize: 24, sticky: true },
+        blocks: [
+          { id: "m1", type: "menu_item", settings: { label: "ÜRÜNLER", link: "/urunler" } },
+          { id: "m2", type: "menu_item", settings: { label: "BAKIM SERVİSİ", link: "/bakim" } },
+          { id: "m3", type: "menu_item", settings: { label: "PENDİK MAĞAZA", link: "/iletisim" } }
+        ]
+      },
+      {
+        id: "hero-1",
+        type: "hero",
+        settings: { 
+          title: "Zanaatın Geleceği", 
+          subtitle: "Pendik'te Geleneksel Deri İşçiliği ve Profesyonel Bakım", 
+          buttonText: "KATALOGLARI GÖR" 
+        }
+      },
+      {
+        id: "cat-grid-1",
+        type: "categoryGrid",
+        settings: { title: "ÜRÜN GRUPLARIMIZ", subtitle: "Zanaat ve Kalitenin Buluştuğu Nokta" },
+        blocks: [
+          { id: "c1", type: "category_item", settings: { title: "Hakiki Deri Kemerler" } },
+          { id: "c2", type: "category_item", settings: { title: "Ortopedik Tabanlıklar" } },
+          { id: "c3", type: "category_item", settings: { title: "Ayakkabı Bakım Ürünleri" } }
+        ]
+      },
+      {
+        id: "footer-1",
+        type: "footer",
+        settings: { topBarText: "PENDİK DAVUT KUNDURA • EL İŞÇİLİĞİ" },
+        blocks: [
+          { id: "fb1", type: "footer_text", settings: { title: "DAVUT KUNDURA", content: "Pendik'teki güvenilir zanaat ortağınız." } },
+          { id: "fb2", type: "footer_contact", settings: { title: "BİZE ULAŞIN", address: "Pendik, İstanbul", phone: "+90 538 625 87 92" } }
+        ]
       }
-    }];
+    ];
   }
 
   return (
     <div className="flex flex-col pb-0 bg-[#fbfaf9] overflow-hidden">
-      {/* Dynamic Style Injection for Saved CSS */}
       {customCss && <style dangerouslySetInnerHTML={{ __html: customCss }} />}
-      
-      {/* Universal Renderer for Multi-Block CMS */}
-      <StorefrontRenderer initialBlocks={blocks} products={products} />
+      <StorefrontRenderer initialSections={blocks} />
 
       {/* Marquee Banner (Sticky Legacy Part) */}
       <div className="bg-[#1a120b] py-4 border-y border-white/10 overflow-hidden whitespace-nowrap flex relative">

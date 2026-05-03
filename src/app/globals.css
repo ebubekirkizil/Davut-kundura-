@@ -1,130 +1,46 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:italic,wght@0,400;0,700;1,400&display=swap');
 
-@theme inline {
-  --color-primary: #3d2f24; /* Dark espresso / Sepia tone text */
-  --color-primary-hover: #1f1711; 
-  --color-accent: #9b6a4a; /* Tan/Leather accent */
-  --color-accent-hover: #7d5236;
-  --color-gold: #c2a373;
-  
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-muted: var(--muted);
-  --color-border: var(--border);
-
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;      
-  --foreground: #2d241e;      /* Espresso Brown Text */
-  --surface: #f5f1ea;         /* Warm Cream (Navbar) */
-  --muted: #eae3d8;           /* Muted beige */
-  --border: #d8cec0;          /* Warm border */
-
-  /* Shopify Polaris (Horizon) Design Tokens */
-  --p-blue: #005bd3;
-  --p-green: #008060;
-  --p-bg: #f6f6f7;
-  --p-surface: #ffffff;
-  --p-text: #303030;
-  --p-text-subdued: #616161;
-  --p-border: #d2d2d2;
-  --p-shadow-100: 0 1px 2px rgba(0,0,0,0.15);
-  --p-shadow-200: 0 4px 6px rgba(0,0,0,0.1);
-  --p-radius: 8px;
-  --p-easing: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --p-space-4: 16px;
-  --p-space-2: 8px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #020617; /* Very dark slate, crisp */
-    --foreground: #f8fafc; /* Crisp white for text */
-    --surface: #0f172a;
-    --muted: #1e293b;      
-    --border: #334155;     
-  }
+  --p-blue: #1a120b; /* Espresso */
+  --p-bg: #fbfaf9;   /* Ivory */
+  --p-text: #1a120b;
+  --p-gold: #d4af37; /* Zanaat Altını */
+  --p-gold-light: #f3e5ab;
+  --p-radius: 12px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--p-bg);
+  color: var(--p-text);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .glass {
-    background-color: rgb(255 255 255 / 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgb(255 255 255 / 0.3);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
-  }
-  .dark .glass {
-    background-color: rgb(20 20 19 / 0.85);
-    border: 1px solid rgb(255 255 255 / 0.1);
-  }
+h1, h2, h3, h4, .font-serif {
+  font-family: 'Playfair Display', serif;
 }
 
-/* Luks Animasyonlar - Standart CSS Olarak Ekliyoruz (Tailwind V4 hatasini onlemek icin) */
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes scale-up {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
-}
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-100%); }
-}
-@keyframes shine {
-  0% { left: -100%; opacity: 0; }
-  50% { opacity: 0.5; }
-  100% { left: 100%; opacity: 0; }
-}
-
-.animate-fade-up {
-  animation: fade-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-.animate-fade-in {
-  animation: fade-in 1.2s ease-out forwards;
-}
-.animate-scale-up {
-  animation: scale-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
 .animate-marquee {
+  display: inline-block;
   animation: marquee 30s linear infinite;
 }
-.shine-effect::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
-  transform: skewX(-20deg);
-  animation: shine 4s infinite;
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-/* Gecikmeler */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-.delay-700 { animation-delay: 700ms; }
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
