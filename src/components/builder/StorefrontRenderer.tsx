@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingBag, ArrowRight, X, Instagram, Facebook, Mail, MapPin, Phone } from "lucide-react";
+import { Search, ShoppingBag, ArrowRight, X, Mail, MapPin, Phone, Globe, Camera } from "lucide-react";
 
 // --- SUB-COMPONENTS ---
 
@@ -39,8 +39,8 @@ const Hero = () => (
       </div>
     </div>
     <div className="absolute bottom-12 left-10 flex flex-col gap-6 text-white/20">
-      <Instagram size={20} className="hover:text-[var(--accent)] cursor-pointer transition-colors" />
-      <Facebook size={20} className="hover:text-[var(--accent)] cursor-pointer transition-colors" />
+      <Camera size={20} className="hover:text-[var(--accent)] cursor-pointer transition-colors" />
+      <Globe size={20} className="hover:text-[var(--accent)] cursor-pointer transition-colors" />
     </div>
     <div className="absolute bottom-12 right-10 text-white/20 text-[10px] font-black tracking-[0.4em] uppercase rotate-90 origin-right">
       SCROLL DOWN
