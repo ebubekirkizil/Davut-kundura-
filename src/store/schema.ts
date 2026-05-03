@@ -20,26 +20,32 @@ export const SECTION_SCHEMAS: Record<string, any> = {
     label: "Alt Menü (Footer)",
     icon: "Layout",
     settings: [
-      { id: "topBarText", type: "text", label: "Üst Bant Yazısı", default: "EL İŞÇİLİĞİ • ÜCRETSİZ KARGO" },
-      { id: "footerLogo", type: "text", label: "Alt Logo", default: "DAVUT KUNDURA" },
-      { id: "footerAbout", type: "textarea", label: "Hakkımızda", default: "Yılların tecrübesiyle..." }
+      { id: "topBarText", type: "text", label: "Üst Bant Yazısı", default: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO" },
+      { id: "backgroundColor", type: "text", label: "Arka Plan Rengi", default: "#f4ecd8" }
     ],
     blocks: [
-      { type: "footer_column", label: "Link Sütunu", settings: [
+      { type: "footer_text", label: "Metin Kutucuğu", settings: [
+        { id: "title", type: "text", label: "Başlık", default: "DAVUT KUNDURA" },
+        { id: "content", type: "textarea", label: "İçerik", default: "Yılların tecrübesiyle..." }
+      ]},
+      { type: "footer_menu", label: "Menü Kutucuğu", settings: [
         { id: "title", type: "text", label: "Sütun Başlığı", default: "HIZLI MENÜ" },
-        { id: "links", type: "textarea", label: "Linkler (Satır satır)", default: "Tüm Ürünler\nHakkımızda" }
+        { id: "links", type: "textarea", label: "Linkler (Satır Satır)", default: "Tüm Ürünler\nHakkımızda" }
+      ]},
+      { type: "footer_contact", label: "İletişim Kutucuğu", settings: [
+        { id: "title", type: "text", label: "Başlık", default: "İLETİŞİM" },
+        { id: "address", type: "textarea", label: "Adres", default: "Merkez Mah. İstanbul" },
+        { id: "phone", type: "text", label: "Telefon", default: "+90 (555) 123 45 67" }
       ]}
     ]
   },
   hero: {
     type: "hero",
-    label: "Hero Banner (Giriş)",
+    label: "Hero Banner",
     icon: "ImageIcon",
     settings: [
       { id: "title", type: "text", label: "Başlık", default: "Zarafetin Adımları" },
-      { id: "subtitle", type: "text", label: "Alt Başlık", default: "Premium Koleksiyon" },
-      { id: "buttonText", type: "text", label: "Buton Yazısı", default: "Keşfet" },
-      { id: "paddingY", type: "range", label: "Dikey Boşluk", default: 100, min: 20, max: 300 }
+      { id: "buttonText", type: "text", label: "Buton", default: "Keşfet" }
     ]
   }
 };

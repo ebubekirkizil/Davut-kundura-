@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { ChevronDown, Trash2, Search, Image as ImageIcon, Box, CreditCard, Settings, Mail, Star, Camera } from "lucide-react";
 import LiveHeroClient from "./LiveHeroClient";
 
-// HEADER - BLOK TABANLI (MENÜLER DİNAMİK)
 const HeaderComponent = ({ section }: { section: any }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   useEffect(() => {
@@ -54,35 +53,57 @@ export default function StorefrontRenderer({ initialSections = [] }: { initialSe
         const renderContent = () => {
           switch (section.type) {
             case "header": return <HeaderComponent section={section} />;
-            case "hero": return <div style={{ paddingBlock: `${section.settings?.paddingY || 100}px` }} className="bg-[#f4ecd8] text-center"><h1 className="text-6xl font-serif font-bold mb-4">{section.settings?.title}</h1><p className="text-xl italic opacity-70">{section.settings?.subtitle}</p></div>;
+            case "hero": return <div className="bg-[#f4ecd8] py-32 text-center"><h1 className="text-6xl font-serif font-bold mb-4">{section.settings?.title}</h1><button className="px-8 py-3 bg-black text-white rounded-full mt-6">{section.settings?.buttonText}</button></div>;
             case "footer":
               return (
                 <footer className="w-full">
+                  {/* Top Announcement Bar */}
                   <div className="bg-[#1a120b] text-[#f4ecd8] py-4 text-center overflow-hidden">
                     <div className="container mx-auto px-6 animate-marquee whitespace-nowrap uppercase tracking-[0.3em] text-[11px]">
                       {section.settings?.topBarText}
                     </div>
                   </div>
-                  <div className="bg-[#f4ecd8] py-20 px-6">
-                    <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
-                      <div className="space-y-6">
-                        <h2 className="text-xl font-serif font-bold text-[#1a120b] tracking-tight leading-tight max-w-[200px] break-words">{section.settings?.footerLogo}</h2>
-                        <p className="text-sm text-[#1a120b]/70 italic leading-relaxed">{section.settings?.footerAbout}</p>
-                      </div>
-                      {section.blocks?.filter((b: any) => b.type === 'footer_column').map((block: any) => (
-                        <div key={block.id}>
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{block.settings?.title}</h4>
-                          <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
-                            {block.settings?.links?.split('\n').map((link: string, i: number) => (
-                              <li key={i}><a href="#" className="hover:text-black transition-colors">{link}</a></li>
-                            ))}
-                          </ul>
+
+                  {/* MODULAR FOOTER GRID */}
+                  <div style={{ backgroundColor: section.settings?.backgroundColor || "#f4ecd8" }} className="py-20 px-6 border-t border-black/5">
+                    <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-20">
+                      {section.blocks?.map((block: any) => (
+                        <div key={block.id} className="space-y-6">
+                          {block.type === 'footer_text' && (
+                            <>
+                              <h2 className="text-2xl font-serif font-bold text-[#1a120b] tracking-tight leading-tight break-words">{block.settings?.title}</h2>
+                              <p className="text-sm text-[#1a120b]/70 leading-relaxed font-medium">{block.settings?.content}</p>
+                            </>
+                          )}
+                          {block.type === 'footer_menu' && (
+                            <>
+                              <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{block.settings?.title}</h4>
+                              <ul className="space-y-4 text-sm font-medium text-[#1a120b]/80">
+                                {block.settings?.links?.split('\n').map((link: string, i: number) => (
+                                  <li key={i}><a href="#" className="hover:text-black transition-colors">{link}</a></li>
+                                ))}
+                              </ul>
+                            </>
+                          )}
+                          {block.type === 'footer_contact' && (
+                            <>
+                              <h4 className="text-xs font-bold uppercase tracking-widest text-black mb-8">{block.settings?.title}</h4>
+                              <div className="space-y-4 text-sm font-medium text-[#1a120b]/80 leading-relaxed">
+                                <div className="flex gap-3"><Box size={18} className="shrink-0 opacity-30" /><span>{block.settings?.address}</span></div>
+                                <div className="flex gap-3"><Settings size={18} className="shrink-0 opacity-30" /><span>{block.settings?.phone}</span></div>
+                              </div>
+                            </>
+                          )}
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="bg-[#f4ecd8] py-8 border-t border-black/5 text-center text-[10px] text-black/40 font-bold uppercase tracking-widest">
-                    © 2026 {section.settings?.footerLogo}. TÜM HAKLARI SAKLIDIR.
+
+                  {/* CLEAN BOTTOM BAR (Yönetim kaldırıldı) */}
+                  <div style={{ backgroundColor: section.settings?.backgroundColor || "#f4ecd8" }} className="py-8 border-t border-black/5 text-center">
+                    <p className="text-[10px] text-[#1a120b]/40 font-bold uppercase tracking-[0.2em]">
+                      © 2026 DAVUT KUNDURA. TÜM HAKLARI SAKLIDIR.
+                    </p>
                   </div>
                 </footer>
               );

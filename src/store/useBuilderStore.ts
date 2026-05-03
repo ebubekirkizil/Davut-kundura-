@@ -67,10 +67,12 @@ export const useBuilderStore = create<BuilderState>()(
             {
               id: "footer-1",
               type: "footer",
-              settings: { topBarText: "EL İŞÇİLİĞİ • ÜCRETSİZ KARGO", footerLogo: "DAVUT KUNDURA" },
+              settings: { topBarText: "EL İŞÇİLİĞİ • PREMIUM KALİTE • ÜCRETSİZ KARGO", backgroundColor: "#f4ecd8" },
               blocks: [
-                { id: "f-b-1", type: "footer_column", settings: { title: "HIZLI MENÜ", links: "Tüm Ürünler\nHakkımızda\nİletişim" } },
-                { id: "f-b-2", type: "footer_column", settings: { title: "BİLGİ", links: "İade Politikası\nKargo Takibi" } }
+                { id: "f-b-1", type: "footer_text", settings: { title: "DAVUT KUNDURA", content: "Yılların verdiği tecrübe ile en kaliteli deri ürünleri, özel yapım kemerler ve profesyonel ayakkabı bakım ürünlerinde güvenilir adresiniz." } },
+                { id: "f-b-2", type: "footer_menu", settings: { title: "HIZLI MENÜ", links: "Tüm Ürünler\nHakkımızda\nSıkça Sorulan Sorular\nİade Politikası" } },
+                { id: "f-b-3", type: "footer_menu", settings: { title: "KATEGORİLER", links: "Ortopedik Tabanlar\n Hakiki Deri Kemerler\n Ayakkabı Bakım Setleri" } },
+                { id: "f-b-4", type: "footer_contact", settings: { title: "İLETİŞİM", address: "Merkez Mah. Ayakkabıcılar Çarşısı, İstanbul, Türkiye", phone: "+90 (555) 123 45 67" } }
               ]
             }
           ]
