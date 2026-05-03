@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Box, Phone, MapPin, ShoppingBag, ArrowRight, Sparkles, Instagram, Facebook, Mail, Play, Volume2, Globe, Heart } from "lucide-react";
+import { Search, Box, Phone, MapPin, ShoppingBag, ArrowRight, Sparkles, Camera, Share2, Mail, Play, Volume2, Globe, Heart } from "lucide-react";
 
 // --- KRİTİK TASARIM KORUMASI ---
 const failsafeStyles = `
@@ -225,8 +225,8 @@ export default function StorefrontRenderer({ initialSections = [] }: any) {
                               "{block.settings?.content}"
                             </p>
                             <div className="flex items-center gap-6">
-                              <Instagram size={24} className="text-white/30 hover:text-[var(--accent)] cursor-pointer transition-colors" />
-                              <Facebook size={24} className="text-white/30 hover:text-[var(--accent)] cursor-pointer transition-colors" />
+                              <Camera size={24} className="text-white/30 hover:text-[var(--accent)] cursor-pointer transition-colors" />
+                              <Share2 size={24} className="text-white/30 hover:text-[var(--accent)] cursor-pointer transition-colors" />
                               <Mail size={24} className="text-white/30 hover:text-[var(--accent)] cursor-pointer transition-colors" />
                             </div>
                           </div>
