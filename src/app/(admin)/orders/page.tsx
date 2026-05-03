@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package } from "lucide-react";
+import { ShoppingCart, Search, Filter, Download, MoreHorizontal, CheckCircle2, Clock, Truck, XCircle, ArrowUpRight, ArrowDownRight, Package, Sparkles } from "lucide-react";
 
 export default function OrdersPage() {
   const [activeTab, setActiveTab] = useState("ALL");
@@ -17,101 +17,89 @@ export default function OrdersPage() {
 
   const getStatusBadge = (status: string) => {
     switch(status) {
-      case "PENDING": return <span className="flex items-center gap-1.5 px-2.5 py-1 bg-yellow-100 text-yellow-700 text-[11px] font-bold rounded-full w-max"><Clock className="w-3 h-3" /> Onay Bekliyor</span>;
-      case "PROCESSING": return <span className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-700 text-[11px] font-bold rounded-full w-max"><Package className="w-3 h-3" /> Hazırlanıyor</span>;
-      case "SHIPPED": return <span className="flex items-center gap-1.5 px-2.5 py-1 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full w-max"><Truck className="w-3 h-3" /> Kargoda</span>;
-      case "DELIVERED": return <span className="flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 text-[11px] font-bold rounded-full w-max"><CheckCircle2 className="w-3 h-3" /> Teslim Edildi</span>;
-      case "CANCELLED": return <span className="flex items-center gap-1.5 px-2.5 py-1 bg-red-100 text-red-700 text-[11px] font-bold rounded-full w-max"><XCircle className="w-3 h-3" /> İptal</span>;
+      case "PENDING": return <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-amber-200/50"><Clock size={12} /> Bekliyor</span>;
+      case "PROCESSING": return <span className="flex items-center gap-1.5 px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black uppercase tracking-widest rounded-full border border-[var(--accent)]/20"><Package size={12} /> Hazırlanıyor</span>;
+      case "SHIPPED": return <span className="flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-blue-200/50"><Truck size={12} /> Kargoda</span>;
+      case "DELIVERED": return <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-green-200/50"><CheckCircle2 size={12} /> Teslim Edildi</span>;
+      case "CANCELLED": return <span className="flex items-center gap-1.5 px-3 py-1 bg-red-100 text-red-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-red-200/50"><XCircle size={12} /> İptal</span>;
       default: return null;
     }
   };
 
   const getPaymentBadge = (status: string) => {
     return status === "PAID" 
-      ? <span className="text-[11px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">ÖDENDİ</span>
+      ? <span className="text-[10px] font-black text-green-600 uppercase tracking-tighter">● ÖDENDİ</span>
       : status === "REFUNDED"
-      ? <span className="text-[11px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">İADE EDİLDİ</span>
-      : <span className="text-[11px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">ÖDENMEDİ</span>;
+      ? <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">● İADE</span>
+      : <span className="text-[10px] font-black text-red-500 uppercase tracking-tighter">● BEKLEMEDE</span>;
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 pb-12 font-sans">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-[24px] font-bold text-[#1a1a1a] flex items-center gap-2 tracking-tight">
-            <ShoppingCart className="w-7 h-7 text-indigo-600" /> Sipariş Yönetimi
-          </h1>
-          <p className="text-[13px] text-[#5c5f62] mt-1">E-ticaret operasyonunuzun kalbi. Siparişleri, ödemeleri ve kargoları anlık takip edin.</p>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-brand font-bold tracking-tight text-[var(--text-primary)]">Sipariş Portfolyosu</h1>
+            <span className="px-3 py-1 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black rounded-full uppercase tracking-widest border border-[var(--accent)]/20">Aktif Operasyon</span>
+          </div>
+          <p className="text-[14px] text-[var(--text-secondary)] font-light italic">"Zanaatın her adımını titizlikle takip edin."</p>
         </div>
-        <div className="flex gap-2">
-           <button className="px-4 py-2 border border-[#d2d5d8] rounded-md text-[13px] font-medium text-[#1a1a1a] bg-white hover:bg-[#f1f2f4] flex items-center gap-2 shadow-sm">
-             <Download className="w-4 h-4" /> Excel'e Aktar
+        <div className="flex items-center gap-3">
+           <button className="px-6 py-3 border border-[var(--border)] rounded-xl text-[13px] font-bold text-[var(--text-primary)] bg-white hover:bg-[var(--bg-secondary)] transition-all flex items-center gap-2 shadow-sm">
+             <Download size={18} /> Rapor Al
            </button>
-           <button className="px-4 py-2 bg-indigo-600 rounded-md text-[13px] font-medium text-white hover:bg-indigo-700 flex items-center gap-2 shadow-sm">
-             Sipariş Oluştur
+           <button className="px-6 py-3 bg-[var(--text-primary)] text-white rounded-xl text-[13px] font-bold hover:bg-[var(--accent)] shadow-xl transition-all flex items-center gap-2 group">
+             <Plus size={18} className="group-hover:rotate-90 transition-transform" /> Manuel Sipariş
            </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#e3e3e3] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><ShoppingCart className="w-16 h-16" /></div>
-          <h3 className="text-[12px] font-bold text-[#5c5f62] uppercase tracking-wider mb-2">Bugünkü Satış</h3>
-          <div className="flex items-end gap-2">
-            <span className="text-[28px] font-bold text-[#1a1a1a]">14,250₺</span>
+      {/* KPI Cards - Premium Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { title: "GÜNLÜK HACİM", value: "14,250 ₺", trend: "+%12", icon: ShoppingCart, color: "var(--accent)" },
+          { title: "ATÖLYE SÜRECİ", value: "48", sub: "Sipariş", icon: Package, color: "#3b82f6" },
+          { title: "ONAY HAVUZU", value: "12", sub: "Bekleyen", icon: Clock, color: "#f59e0b" },
+          { title: "TRANSİT SEVKİYAT", value: "156", trend: "%75 Varış", icon: Truck, color: "var(--text-primary)", isDark: true }
+        ].map((card, i) => (
+          <div key={i} className={`relative overflow-hidden rounded-[2rem] p-8 shadow-sm transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 group ${card.isDark ? 'bg-[var(--text-primary)] text-white' : 'bg-white border border-[var(--border)]'}`}>
+            <div className={`absolute top-0 right-0 w-24 h-24 rounded-full blur-3xl -mr-12 -mt-12 transition-colors ${card.isDark ? 'bg-white/10' : 'bg-[var(--accent)]/5 group-hover:bg-[var(--accent)]/10'}`} />
+            <div className="flex justify-between items-start mb-6 relative z-10">
+              <div className={`p-3 rounded-2xl transition-colors ${card.isDark ? 'bg-white/10' : 'bg-[var(--bg-secondary)] group-hover:bg-[var(--accent)]/10'}`}>
+                <card.icon size={20} className={card.isDark ? 'text-white' : 'text-[var(--text-secondary)] group-hover:text-[var(--accent)]'} />
+              </div>
+              {card.trend && (
+                <div className={`text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${card.isDark ? 'bg-white/20 text-white' : 'bg-green-100 text-green-700'}`}>
+                  {card.trend}
+                </div>
+              )}
+            </div>
+            <div className="space-y-1 relative z-10">
+              <span className={`text-[11px] font-black uppercase tracking-[0.2em] ${card.isDark ? 'text-white/60' : 'text-[var(--text-secondary)]'}`}>{card.title}</span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black font-brand">{card.value}</span>
+                {card.sub && <span className={`text-[14px] font-bold ${card.isDark ? 'text-white/60' : 'text-[var(--text-secondary)]'}`}>{card.sub}</span>}
+              </div>
+            </div>
           </div>
-          <p className="text-[11px] text-green-600 font-medium mt-2 flex items-center gap-1"><ArrowUpRight className="w-3 h-3"/> Düne göre %12 arttı</p>
-        </div>
-        
-        <div className="bg-white border border-[#e3e3e3] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Package className="w-16 h-16" /></div>
-          <h3 className="text-[12px] font-bold text-[#5c5f62] uppercase tracking-wider mb-2">Hazırlanan</h3>
-          <div className="flex items-end gap-2">
-            <span className="text-[28px] font-bold text-[#1a1a1a]">48</span>
-            <span className="text-[14px] text-[#8a8a8a] mb-1.5 font-medium">Sipariş</span>
-          </div>
-          <p className="text-[11px] text-[#8a8a8a] mt-2">Atölyede paketleme bekliyor</p>
-        </div>
-
-        <div className="bg-white border border-[#e3e3e3] rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity"><Clock className="w-16 h-16" /></div>
-          <h3 className="text-[12px] font-bold text-[#5c5f62] uppercase tracking-wider mb-2">Onay Bekleyen</h3>
-          <div className="flex items-end gap-2">
-            <span className="text-[28px] font-bold text-yellow-600">12</span>
-            <span className="text-[14px] text-[#8a8a8a] mb-1.5 font-medium">Sipariş</span>
-          </div>
-          <p className="text-[11px] text-[#8a8a8a] mt-2">Havale / EFT onayı bekleniyor</p>
-        </div>
-
-        <div className="bg-indigo-600 rounded-xl p-5 shadow-md relative overflow-hidden text-white">
-          <div className="absolute top-0 right-0 p-4 opacity-10"><Truck className="w-16 h-16" /></div>
-          <h3 className="text-[12px] font-bold text-indigo-200 uppercase tracking-wider mb-2">Kargodaki Ürünler</h3>
-          <div className="flex items-end gap-2">
-            <span className="text-[28px] font-bold">156</span>
-          </div>
-          <div className="w-full bg-indigo-800 rounded-full h-1.5 mt-3 mb-1">
-             <div className="bg-white h-1.5 rounded-full" style={{width: '75%'}}></div>
-          </div>
-          <p className="text-[10px] text-indigo-200">%75'i bugün teslim edilecek</p>
-        </div>
+        ))}
       </div>
 
-      {/* Main Table Area */}
-      <div className="bg-white border border-[#e3e3e3] rounded-xl shadow-sm overflow-hidden">
+      {/* Main Table Area - Premium Card */}
+      <div className="bg-white border border-[var(--border)] rounded-[2.5rem] shadow-sm overflow-hidden">
         
         {/* Advanced Toolbar */}
-        <div className="p-4 border-b border-[#e3e3e3] flex flex-col sm:flex-row gap-4 justify-between items-center bg-[#f9fafb]">
-          <div className="flex bg-white border border-[#d2d5d8] rounded-lg overflow-hidden p-0.5 shadow-sm">
+        <div className="p-8 border-b border-[var(--border)] flex flex-col lg:flex-row gap-6 justify-between items-center bg-[var(--bg-secondary)]/30 backdrop-blur-sm">
+          <div className="flex bg-white/80 border border-[var(--border)] rounded-2xl overflow-hidden p-1 shadow-inner backdrop-blur-md">
             {['ALL', 'UNPAID', 'PROCESSING', 'SHIPPED'].map(tab => (
               <button 
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 text-[12px] font-bold rounded-md transition-all ${
+                className={`px-6 py-2.5 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${
                   activeTab === tab 
-                    ? 'bg-indigo-50 text-indigo-700 shadow-sm' 
-                    : 'text-[#5c5f62] hover:bg-slate-50 hover:text-[#1a1a1a]'
+                    ? 'bg-[var(--text-primary)] text-white shadow-lg scale-105' 
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white'
                 }`}
               >
                 {tab === 'ALL' ? 'Tümü' : tab === 'UNPAID' ? 'Ödeme Bekleyen' : tab === 'PROCESSING' ? 'Hazırlanan' : 'Kargoda'}
@@ -119,71 +107,72 @@ export default function OrdersPage() {
             ))}
           </div>
 
-          <div className="flex gap-2 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a8a8a]" />
+          <div className="flex gap-3 w-full lg:w-auto relative group">
+            <div className="relative flex-1 lg:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)] group-focus-within:text-[var(--accent)] transition-colors" />
               <input 
                 type="text" 
-                placeholder="Müşteri, Sipariş No veya E-posta..." 
+                placeholder="Müşteri, No veya E-posta..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 border border-[#d2d5d8] bg-white rounded-lg text-[13px] focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm" 
+                className="w-full pl-11 pr-4 py-3.5 bg-white border border-[var(--border)] rounded-2xl text-[13px] font-bold focus:ring-4 focus:ring-[var(--accent)]/5 focus:border-[var(--accent)] outline-none transition-all shadow-sm" 
               />
             </div>
-            <button className="px-3 py-1.5 border border-[#d2d5d8] bg-white rounded-lg text-[#5c5f62] hover:bg-slate-50 flex items-center gap-2 shadow-sm transition-colors">
-              <Filter className="w-4 h-4" /> <span className="text-[13px] font-medium hidden sm:block">Filtrele</span>
+            <button className="px-5 py-3.5 border border-[var(--border)] bg-white rounded-2xl text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] flex items-center gap-2 shadow-sm transition-all group-hover:shadow-md">
+              <Filter size={18} /> <span className="text-[13px] font-black uppercase tracking-tighter hidden sm:block">Filtre</span>
             </button>
           </div>
         </div>
 
         {/* Premium Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
-              <tr className="border-b border-[#e3e3e3] bg-white">
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[15%]">Sipariş No</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[25%]">Müşteri</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[15%]">Tarih</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[15%]">Durum</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[15%] text-right">Tutar</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider w-[5%]"></th>
+              <tr className="border-b border-[var(--border)] bg-[var(--bg-secondary)]/20">
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[15%]">Sipariş No</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[25%]">Müşteri Portföyü</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[15%]">Detaylar</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[20%]">Operasyonel Durum</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[15%] text-right">Mali Değer</th>
+                <th className="px-8 py-6 text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] w-[10%]"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#f1f2f4]">
+            <tbody className="divide-y divide-[var(--border)]">
               {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group cursor-pointer">
-                  <td className="px-5 py-4">
-                    <span className="text-[13px] font-bold font-mono text-indigo-600 hover:text-indigo-800 hover:underline">
-                      {order.id}
+                <tr key={order.id} className="hover:bg-[var(--bg-secondary)]/50 transition-all duration-300 group cursor-pointer relative">
+                  <td className="px-8 py-6">
+                    <span className="text-[13px] font-black text-[var(--accent)] group-hover:scale-105 inline-block transition-transform">
+                      #{order.id.split('-').pop()}
                     </span>
+                    <div className="text-[10px] text-[var(--text-secondary)] font-bold mt-1 tracking-tighter opacity-50">{order.id}</div>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-indigo-700 flex items-center justify-center font-bold text-[12px] border border-indigo-200">
+                  <td className="px-8 py-6">
+                    <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[var(--bg-secondary)] to-white border border-[var(--border)] text-[var(--text-primary)] flex items-center justify-center font-black text-[12px] shadow-sm group-hover:shadow-md transition-all group-hover:rotate-6">
                          {order.customer.split(' ').map(n => n[0]).join('')}
                        </div>
                        <div>
-                         <div className="font-bold text-[13px] text-[#1a1a1a]">{order.customer}</div>
-                         <div className="text-[11px] text-[#8a8a8a]">{order.email}</div>
+                         <div className="font-bold text-[14px] text-[var(--text-primary)] tracking-tight">{order.customer}</div>
+                         <div className="text-[11px] text-[var(--text-secondary)] font-medium italic">{order.email}</div>
                        </div>
                     </div>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="text-[13px] text-[#1a1a1a]">{order.date}</div>
-                    <div className="text-[11px] text-[#8a8a8a]">{order.items} Ürün</div>
+                  <td className="px-8 py-6">
+                    <div className="text-[13px] font-bold text-[var(--text-primary)]">{order.date}</div>
+                    <div className="text-[11px] text-[var(--text-secondary)] font-black uppercase tracking-widest mt-1 opacity-60">{order.items} Adet Ürün</div>
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-col gap-1.5 items-start">
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col gap-2 items-start">
                       {getStatusBadge(order.status)}
                       {getPaymentBadge(order.payment)}
                     </div>
                   </td>
-                  <td className="px-5 py-4 text-right">
-                    <span className="font-bold text-[14px] text-[#1a1a1a]">{order.amount}</span>
+                  <td className="px-8 py-6 text-right">
+                    <span className="font-black text-[16px] text-[var(--text-primary)] font-brand">{order.amount}</span>
                   </td>
-                  <td className="px-5 py-4 text-right">
-                    <button className="p-1.5 text-[#a0a0a0] group-hover:text-[#1a1a1a] hover:bg-[#e3e3e3] rounded transition-colors">
-                      <MoreHorizontal className="w-5 h-5" />
+                  <td className="px-8 py-6 text-right">
+                    <button className="p-3 text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] hover:bg-white rounded-xl transition-all border border-transparent hover:border-[var(--border)] shadow-sm">
+                      <MoreHorizontal size={20} />
                     </button>
                   </td>
                 </tr>
@@ -193,18 +182,20 @@ export default function OrdersPage() {
         </div>
         
         {/* Pagination Footer */}
-        <div className="p-4 border-t border-[#e3e3e3] flex items-center justify-between bg-white text-[13px] text-[#5c5f62]">
-          <span>Toplam 1,452 siparişin 1-5 arası gösteriliyor.</span>
-          <div className="flex gap-1">
-             <button className="px-3 py-1 border border-[#d2d5d8] rounded hover:bg-slate-50 disabled:opacity-50" disabled>Önceki</button>
-             <button className="px-3 py-1 border border-[#d2d5d8] rounded hover:bg-slate-50 bg-white font-medium">1</button>
-             <button className="px-3 py-1 border border-transparent rounded hover:bg-slate-50">2</button>
-             <button className="px-3 py-1 border border-transparent rounded hover:bg-slate-50">3</button>
-             <button className="px-3 py-1 border border-[#d2d5d8] rounded hover:bg-slate-50">Sonraki</button>
+        <div className="p-8 border-t border-[var(--border)] flex items-center justify-between bg-[var(--bg-secondary)]/10 text-[12px] text-[var(--text-secondary)] font-bold">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-[var(--accent)] rounded-full"></div>
+            <span>1,452 işlem arasından 1 - 5 gösteriliyor.</span>
+          </div>
+          <div className="flex gap-2">
+             <button className="px-4 py-2 bg-white border border-[var(--border)] rounded-xl hover:bg-[var(--bg-secondary)] transition-all shadow-sm opacity-50 cursor-not-allowed">Geri</button>
+             {[1, 2, 3].map(p => (
+               <button key={p} className={`w-10 h-10 rounded-xl font-black transition-all ${p === 1 ? 'bg-[var(--text-primary)] text-white shadow-lg' : 'hover:bg-white text-[var(--text-secondary)]'}`}>{p}</button>
+             ))}
+             <button className="px-4 py-2 bg-white border border-[var(--border)] rounded-xl hover:bg-[var(--bg-secondary)] transition-all shadow-sm">İleri</button>
           </div>
         </div>
 
-      </div>
     </div>
   );
 }

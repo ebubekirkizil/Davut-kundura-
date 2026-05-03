@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display, Cinzel_Decorative } from "next/font/google";
+import { Inter, Cinzel, Outfit } from "next/font/google";
 import "./globals.css";
 // Otonom sistem aktif: Vercel - GitHub entegrasyonu başarıyla sağlandı.
 import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
@@ -10,14 +10,13 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
 });
 
-const cinzel = Cinzel_Decorative({
-  weight: ["400", "700"],
-  variable: "--font-cinzel",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -62,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${inter.variable} ${playfair.variable} ${cinzel.variable} h-full antialiased`}>
+    <html lang="tr" className={`${inter.variable} ${cinzel.variable} ${outfit.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans">
         <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
         <Providers>

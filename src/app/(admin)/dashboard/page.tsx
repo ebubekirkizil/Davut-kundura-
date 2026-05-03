@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, Building2, Receipt, Search, Download, Plus, X, Pencil } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, Building2, Receipt, Search, Download, Plus, X, Pencil, Sparkles, CreditCard, PieChart } from "lucide-react";
 
 // Mock Data for Graph Timeframes
 const data7G = [
@@ -54,7 +54,6 @@ export default function RechartsFinanceDashboard() {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     const type = formData.get("type") as string;
-    const isGelir = type === "IN";
     
     const newTx = {
       id: `TRX-${Math.floor(Math.random() * 1000)}`,
@@ -72,191 +71,216 @@ export default function RechartsFinanceDashboard() {
   };
 
   return (
-    <div className="max-w-[80rem] mx-auto space-y-6 pb-12 font-sans relative">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-12 animate-in fade-in duration-1000">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-[20px] font-bold text-[#1a1a1a]">Finans & Muhasebe Merkezi</h1>
-          <p className="text-[13px] text-[#5c5f62] mt-0.5">Davut Kundura kurumsal nakit akışını, vergileri ve özel maliyetleri yönetin.</p>
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-brand font-bold tracking-tight text-[var(--text-primary)]">Mali Yönetim Merkezi</h1>
+            <span className="px-2 py-0.5 bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black rounded-full uppercase tracking-tighter">Premium Access</span>
+          </div>
+          <p className="text-[14px] text-[var(--text-secondary)] font-light">Davut Kundura kurumsal nakit akışını ve mali performansını takip edin.</p>
         </div>
-        <div className="flex gap-2">
-           <button onClick={() => setIsAddModalOpen(true)} className="px-3 py-1.5 bg-[#008060] rounded-md text-[13px] font-medium text-white shadow-sm hover:bg-[#006e52] flex items-center gap-1.5 transition-colors"><Plus className="h-4 w-4" /> Manuel İşlem Ekle</button>
-           <button className="px-3 py-1.5 border border-[#d2d5d8] bg-white rounded-md text-[13px] font-medium text-[#1a1a1a] shadow-sm hover:bg-[#f1f2f4] flex items-center gap-1.5"><Download className="h-4 w-4" /> Tüm Excel'i İndir</button>
+        <div className="flex items-center gap-3">
+           <button 
+            onClick={() => setIsAddModalOpen(true)} 
+            className="px-6 py-3 bg-[var(--text-primary)] text-white rounded-xl text-[13px] font-bold shadow-lg hover:bg-[var(--accent)] transition-all flex items-center gap-2 group"
+           >
+             <Plus size={18} className="group-hover:rotate-90 transition-transform" /> 
+             Yeni İşlem Kaydı
+           </button>
+           <button className="px-6 py-3 bg-white border border-[var(--border)] text-[var(--text-primary)] rounded-xl text-[13px] font-bold shadow-sm hover:bg-[var(--bg-secondary)] transition-all flex items-center gap-2">
+             <Download size={18} /> 
+             Raporu İndir
+           </button>
         </div>
       </div>
 
-      {/* KPI Stats (Polaris Style) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI Stats - Premium Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[ 
-          { title: "Toplam Gelir (Brüt)", value: "₺124,500.00", metric: "+%12", isUp: true, icon: TrendingUp },
-          { title: "Net Kâr (Vergiler Öncesi)", value: "₺68,200.00", metric: "+%8", isUp: true, icon: Wallet },
-          { title: "Kâr Marjı Ortalaması", value: "%54.7", metric: "-%0.5", isUp: false, icon: Building2 },
-          { title: "Yükümlü Olunan Vergi", value: "₺28,400.00", metric: "-%2", isUp: true, icon: Receipt }
+          { title: "Toplam Brüt Gelir", value: "₺124,500.00", metric: "+%12", isUp: true, icon: TrendingUp, color: "var(--accent)" },
+          { title: "Net Operasyon Kârı", value: "₺68,200.00", metric: "+%8", isUp: true, icon: Wallet, color: "#22c55e" },
+          { title: "Ortalama Kâr Marjı", value: "%54.7", metric: "-%0.5", isUp: false, icon: PieChart, color: "#3b82f6" },
+          { title: "Tahmini Vergi Yükü", value: "₺28,400.00", metric: "-%2", isUp: true, icon: Receipt, color: "#ef4444" }
         ].map((card, idx) => (
-          <div key={idx} className="bg-white border border-[#e3e3e3] rounded-lg p-4 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-[13px] font-medium text-[#5c5f62]">{card.title}</span>
-              <card.icon className="h-4 w-4 text-[#8a8a8a]" />
+          <div key={idx} className="bg-white border border-[var(--border)] rounded-2xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--accent)]/5 rounded-full blur-2xl -mr-12 -mt-12 group-hover:bg-[var(--accent)]/10 transition-colors" />
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <div className="p-2.5 rounded-xl bg-[var(--bg-secondary)] group-hover:bg-[var(--accent)]/10 transition-colors">
+                <card.icon size={20} className="text-[var(--text-secondary)] group-hover:text-[var(--accent)] transition-colors" />
+              </div>
+              <div className={`text-[11px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 ${card.isUp ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {card.isUp ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                {card.metric}
+              </div>
             </div>
-            <div className="text-[22px] font-bold text-[#1a1a1a] mb-1">{card.value}</div>
-            <div className={`text-[12px] font-medium flex items-center gap-0.5 ${card.isUp ? 'text-[#008060]' : 'text-[#d82c0d]'}`}>
-              {card.isUp ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {card.metric} geçen döneme göre
+            <div className="space-y-1 relative z-10">
+              <span className="text-[12px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">{card.title}</span>
+              <div className="text-[26px] font-bold text-[var(--text-primary)] font-brand">{card.value}</div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* RECHARTS - Main Graph Area */}
-        <div className="lg:col-span-2 bg-white border border-[#e3e3e3] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col">
-          <div className="p-4 border-b border-[#e3e3e3] flex justify-between items-center flex-wrap gap-4">
-            <div>
-              <h2 className="font-semibold text-[14px] text-[#1a1a1a]">Dinamik Finans Grafiği</h2>
-              <div className="flex gap-4 mt-2">
-                 <label className="flex items-center gap-1.5 cursor-pointer text-[12px] font-medium text-[#1a1a1a]">
-                    <input type="checkbox" checked={showGelir} onChange={(e)=> setShowGelir(e.target.checked)} className="accent-[#008060]" /> Gelir Çizgisi
+        <div className="lg:col-span-2 bg-white border border-[var(--border)] rounded-3xl shadow-sm flex flex-col overflow-hidden">
+          <div className="p-6 border-b border-[var(--border)] flex justify-between items-center flex-wrap gap-4">
+            <div className="space-y-1">
+              <h2 className="font-brand font-bold text-[18px] text-[var(--text-primary)]">Gelir & Gider Analitiği</h2>
+              <div className="flex gap-6 pt-2">
+                 <label className="flex items-center gap-2 cursor-pointer text-[12px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                    <input type="checkbox" checked={showGelir} onChange={(e)=> setShowGelir(e.target.checked)} className="accent-[var(--accent)]" /> Gelir
                  </label>
-                 <label className="flex items-center gap-1.5 cursor-pointer text-[12px] font-medium text-[#1a1a1a]">
-                    <input type="checkbox" checked={showGider} onChange={(e)=> setShowGider(e.target.checked)} className="accent-[#d82c0d]" /> Gider Çizgisi
+                 <label className="flex items-center gap-2 cursor-pointer text-[12px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                    <input type="checkbox" checked={showGider} onChange={(e)=> setShowGider(e.target.checked)} className="accent-red-500" /> Gider
                  </label>
-                 <label className="flex items-center gap-1.5 cursor-pointer text-[12px] font-medium text-[#1a1a1a]">
-                    <input type="checkbox" checked={showNet} onChange={(e)=> setShowNet(e.target.checked)} className="accent-[#1a1a1a]" /> Net Kâr Barı
+                 <label className="flex items-center gap-2 cursor-pointer text-[12px] font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
+                    <input type="checkbox" checked={showNet} onChange={(e)=> setShowNet(e.target.checked)} className="accent-[var(--text-primary)]" /> Net Akış
                  </label>
               </div>
             </div>
-            <div className="flex bg-[#f1f2f4] p-0.5 rounded-md border border-[#d2d5d8]">
+            <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border)] shadow-inner">
               {["7G", "30G", "3A", "1Y"].map(t => (
                 <button 
                   key={t}
                   onClick={() => setTimeRange(t)}
-                  className={`px-3 py-1 text-[12px] font-medium rounded ${timeRange === t ? 'bg-white shadow-sm text-[#1a1a1a]' : 'text-[#5c5f62] hover:text-[#1a1a1a]'}`}
+                  className={`px-4 py-1.5 text-[11px] font-black rounded-lg transition-all ${timeRange === t ? 'bg-white shadow-md text-[var(--text-primary)] scale-105' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                 >
                   {t}
                 </button>
               ))}
             </div>
           </div>
-          <div className="p-4 flex-1 min-h-[350px] w-full">
-            <ResponsiveContainer width="100%" height={350}>
+          <div className="p-8 flex-1 min-h-[400px] w-full">
+            <ResponsiveContainer width="100%" height={400}>
               <AreaChart data={currentChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorGelir" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#008060" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#008060" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="var(--accent)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--accent)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorGider" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#d82c0d" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#d82c0d" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#1a1a1a" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#1a1a1a" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e3e3e3" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#8a8a8a' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#8a8a8a' }} dx={-10} tickFormatter={(value) => `₺${value/1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)', fontWeight: 600 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'var(--text-secondary)', fontWeight: 600 }} dx={-10} tickFormatter={(value) => `₺${value/1000}k`} />
                 <Tooltip 
-                   contentStyle={{ borderRadius: '8px', border: '1px solid #e3e3e3', fontSize: '13px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                   formatter={(value: any) => [`₺${value}`, '']}
+                   contentStyle={{ borderRadius: '16px', border: 'none', backgroundColor: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', fontSize: '12px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}
+                   formatter={(value: any) => [`₺${value.toLocaleString()}`, '']}
                 />
-                {showGelir && <Area type="monotone" dataKey="gelir" name="Gelir" stroke="#008060" strokeWidth={2} fillOpacity={1} fill="url(#colorGelir)" />}
-                {showGider && <Area type="monotone" dataKey="gider" name="Gider" stroke="#d82c0d" strokeWidth={2} fillOpacity={1} fill="url(#colorGider)" />}
-                {showNet && <Area type="monotone" dataKey="net" name="Net Kâr" stroke="#1a1a1a" strokeWidth={2} fillOpacity={1} fill="url(#colorNet)" />}
+                {showGelir && <Area type="monotone" dataKey="gelir" name="Gelir" stroke="var(--accent)" strokeWidth={3} fillOpacity={1} fill="url(#colorGelir)" />}
+                {showGider && <Area type="monotone" dataKey="gider" name="Gider" stroke="#ef4444" strokeWidth={3} fillOpacity={1} fill="url(#colorGider)" />}
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Pro Tax Breakdown Column */}
-        <div className="bg-white border border-[#e3e3e3] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] flex flex-col relative">
-          <div className="p-4 border-b border-[#e3e3e3] flex justify-between items-center flex-wrap gap-2">
-            <div>
-               <h2 className="font-semibold text-[14px] text-[#1a1a1a]">Esnek Vergi Yönetimi</h2>
-               <p className="text-[12px] text-[#5c5f62] mt-0.5">Sanal oranlarla tahmini şirket yükü.</p>
+        <div className="bg-white border border-[var(--border)] rounded-3xl shadow-sm flex flex-col relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent)]/5 rounded-full blur-3xl -mr-16 -mt-16" />
+          
+          <div className="p-6 border-b border-[var(--border)] flex justify-between items-center relative z-10">
+            <div className="space-y-1">
+               <h2 className="font-brand font-bold text-[18px] text-[var(--text-primary)]">Vergi Projeksiyonu</h2>
+               <p className="text-[12px] text-[var(--text-secondary)] font-light">Yasal yükümlülükler ve net sermaye.</p>
             </div>
-            <button onClick={()=> setIsTaxModalOpen(true)} className="p-1 hover:bg-[#f1f2f4] rounded text-[#8a8a8a] transition-colors"><Pencil className="h-4 w-4" /></button>
+            <button onClick={()=> setIsTaxModalOpen(true)} className="w-10 h-10 flex items-center justify-center hover:bg-[var(--bg-secondary)] rounded-xl text-[var(--text-secondary)] transition-all border border-transparent hover:border-[var(--border)] shadow-sm"><Pencil size={16} /></button>
           </div>
-          <div className="p-4 flex-1 space-y-5">
-            <div>
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="font-medium text-[#1a1a1a]">KDV Tahakkuku (%{kdvRate})</span>
-                <span className="font-semibold text-[#d82c0d]">₺{(124500 * (kdvRate / 100)).toFixed(2)}</span>
+          
+          <div className="p-8 flex-1 space-y-8 relative z-10">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="font-bold text-[var(--text-primary)]">KDV Tahakkuku (%{kdvRate})</span>
+                <span className="font-black text-red-500">₺{(124500 * (kdvRate / 100)).toLocaleString()}</span>
               </div>
-              <div className="w-full bg-[#f1f2f4] rounded-full h-2"><div className="bg-[#ffca8a] h-2 rounded-full w-[45%]"></div></div>
+              <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2.5 overflow-hidden shadow-inner">
+                <div className="bg-[var(--accent)] h-full rounded-full transition-all duration-1000" style={{ width: '45%' }}></div>
+              </div>
             </div>
             
-            <div>
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="font-medium text-[#1a1a1a]">Gelir / Kurumlar Vergisi (%{incomeTaxRate})</span>
-                <span className="font-semibold text-[#d82c0d]">₺{(68200 * (incomeTaxRate / 100)).toFixed(2)}</span>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="font-bold text-[var(--text-primary)]">Kurumlar Vergisi (%{incomeTaxRate})</span>
+                <span className="font-black text-red-500">₺{(68200 * (incomeTaxRate / 100)).toLocaleString()}</span>
               </div>
-              <div className="w-full bg-[#f1f2f4] rounded-full h-2"><div className="bg-[#d82c0d] h-2 rounded-full w-[60%]"></div></div>
+              <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2.5 overflow-hidden shadow-inner">
+                <div className="bg-red-500 h-full rounded-full transition-all duration-1000" style={{ width: '60%' }}></div>
+              </div>
             </div>
             
-             <div>
-              <div className="flex justify-between text-[13px] mb-1.5">
-                <span className="font-medium text-[#1a1a1a]">Damga / Diğer Kesintiler</span>
-                <span className="font-semibold text-[#5c5f62]">₺450.00</span>
+             <div className="space-y-3">
+              <div className="flex justify-between items-center text-[13px]">
+                <span className="font-bold text-[var(--text-primary)]">Damga & Diğer</span>
+                <span className="font-black text-[var(--text-secondary)]">₺450.00</span>
               </div>
-              <div className="w-full bg-[#f1f2f4] rounded-full h-2"><div className="bg-[#8a8a8a] h-2 rounded-full w-[5%]"></div></div>
+              <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2.5 overflow-hidden shadow-inner">
+                <div className="bg-gray-400 h-full rounded-full transition-all duration-1000" style={{ width: '5%' }}></div>
+              </div>
             </div>
 
-            <div className="border-t border-dashed border-[#d2d5d8] pt-4 mt-2">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-[14px] font-bold text-[#1a1a1a]">Tamamen Temiz Net Para</span>
-                <span className="text-[16px] font-bold text-[#008060]">₺{ (68200 - (124500 * (kdvRate / 100)) - (68200 * (incomeTaxRate/100)) - 450).toFixed(2) }</span>
+            <div className="bg-[var(--bg-secondary)] rounded-2xl p-6 mt-10 border border-white shadow-inner space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-[14px] font-bold text-[var(--text-primary)]">NET HARCANABİLİR</span>
+                </div>
+                <span className="text-[20px] font-black text-green-600 font-brand">₺{ (68200 - (124500 * (kdvRate / 100)) - (68200 * (incomeTaxRate/100)) - 450).toLocaleString() }</span>
               </div>
-              <p className="text-[11px] text-[#8a8a8a]">Şirketin tüm devlete olan yasal borçları bittikten sonra kendi kasasında kalan harcanabilir sermaye.</p>
+              <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed italic">"Tüm yasal yükümlülükler sonrası Davut Kundura kasasında kalan gerçek sermaye."</p>
             </div>
           </div>
         </div>
 
       </div>
 
-      {/* Transaction Records - Double Click Feature */}
-      <div className="bg-white border border-[#e3e3e3] rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
-        <div className="p-4 border-b border-[#e3e3e3] flex justify-between items-center flex-wrap gap-4">
-            <div>
-                <h2 className="font-semibold text-[14px] text-[#1a1a1a]">Nakit Hareketleri (İşlem Detayı İçin Çift Tıklayın)</h2>
+      {/* Transaction Records - Premium Table */}
+      <div className="bg-white border border-[var(--border)] rounded-3xl shadow-sm overflow-hidden">
+        <div className="p-8 border-b border-[var(--border)] flex justify-between items-center flex-wrap gap-6 bg-[var(--bg-secondary)]/30">
+            <div className="space-y-1">
+                <h2 className="font-brand font-bold text-[18px] text-[var(--text-primary)]">Nakit Akış Kayıtları</h2>
+                <p className="text-[12px] text-[var(--text-secondary)] font-medium">Detaylı inceleme için işlem satırına çift tıklayın.</p>
             </div>
-            <div className="relative w-full sm:w-auto">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-[14px] w-[14px] text-[#8a8a8a]" />
-              <input type="text" placeholder="İşlem ara..." className="w-full sm:w-64 pl-8 pr-3 py-1.5 border border-[#d2d5d8] bg-[#f1f2f4] rounded-md text-[13px] focus:ring-1 focus:ring-[#008060] focus:bg-white outline-none transition-colors" />
+            <div className="relative group w-full sm:w-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-secondary)] group-focus-within:text-[var(--accent)] transition-colors" />
+              <input type="text" placeholder="İşlem arayın..." className="w-full sm:w-80 pl-11 pr-4 py-3 bg-white border border-[var(--border)] rounded-xl text-[13px] focus:ring-4 focus:ring-[var(--accent)]/5 focus:border-[var(--accent)] outline-none transition-all" />
             </div>
         </div>
         
         <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse min-w-[600px]">
-                <thead className="bg-[#f9fafb] border-b border-[#e3e3e3] text-[12px] text-[#5c5f62] uppercase tracking-wider">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead className="bg-[var(--bg-secondary)]/50 text-[11px] text-[var(--text-secondary)] uppercase font-black tracking-[0.1em]">
                 <tr>
-                    <th className="py-2.5 px-4 font-semibold w-[100px]">İşlem ID</th>
-                    <th className="py-2.5 px-4 font-semibold">İşlem Özeti</th>
-                    <th className="py-2.5 px-4 font-semibold w-[120px]">Tarih / Saat</th>
-                    <th className="py-2.5 px-4 font-semibold text-right w-[150px]">Tutar</th>
-                    <th className="py-2.5 px-4 font-semibold text-center w-[120px]">Durum</th>
+                    <th className="py-5 px-8 border-b border-[var(--border)]">Referans No</th>
+                    <th className="py-5 px-8 border-b border-[var(--border)]">Açıklama</th>
+                    <th className="py-5 px-8 border-b border-[var(--border)]">Tarih / Saat</th>
+                    <th className="py-5 px-8 border-b border-[var(--border)] text-right">Tutar</th>
+                    <th className="py-5 px-8 border-b border-[var(--border)] text-center">Durum</th>
                 </tr>
                 </thead>
-                <tbody className="text-[13px] text-[#1a1a1a]">
+                <tbody className="text-[14px] text-[var(--text-primary)]">
                 {transactions.map((trx) => (
                     <tr 
                       key={trx.id} 
                       onDoubleClick={() => setSelectedTx(trx)}
-                      className="border-b border-[#e3e3e3]/50 hover:bg-[#f1f2f4]/80 cursor-pointer transition-colors"
-                      title="Detayını görmek için çift tıklayın!"
+                      className="group border-b border-[var(--border)] hover:bg-[var(--bg-secondary)]/50 cursor-pointer transition-all duration-300"
                     >
-                    <td className="py-3 px-4 font-medium text-[#5c5f62]">{trx.id}</td>
-                    <td className="py-3 px-4 font-medium">{trx.desc}</td>
-                    <td className="py-3 px-4 text-[#5c5f62] whitespace-nowrap">{trx.date}, {trx.time}</td>
-                    <td className={`py-3 px-4 font-bold text-right ${trx.type === 'IN' ? 'text-[#008060]' : 'text-[#d82c0d]'}`}>
-                        {trx.type === 'IN' ? '+' : '-'} ₺{trx.amount.toFixed(2)}
+                    <td className="py-5 px-8 font-black text-[12px] text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">{trx.id}</td>
+                    <td className="py-5 px-8 font-bold">{trx.desc}</td>
+                    <td className="py-5 px-8 text-[var(--text-secondary)] font-medium">{trx.date}, {trx.time}</td>
+                    <td className={`py-5 px-8 font-black text-right text-[16px] ${trx.type === 'IN' ? 'text-green-600' : 'text-red-500'}`}>
+                        {trx.type === 'IN' ? '+' : '-'} ₺{trx.amount.toLocaleString()}
                     </td>
-                    <td className="py-3 px-4 text-center">
-                        <span className={`inline-flex px-2 py-0.5 rounded text-[11px] font-medium border ${trx.status === 'Onaylandı' || trx.status === 'Tamamlandı' ? 'bg-[#aee9d1]/40 border-[#008060] text-[#006e52]' : 'bg-[#e3e3e3] border-[#d2d5d8] text-[#5c5f62]'}`}>
-                        {trx.status}
+                    <td className="py-5 px-8 text-center">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${trx.status === 'Onaylandı' || trx.status === 'Tamamlandı' ? 'bg-green-100 text-green-700 shadow-[0_2px_10px_rgba(34,197,94,0.1)]' : 'bg-gray-100 text-gray-600'}`}>
+                          <div className={`w-1.5 h-1.5 rounded-full ${trx.status === 'Onaylandı' || trx.status === 'Tamamlandı' ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                          {trx.status}
                         </span>
                     </td>
                     </tr>
@@ -266,47 +290,53 @@ export default function RechartsFinanceDashboard() {
         </div>
       </div>
 
-      {/* --- MODALS --- */}
+      {/* --- MODALS - Optimized for Premium Look --- */}
 
       {/* Add Transaction Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#e3e3e3] flex justify-between items-center bg-[#f9fafb]">
-              <h3 className="font-semibold text-[16px] text-[#1a1a1a]">Manuel İşlem Ekle</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-[#8a8a8a] hover:text-[#1a1a1a]"><X className="h-5 w-5" /></button>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-[var(--text-primary)]/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="px-10 py-8 border-b border-[var(--border)] flex justify-between items-center bg-[var(--bg-secondary)]/50">
+              <div className="space-y-1">
+                <h3 className="font-brand font-bold text-[22px] text-[var(--text-primary)]">İşlem Kayıt Formu</h3>
+                <p className="text-[12px] text-[var(--text-secondary)]">Sistem kayıtlarına yeni bir mali hareket ekleyin.</p>
+              </div>
+              <button onClick={() => setIsAddModalOpen(false)} className="w-10 h-10 flex items-center justify-center hover:bg-white rounded-full text-[var(--text-secondary)] transition-all border border-transparent hover:border-[var(--border)] shadow-sm"><X size={20} /></button>
             </div>
-            <form onSubmit={handleAddTransaction} className="p-5 space-y-4">
+            <form onSubmit={handleAddTransaction} className="p-10 space-y-6">
               <div>
-                <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">İşlem Türü</label>
-                <div className="flex gap-4">
-                   <label className="flex items-center gap-1.5 cursor-pointer text-[13px] bg-[#f1f2f4] px-4 py-2 rounded-md border border-[#d2d5d8] hover:bg-[#e3e3e3] w-full justify-center">
-                     <input type="radio" name="type" value="IN" defaultChecked className="accent-[#008060] w-4 h-4 cursor-pointer" /> Gelir (Giriş)
+                <label className="block text-[13px] font-black text-[var(--text-primary)] uppercase tracking-wider mb-3">İşlem Karakteri</label>
+                <div className="grid grid-cols-2 gap-4">
+                   <label className="flex items-center gap-3 cursor-pointer bg-[var(--bg-secondary)] px-6 py-4 rounded-2xl border-2 border-transparent has-[:checked]:border-[var(--accent)] has-[:checked]:bg-white transition-all group">
+                     <input type="radio" name="type" value="IN" defaultChecked className="accent-[var(--accent)] w-5 h-5 cursor-pointer" /> 
+                     <span className="text-[14px] font-bold group-hover:text-[var(--accent)]">Gelir</span>
                    </label>
-                   <label className="flex items-center gap-1.5 cursor-pointer text-[13px] bg-[#f1f2f4] px-4 py-2 rounded-md border border-[#d2d5d8] hover:bg-[#e3e3e3] w-full justify-center">
-                     <input type="radio" name="type" value="OUT" className="accent-[#d82c0d] w-4 h-4 cursor-pointer" /> Gider (Çıkış)
+                   <label className="flex items-center gap-3 cursor-pointer bg-[var(--bg-secondary)] px-6 py-4 rounded-2xl border-2 border-transparent has-[:checked]:border-red-500 has-[:checked]:bg-white transition-all group">
+                     <input type="radio" name="type" value="OUT" className="accent-red-500 w-5 h-5 cursor-pointer" /> 
+                     <span className="text-[14px] font-bold group-hover:text-red-500">Gider</span>
                    </label>
                 </div>
               </div>
               
-              <div>
-                <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">Miktar (₺)</label>
-                <input required type="number" step="0.01" name="amount" placeholder="Örn: 500.00" className="w-full text-[14px] px-3 py-2 border border-[#8a8a8a] rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060] text-[#1a1a1a]" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className="block text-[12px] font-bold text-[var(--text-secondary)]">İşlem Tutarı (₺)</label>
+                  <input required type="number" step="0.01" name="amount" placeholder="0.00" className="w-full text-[16px] font-bold px-4 py-3 bg-[var(--bg-secondary)] rounded-xl border border-transparent focus:bg-white focus:border-[var(--accent)] outline-none transition-all shadow-inner" />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-[12px] font-bold text-[var(--text-secondary)]">Başlık / Özet</label>
+                  <input required type="text" name="desc" placeholder="İşlem adı" className="w-full text-[15px] font-bold px-4 py-3 bg-[var(--bg-secondary)] rounded-xl border border-transparent focus:bg-white focus:border-[var(--accent)] outline-none transition-all shadow-inner" />
+                </div>
               </div>
 
-               <div>
-                <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">İşlem Başlığı (Özet)</label>
-                <input required type="text" name="desc" placeholder="Örn: Ofis Çay/Kahve Gideri" className="w-full text-[14px] px-3 py-2 border border-[#8a8a8a] rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060] text-[#1a1a1a]" />
+               <div className="space-y-2">
+                <label className="block text-[12px] font-bold text-[var(--text-secondary)]">Detaylı Açıklama</label>
+                <textarea name="detail" rows={3} placeholder="İşlem kaynağı, notlar veya referanslar..." className="w-full text-[15px] px-4 py-3 bg-[var(--bg-secondary)] rounded-xl border border-transparent focus:bg-white focus:border-[var(--accent)] outline-none transition-all shadow-inner"></textarea>
               </div>
 
-               <div>
-                <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">Açıklama (Tam Detay)</label>
-                <textarea name="detail" rows={3} placeholder="Tedarikçi bilgisi veya fiş numarası..." className="w-full text-[14px] px-3 py-2 border border-[#8a8a8a] rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060] text-[#1a1a1a]"></textarea>
-              </div>
-
-              <div className="pt-4 flex justify-end gap-3">
-                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 bg-white border border-[#d2d5d8] rounded-md text-[13px] font-medium text-[#1a1a1a] hover:bg-[#f1f2f4]">İptal</button>
-                 <button type="submit" className="px-4 py-2 bg-[#1a1a1a] rounded-md text-[13px] font-medium text-white hover:bg-black">İşlemi Kaydet</button>
+              <div className="pt-6 flex gap-4">
+                 <button type="button" onClick={() => setIsAddModalOpen(false)} className="flex-1 py-4 bg-white border border-[var(--border)] rounded-2xl text-[14px] font-bold text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all">İptal</button>
+                 <button type="submit" className="flex-1 py-4 bg-[var(--text-primary)] rounded-2xl text-[14px] font-bold text-white hover:bg-[var(--accent)] shadow-xl transition-all">İşlemi Onayla</button>
               </div>
             </form>
           </div>
@@ -315,48 +345,60 @@ export default function RechartsFinanceDashboard() {
 
       {/* Transaction Details Modal (Double Click) */}
       {selectedTx && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-[500px] overflow-hidden">
-            <div className="px-6 py-5 border-b border-[#e3e3e3] bg-[#f9fafb] flex justify-between items-start">
-               <div>
-                  <h3 className="font-semibold text-[18px] text-[#1a1a1a]">İşlem Detayı Dosyası</h3>
-                  <p className="text-[12px] text-[#5c5f62] mt-1">ID: {selectedTx.id}</p>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-[var(--text-primary)]/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
+            <div className="px-12 py-10 border-b border-[var(--border)] bg-[var(--bg-secondary)]/50 flex justify-between items-start">
+               <div className="space-y-2">
+                  <span className="text-[10px] font-black tracking-[0.5em] text-[var(--accent)] uppercase">İŞLEM DETAY DOSYASI</span>
+                  <h3 className="font-brand font-bold text-[28px] text-[var(--text-primary)]">{selectedTx.desc}</h3>
+                  <div className="flex items-center gap-4 text-[13px] text-[var(--text-secondary)] font-bold">
+                    <span className="px-2 py-0.5 bg-white border border-[var(--border)] rounded-md font-black">{selectedTx.id}</span>
+                    <span>•</span>
+                    <span>{selectedTx.date} / {selectedTx.time}</span>
+                  </div>
                </div>
-               <button onClick={() => setSelectedTx(null)} className="text-[#8a8a8a] hover:text-[#1a1a1a] bg-[#e3e3e3] p-1.5 rounded-full"><X className="h-5 w-5" /></button>
+               <button onClick={() => setSelectedTx(null)} className="w-12 h-12 flex items-center justify-center hover:bg-white rounded-full text-[var(--text-secondary)] transition-all border border-transparent hover:border-[var(--border)] shadow-sm"><X size={24} /></button>
             </div>
-            <div className="p-6 space-y-6">
+            <div className="p-12 space-y-10">
               
-              <div className="flex items-center justify-between p-4 rounded-lg bg-[#f1f2f4]">
-                 <div>
-                    <span className="block text-[13px] text-[#5c5f62] mb-1">NET TUTAR</span>
-                    <span className={`text-[24px] font-bold ${selectedTx.type === 'IN' ? 'text-[#008060]' : 'text-[#d82c0d]'}`}>
-                       {selectedTx.type === 'IN' ? '+' : '-'} ₺{selectedTx.amount.toFixed(2)}
+              <div className="grid grid-cols-2 gap-8">
+                 <div className="p-8 rounded-3xl bg-[var(--bg-secondary)] shadow-inner space-y-2">
+                    <span className="block text-[11px] font-black text-[var(--text-secondary)] uppercase tracking-widest">NET AKIŞ</span>
+                    <span className={`text-[32px] font-brand font-bold ${selectedTx.type === 'IN' ? 'text-green-600' : 'text-red-500'}`}>
+                       {selectedTx.type === 'IN' ? '+' : '-'} ₺{selectedTx.amount.toLocaleString()}
                     </span>
                  </div>
-                 <div className="text-right">
-                    <span className="block text-[13px] text-[#5c5f62] mb-1">İŞLEM TARİHİ</span>
-                    <span className="text-[15px] font-medium text-[#1a1a1a]">{selectedTx.date}, {selectedTx.time}</span>
+                 <div className="p-8 rounded-3xl bg-[var(--bg-secondary)] shadow-inner space-y-2">
+                    <span className="block text-[11px] font-black text-[var(--text-secondary)] uppercase tracking-widest">DURUM</span>
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className={`w-3 h-3 rounded-full animate-pulse ${selectedTx.status === 'Onaylandı' || selectedTx.status === 'Tamamlandı' ? 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-orange-500'}`}></div>
+                      <span className="text-[18px] font-bold text-[var(--text-primary)]">{selectedTx.status}</span>
+                    </div>
                  </div>
               </div>
 
-              <div>
-                 <span className="block text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider mb-2">Başlık / Özet</span>
-                 <p className="text-[15px] font-medium text-[#1a1a1a]">{selectedTx.desc}</p>
-              </div>
-
-               <div>
-                 <span className="block text-[11px] font-bold text-[#8a8a8a] uppercase tracking-wider mb-2">Açıklama / Kaynak Bilgisi</span>
-                 <p className="text-[14px] text-[#5c5f62] bg-white border border-[#e3e3e3] p-3 rounded-md shadow-inner min-h-[80px]">
-                    {selectedTx.detail || "Bu işlem için ekstra açıklama belirtilmemiş."}
+               <div className="space-y-4">
+                 <span className="block text-[11px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em]">RESMİ KAYIT DETAYI</span>
+                 <p className="text-[16px] text-[var(--text-primary)] font-medium bg-[var(--bg-secondary)]/30 border border-[var(--border)] p-8 rounded-3xl leading-relaxed italic">
+                    "{selectedTx.detail || "Bu işlem için ekstra açıklama belirtilmemiş."}"
                  </p>
               </div>
               
+              <div className="flex items-center justify-between pt-4">
+                 <div className="flex -space-x-4">
+                    {[1,2,3].map(i => <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-[var(--bg-secondary)] flex items-center justify-center font-bold text-[10px] text-[var(--text-secondary)] shadow-sm">USR</div>)}
+                 </div>
+                 <div className="text-right">
+                    <p className="text-[11px] font-black text-[var(--text-secondary)] uppercase mb-1">DİJİTAL İMZA</p>
+                    <p className="text-[13px] font-bold text-[var(--text-primary)]">SİSTEM ONAYLI EVRAK</p>
+                 </div>
+              </div>
             </div>
-            <div className="px-6 py-4 bg-[#f9fafb] border-t border-[#e3e3e3] flex justify-between items-center">
-               <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-medium border bg-white ${selectedTx.status === 'Onaylandı' || selectedTx.status === 'Tamamlandı' ? 'border-[#008060] text-[#006e52]' : 'border-[#d2d5d8] text-[#5c5f62]'}`}>
-                 Durum: {selectedTx.status}
-               </span>
-               <button onClick={() => setSelectedTx(null)} className="px-5 py-2 bg-[#1a1a1a] text-white rounded-md text-[13px] font-medium hover:bg-black transition-colors">Kapat</button>
+            <div className="px-12 py-8 bg-[var(--bg-secondary)] border-t border-[var(--border)] flex justify-end gap-4">
+               <button className="px-8 py-3 bg-white border border-[var(--border)] rounded-xl text-[13px] font-bold text-[var(--text-primary)] hover:bg-white shadow-sm flex items-center gap-2 transition-all">
+                  <Search size={16} /> Logları Gör
+               </button>
+               <button onClick={() => setSelectedTx(null)} className="px-10 py-3 bg-[var(--text-primary)] text-white rounded-xl text-[13px] font-bold hover:bg-[var(--accent)] shadow-xl transition-all">Anladım</button>
             </div>
           </div>
         </div>
@@ -364,23 +406,26 @@ export default function RechartsFinanceDashboard() {
 
       {/* Tax Configuration Modal */}
       {isTaxModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-[#e3e3e3] flex justify-between items-center bg-[#f9fafb]">
-              <h3 className="font-semibold text-[16px] text-[#1a1a1a]">Vergi Oranlarını Ayarla</h3>
-              <button onClick={() => setIsTaxModalOpen(false)} className="text-[#8a8a8a] hover:text-[#1a1a1a]"><X className="h-5 w-5" /></button>
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-[var(--text-primary)]/40 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="px-8 py-6 border-b border-[var(--border)] bg-[var(--bg-secondary)]/50 flex justify-between items-center">
+              <h3 className="font-brand font-bold text-[18px] text-[var(--text-primary)]">Vergi Parametreleri</h3>
+              <button onClick={() => setIsTaxModalOpen(false)} className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-full text-[var(--text-secondary)] transition-all border border-transparent hover:border-[var(--border)] shadow-sm"><X size={16} /></button>
             </div>
-            <div className="p-5 space-y-4">
-               <div>
-                  <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">KDV Oranı (%)</label>
-                  <input type="number" max="100" min="0" value={kdvRate} onChange={(e) => setKdvRate(Number(e.target.value))} className="w-full text-[14px] px-3 py-2 border border-[#8a8a8a] rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060] text-[#1a1a1a]" />
+            <div className="p-8 space-y-6">
+               <div className="space-y-2">
+                  <label className="block text-[12px] font-bold text-[var(--text-secondary)]">KDV Oranı (%)</label>
+                  <input type="number" max="100" min="0" value={kdvRate} onChange={(e) => setKdvRate(Number(e.target.value))} className="w-full text-[16px] font-bold px-4 py-3 bg-[var(--bg-secondary)] rounded-xl border border-transparent focus:bg-white focus:border-[var(--accent)] outline-none transition-all shadow-inner" />
                </div>
-               <div>
-                  <label className="block text-[13px] font-medium text-[#1a1a1a] mb-1.5">Gelir / Kurumlar Vergisi (%)</label>
-                  <input type="number" max="100" min="0" value={incomeTaxRate} onChange={(e) => setIncomeTaxRate(Number(e.target.value))} className="w-full text-[14px] px-3 py-2 border border-[#8a8a8a] rounded-md focus:outline-none focus:ring-2 focus:ring-[#008060] text-[#1a1a1a]" />
+               <div className="space-y-2">
+                  <label className="block text-[12px] font-bold text-[var(--text-secondary)]">Gelir / Kurumlar Vergisi (%)</label>
+                  <input type="number" max="100" min="0" value={incomeTaxRate} onChange={(e) => setIncomeTaxRate(Number(e.target.value))} className="w-full text-[16px] font-bold px-4 py-3 bg-[var(--bg-secondary)] rounded-xl border border-transparent focus:bg-white focus:border-[var(--accent)] outline-none transition-all shadow-inner" />
                </div>
-               <p className="text-[12px] text-[#5c5f62]">İsterseniz panelinizi sektörel yapınıza göre revize edebilirsiniz.</p>
-               <button onClick={() => setIsTaxModalOpen(false)} className="w-full mt-2 px-4 py-2 bg-[#008060] rounded-md text-[13px] font-medium text-white hover:bg-[#006e52]">Yeni Oranları Ekrana Yansıt</button>
+               <div className="p-4 bg-[var(--bg-secondary)] rounded-xl text-[11px] text-[var(--text-secondary)] font-medium flex gap-3">
+                  <Sparkles size={16} className="text-[var(--accent)] shrink-0" />
+                  Bu oranlar paneldeki tüm tahmini hesaplamaları anlık olarak güncelleyecektir.
+               </div>
+               <button onClick={() => setIsTaxModalOpen(false)} className="w-full py-4 bg-[var(--text-primary)] rounded-2xl text-[13px] font-bold text-white hover:bg-[var(--accent)] shadow-xl transition-all">Oranları Güncelle</button>
             </div>
           </div>
         </div>
