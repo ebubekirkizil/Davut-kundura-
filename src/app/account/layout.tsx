@@ -2,11 +2,12 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Header } from "@/components/storefront/Header"
 import { Footer } from "@/components/storefront/Footer"
 import { cn } from "@/lib/utils"
-import { User, Package, Heart, Settings, LogOut } from "lucide-react"
+import { User, Package, Heart, Settings, LogOut, Shield } from "lucide-react"
+import { toast } from "sonner"
 
 const accountNavItems = [
   { label: "Siparişlerim", href: "/account/orders", icon: Package },
@@ -21,6 +22,39 @@ export default function AccountLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [isAdmin, setIsAdmin] = React.useState(false)
+
+  // Check if user is admin
+  React.useEffect(() => {
+    const checkAdminStatus = async () => {
+      try {
+        const response = await fetch("/api/auth/session")
+        const data = await response.json()
+        setIsAdmin(data.user?.role === "ADMIN")
+      } catch (error) {
+        console.error("Failed to check admin status:", error)
+      }
+    }
+    checkAdminStatus()
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      })
+
+      if (response.ok) {
+        toast.success("Çıkış yapıldı")
+        router.push("/")
+      } else {
+        toast.error("Çıkış yapılırken bir hata oluştu")
+      }
+    } catch (error) {
+      toast.error("Çıkış yapılırken bir hata oluştu")
+    }
+  }
 
   return (
     <>
@@ -54,12 +88,21 @@ export default function AccountLayout({
                     </Link>
                   )
                 })}
+
+                {/* Admin Panel Link - Only for Admin Users */}
+                {isAdmin && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
+                  >
+                    <Shield className="h-5 w-5" />
+                    Yönetim Paneli
+                  </Link>
+                )}
+
                 <button
                   className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
-                  onClick={() => {
-                    // Handle logout
-                    console.log("Logout")
-                  }}
+                  onClick={handleLogout}
                 >
                   <LogOut className="h-5 w-5" />
                   Çıkış Yap
