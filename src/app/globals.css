@@ -4,31 +4,56 @@
 @tailwind components;
 @tailwind utilities;
 
-@theme {
-  /* Typography */
-  --font-serif: "Cinzel", serif;
-  --font-sans: "Inter", sans-serif;
-  --font-brand: "Cinzel", serif;
+@layer base {
+  :root {
+    /* shadcn/ui variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 5%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 5%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 5%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 43 74% 52%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 5%;
+    --radius: 0.5rem;
 
-  /* Color Palette - Luxe Theme */
-  --color-espresso: rgb(13, 13, 13);
-  --color-cream: rgb(253, 251, 247);
-  --color-gold: rgb(212, 175, 55);
+    /* Custom variables */
+    --font-serif: "Cinzel", serif;
+    --font-sans: "Inter", sans-serif;
+  }
 
-  /* Design System Variables */
-  --text-primary: rgb(13, 13, 13);
-  --text-secondary: rgb(107, 114, 128);
-  --accent: rgb(212, 175, 55);
-  --bg-primary: rgb(253, 251, 247);
-  --bg-secondary: rgb(249, 247, 243);
-  --border: rgb(229, 231, 235);
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-  --shadow-premium: 0 25px 50px -12px rgba(212, 175, 55, 0.25);
+  .dark {
+    --background: 0 0% 5%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 5%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 5%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 5%;
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 64%;
+    --accent: 43 74% 52%;
+    --accent-foreground: 0 0% 5%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 0 0% 83%;
+  }
 }
 
 @layer base {

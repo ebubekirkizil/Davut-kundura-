@@ -4,6 +4,7 @@ import "./globals.css";
 // Otonom sistem aktif: Vercel - GitHub entegrasyonu başarıyla sağlandı.
 import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
 import { Providers } from "@/components/Providers";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -67,6 +68,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   );
