@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 import { ChevronRight, Heart, Share2, ShoppingCart, Star, Truck, Shield, RotateCcw } from "lucide-react"
 import { toast } from "sonner"
+import { useCart } from "@/contexts/CartContext"
 
 // Mock product data
 const product = {
@@ -123,6 +124,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = React.useState(product.colors[0])
   const [quantity, setQuantity] = React.useState(1)
   const [isWishlisted, setIsWishlisted] = React.useState(false)
+  const { addItem } = useCart()
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -133,6 +135,17 @@ export default function ProductDetailPage() {
       toast.error("Lütfen bir beden seçin")
       return
     }
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      size: selectedSize,
+      color: selectedColor.name,
+      quantity,
+    })
+
     toast.success("Ürün sepete eklendi!")
   }
 

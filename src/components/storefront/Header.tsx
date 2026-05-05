@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { useCart } from "@/contexts/CartContext"
 
 interface HeaderProps {
   className?: string
@@ -23,6 +24,7 @@ export function Header({ className }: HeaderProps) {
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const [isSearchOpen, setIsSearchOpen] = React.useState(false)
+  const { totalItems } = useCart()
 
   React.useEffect(() => {
     const handleScroll = () => {
@@ -90,9 +92,11 @@ export function Header({ className }: HeaderProps) {
               <Link href="/cart">
                 <Button variant="ghost" size="icon" className="relative">
                   <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-semibold">
-                    3
-                  </span>
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-semibold">
+                      {totalItems}
+                    </span>
+                  )}
                 </Button>
               </Link>
 
