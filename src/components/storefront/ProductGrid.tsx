@@ -28,7 +28,7 @@ interface Product {
 interface ProductGridProps {
   title?: string
   description?: string
-  products: Product[]
+  products?: Product[]
   columns?: 2 | 3 | 4
   showLoadMore?: boolean
   className?: string
@@ -37,7 +37,7 @@ interface ProductGridProps {
 export function ProductGrid({
   title,
   description,
-  products,
+  products = [],
   columns = 4,
   showLoadMore = false,
   className,
