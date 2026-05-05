@@ -24,20 +24,34 @@ export default function AccountLayout({
   const pathname = usePathname()
   const router = useRouter()
   const [isAdmin, setIsAdmin] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(true)
+  const [user, setUser] = React.useState<any>(null)
 
-  // Check if user is admin
+  // Check authentication and admin status
   React.useEffect(() => {
-    const checkAdminStatus = async () => {
+    const checkAuth = async () => {
       try {
         const response = await fetch("/api/auth/session")
         const data = await response.json()
-        setIsAdmin(data.user?.role === "ADMIN")
+
+        if (!data.user) {
+          // Not logged in, redirect to login
+          toast.error("Lütfen giriş yapın")
+          router.push("/login")
+          return
+        }
+
+        setUser(data.user)
+        setIsAdmin(data.user.role === "ADMIN")
       } catch (error) {
-        console.error("Failed to check admin status:", error)
+        console.error("Auth check failed:", error)
+        router.push("/login")
+      } finally {
+        setIsLoading(false)
       }
     }
-    checkAdminStatus()
-  }, [])
+    checkAuth()
+  }, [router])
 
   const handleLogout = async () => {
     try {
@@ -54,6 +68,22 @@ export default function AccountLayout({
     } catch (error) {
       toast.error("Çıkış yapılırken bir hata oluştu")
     }
+  }
+
+  // Show loading state while checking auth
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <main className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Yükleniyor...</p>
+          </div>
+        </main>
+        <Footer />
+      </>
+    )
   }
 
   return (

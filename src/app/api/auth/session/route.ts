@@ -7,14 +7,22 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = await cookies()
-    const sessionToken = cookieStore.get("admin-session")?.value
+
+    // Check for customer session first
+    let sessionToken = cookieStore.get("customer-session")?.value
+    let isAdmin = false
+
+    // If no customer session, check for admin session
+    if (!sessionToken) {
+      sessionToken = cookieStore.get("admin-session")?.value
+      isAdmin = true
+    }
 
     if (!sessionToken) {
       return NextResponse.json({ user: null }, { status: 200 })
     }
 
-    // In a real app, you'd verify the session token
-    // For now, we'll decode it (assuming it's the user email)
+    // Find user by email (session token is the email)
     const user = await prisma.user.findUnique({
       where: { email: sessionToken },
       select: {

@@ -5,7 +5,8 @@ export async function POST(request: NextRequest) {
   try {
     const cookieStore = await cookies()
 
-    // Clear the session cookie
+    // Clear both customer and admin session cookies
+    cookieStore.delete("customer-session")
     cookieStore.delete("admin-session")
 
     return NextResponse.json(
