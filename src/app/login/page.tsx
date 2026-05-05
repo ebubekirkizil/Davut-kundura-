@@ -22,7 +22,8 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/auth/customer-login", {
+      // Try customer login first
+      const response = await fetch("/api/auth/unified-login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,7 +35,13 @@ export default function LoginPage() {
 
       if (response.ok) {
         toast.success("Giriş başarılı!")
-        router.push("/account/profile")
+
+        // Redirect based on role
+        if (data.user.role === "ADMIN") {
+          router.push("/admin/dashboard")
+        } else {
+          router.push("/account/profile")
+        }
       } else {
         toast.error(data.error || "Giriş başarısız")
       }
@@ -105,17 +112,11 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center space-y-2">
+            <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 Hesabınız yok mu?{" "}
                 <Link href="/register" className="text-accent hover:underline font-medium">
                   Kayıt Ol
-                </Link>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Admin misiniz?{" "}
-                <Link href="/admin/login" className="text-primary hover:underline font-medium">
-                  Admin Girişi
                 </Link>
               </p>
             </div>
