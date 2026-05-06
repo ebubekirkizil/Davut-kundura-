@@ -1158,4 +1158,3 @@ export default function AdminWarehousePage() {
     </div>
   )
 }
-}
