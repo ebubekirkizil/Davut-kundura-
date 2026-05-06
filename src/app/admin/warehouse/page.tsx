@@ -623,6 +623,8 @@ export default function AdminWarehousePage() {
               </div>
             ))}
           </div>
+        </CardContent>
+      </Card>
       {/* Stock Movement Analytics */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Stock Movement Trends */}
@@ -1157,5 +1159,4 @@ export default function AdminWarehousePage() {
       </Card>
     </div>
   )
-}
 }
