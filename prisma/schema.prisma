@@ -159,8 +159,9 @@ model ProductVariant {
   sku        String?
   imageUrl   String?
 
-  orderItems OrderItem[]
+  orderItems      OrderItem[]
   warehouseStocks WarehouseStock[]
+  stockLedger     StockLedger[]
 }
 
 // ─────────────────────────────────────────────
@@ -239,20 +240,47 @@ model OrderItem {
 // STOK & ENVANTER YÖNETİMİ
 // ─────────────────────────────────────────────
 
-enum InventoryType {
-  IN       // Stok girişi (tedarik, iade)
-  OUT      // Stok çıkışı (satış, hasar)
-  ADJUST   // Manuel düzeltme
+enum StockMovementType {
+  PURCHASE     // Tedarikçiden satın alma girişi
+  SALE         // Sipariş satış çıkışı
+  RETURN_IN    // Müşteri iadesi girişi
+  RETURN_OUT   // Tedarikçiye iade çıkışı
+  TRANSFER_IN  // Depodan transfer girişi
+  TRANSFER_OUT // Depoya transfer çıkışı
+  ADJUSTMENT   // Manuel sayım düzeltmesi
+  RESERVED     // Sipariş için rezerve
+  UNRESERVED   // Rezerve iptali
 }
 
+// ERP-grade stok defteri: Stok miktarı doğrudan güncellenmez,
+// her hareket buraya yazılır. Gerçek stok = SUM(quantity) per variant+warehouse
+model StockLedger {
+  id            String            @id @default(cuid())
+  variantId     String
+  variant       ProductVariant    @relation(fields: [variantId], references: [id])
+  warehouseId   String
+  warehouse     Warehouse         @relation(fields: [warehouseId], references: [id])
+  movementType  StockMovementType
+  quantity      Int               // Pozitif: giriş, Negatif: çıkış
+  unitCost      Float?            // Hareket anındaki birim maliyet (FIFO için)
+  reference     String?           // Sipariş no, tedarik no, vb.
+  notes         String?
+  performedBy   String?           // Admin user ID veya "system"
+  createdAt     DateTime          @default(now())
+
+  @@index([variantId, warehouseId])
+  @@index([createdAt])
+}
+
+// Geriye dönük uyumluluk için tutuldu
 model InventoryTransaction {
-  id        String        @id @default(cuid())
+  id        String            @id @default(cuid())
   productId String
-  product   Product       @relation(fields: [productId], references: [id])
-  quantity  Int           // Pozitif: Giriş, Negatif: Çıkış
-  type      InventoryType
+  product   Product           @relation(fields: [productId], references: [id])
+  quantity  Int
+  type      StockMovementType
   notes     String?
-  createdBy String?       // Admin kullanıcı adı
+  createdBy String?
 
   createdAt DateTime @default(now())
 }
@@ -554,23 +582,26 @@ model Warehouse {
   code        String   @unique // "WH-001"
   address     String?  @db.Text
   managerName String?
-  isActive    Boolean  @default(true)
+  isActive    Boolean        @default(true)
   stockItems  WarehouseStock[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  stockLedger StockLedger[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 model WarehouseStock {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   warehouseId String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  warehouse   Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   variantId   String
   variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  quantity    Int      @default(0)
-  reserved    Int      @default(0) // Sipariş verilmiş ama henüz kargolanmamış stok
-  shelfLoc    String?  // Depodaki raf konumu (Örn: A-12-B)
-  
+  quantity    Int            @default(0)  // Cache: StockLedger toplamından senkronize edilir
+  reserved    Int            @default(0)  // Sepet/sipariş rezervi
+  minStock    Int            @default(5)  // Bu depodaki kritik seviye
+  shelfLoc    String?                     // Raf konumu (Örn: A-12-B)
+
   @@unique([warehouseId, variantId])
+  @@index([variantId])
 }
 
 // 2. Tedarikçi ve Hammadde Yönetimi (Supply Chain)
