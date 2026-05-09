@@ -1,5 +1,6 @@
 import { AdminSidebar } from "@/components/admin/AdminSidebar"
 import { AdminTopbar } from "@/components/admin/AdminTopbar"
+import { ThemeProvider } from "@/components/theme-provider"
 
 export default function AdminLayout({
   children,
@@ -7,33 +8,29 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      {/* Background Pattern */}
-      <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23f1f5f9%22%20fill-opacity%3D%220.4%22%3E%3Ccircle%20cx%3D%227%22%20cy%3D%227%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30" />
+    <ThemeProvider defaultTheme="light" storageKey="admin-theme">
+      <div className="min-h-screen bg-background transition-colors duration-300">
+        {/* Subtle Background Pattern */}
+        <div className="fixed inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23f1f5f9%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%222%22%20cy%3D%222%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] dark:bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2240%22%20height%3D%2240%22%20viewBox%3D%220%200%2040%2040%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.02%22%3E%3Ccircle%20cx%3D%222%22%20cy%3D%222%22%20r%3D%221%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]" />
 
-      <AdminSidebar />
+        <AdminSidebar />
 
-      {/* Main Content Area */}
-      <div className="lg:pl-72">
-        <AdminTopbar />
+        {/* Main Content Area */}
+        <div className="lg:pl-72">
+          <AdminTopbar />
 
-        {/* Content Container */}
-        <main className="relative">
-          {/* Content Background */}
-          <div className="min-h-[calc(100vh-4rem)] bg-white/60 backdrop-blur-sm border-l border-white/20 shadow-xl shadow-slate-200/20">
-            <div className="p-6 md:p-8 lg:p-10">
-              {/* Content Wrapper with Glass Effect */}
-              <div className="relative">
-                {children}
+          {/* Content Container */}
+          <main className="relative">
+            <div className="min-h-[calc(100vh-4rem)] bg-background/95 backdrop-blur-sm border-l border-border/50">
+              <div className="p-4 md:p-6 lg:p-8">
+                <div className="relative max-w-[1600px] mx-auto">
+                  {children}
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
-
-      {/* Floating Elements */}
-      <div className="fixed top-20 right-8 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl animate-pulse" />
-      <div className="fixed bottom-20 left-80 w-24 h-24 bg-gradient-to-br from-amber-400/10 to-orange-400/10 rounded-full blur-2xl animate-pulse delay-1000" />
-    </div>
+    </ThemeProvider>
   )
 }
