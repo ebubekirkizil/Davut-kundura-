@@ -28,21 +28,23 @@ export function ThemeProvider({
   storageKey = "ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = React.useState<Theme>(
-    () => (localStorage?.getItem(storageKey) as Theme) || defaultTheme
-  )
+  // SSR-safe: always start with defaultTheme, hydrate from localStorage on client
+  const [theme, setTheme] = React.useState<Theme>(defaultTheme)
+
+  // Read from localStorage only on the client after mount
+  React.useEffect(() => {
+    const stored = localStorage.getItem(storageKey) as Theme | null
+    if (stored) setTheme(stored)
+  }, [storageKey])
 
   React.useEffect(() => {
     const root = window.document.documentElement
-
     root.classList.remove("light", "dark")
 
     if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light"
-
       root.classList.add(systemTheme)
       return
     }
@@ -52,9 +54,9 @@ export function ThemeProvider({
 
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      localStorage?.setItem(storageKey, theme)
-      setTheme(theme)
+    setTheme: (newTheme: Theme) => {
+      localStorage.setItem(storageKey, newTheme)
+      setTheme(newTheme)
     },
   }
 
