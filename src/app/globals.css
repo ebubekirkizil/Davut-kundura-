@@ -4,55 +4,122 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   DAVUT KUNDURA — Premium Design System
+   Linear/Vercel/Apple standardı renk paleti
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 @layer base {
+
+  /* ── LIGHT MODE (Warm Neutral) ─────────────────────────────────────────── */
   :root {
-    /* shadcn/ui variables */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 5%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
-    --primary: 0 0% 5%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 5%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 43 74% 52%;
-    --accent-foreground: 0 0% 5%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 5%;
-    --radius: 0.5rem;
+    --background:    40 20% 99%;       /* #FDFCFB — krem beyaz */
+    --foreground:    30 10% 12%;       /* #211F1D — espresso */
 
-    /* Custom variables for Claude's Design */
-    --font-serif: "Cinzel", serif;
-    --font-sans: "Inter", sans-serif;
-    --bg-primary: #FDFBF7;
-    --bg-secondary: #F7F3EE;
-    --text-primary: #12100E;
-    --text-secondary: #4A4540;
-    --accent-color: #D4AF37;
+    --card:          40 15% 98%;       /* #FAF9F7 */
+    --card-foreground: 30 10% 12%;
+
+    --popover:       0 0% 100%;
+    --popover-foreground: 30 10% 12%;
+
+    --primary:       43 74% 49%;       /* #D4AF37 — altın */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary:     35 10% 95%;       /* #F3F1EF */
+    --secondary-foreground: 30 10% 20%;
+
+    --muted:         35 8% 93%;        /* #EEECE9 */
+    --muted-foreground: 30 5% 45%;     /* #757069 */
+
+    --accent:        43 74% 49%;       /* altın */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive:   0 72% 51%;        /* #E23636 */
+    --destructive-foreground: 0 0% 100%;
+
+    --border:        35 10% 91%;       /* #E8E5E1 */
+    --input:         35 10% 91%;
+    --ring:          43 74% 49%;       /* altın focus */
+    --radius:        0.625rem;
+
+    /* ── Status Colors ── */
+    --success:       152 60% 42%;      /* #2BA463 */
+    --warning:       38 92% 50%;       /* #F5A623 */
+    --info:          210 80% 52%;      /* #2F80ED */
+
+    /* ── Custom / Storefront ── */
+    --font-serif:    "Cinzel", serif;
+    --font-sans:     "Inter", sans-serif;
+    --bg-primary:    #FDFCFB;
+    --bg-secondary:  #F5F3F0;
+    --text-primary:  #211F1D;
+    --text-secondary: #757069;
+    --accent-color:  #D4AF37;
+
+    /* ── Sidebar ── */
+    --sidebar-bg:        30 10% 8%;    /* #171513 */
+    --sidebar-fg:        35 5% 65%;
+    --sidebar-active-bg: 43 74% 49%;
+    --sidebar-active-fg: 0 0% 100%;
+    --sidebar-hover-bg:  30 8% 14%;
+    --sidebar-border:    30 8% 16%;
   }
 
+  /* ── DARK MODE (Deep Espresso) ─────────────────────────────────────────── */
   .dark {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
-    --accent: 43 74% 52%;
-    --bg-primary: #12100E;
-    --bg-secondary: #1A1816;
-    --text-primary: #FDFBF7;
-    --text-secondary: #A09A93;
-    --accent-color: #D4AF37;
+    --background:    30 10% 7%;        /* #141210 */
+    --foreground:    35 10% 93%;       /* #EDE9E5 */
+
+    --card:          30 8% 10%;        /* #1C1917 */
+    --card-foreground: 35 10% 93%;
+
+    --popover:       30 8% 10%;
+    --popover-foreground: 35 10% 93%;
+
+    --primary:       43 74% 52%;       /* #D4AF37 biraz parlak */
+    --primary-foreground: 30 10% 7%;
+
+    --secondary:     30 6% 15%;        /* #272320 */
+    --secondary-foreground: 35 8% 80%;
+
+    --muted:         30 5% 14%;        /* #252220 */
+    --muted-foreground: 35 5% 50%;     /* #847E75 */
+
+    --accent:        43 74% 52%;
+    --accent-foreground: 30 10% 7%;
+
+    --destructive:   0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border:        30 6% 18%;        /* #312D29 */
+    --input:         30 6% 18%;
+    --ring:          43 74% 52%;
+    --radius:        0.625rem;
+
+    /* ── Custom / Storefront ── */
+    --bg-primary:    #141210;
+    --bg-secondary:  #1C1917;
+    --text-primary:  #EDE9E5;
+    --text-secondary: #847E75;
+    --accent-color:  #D4AF37;
+
+    /* ── Sidebar ── */
+    --sidebar-bg:        30 8% 5%;
+    --sidebar-fg:        35 5% 55%;
+    --sidebar-active-bg: 43 74% 52%;
+    --sidebar-active-fg: 30 10% 7%;
+    --sidebar-hover-bg:  30 6% 11%;
+    --sidebar-border:    30 6% 12%;
   }
 
-  /* Body & Global Tags */
+  /* ── Global Base Styles ────────────────────────────────────────────────── */
+  * {
+    @apply border-border;
+  }
+
   body {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-sans);
     @apply antialiased;
   }
@@ -62,8 +129,13 @@
   }
 
   ::selection {
-    background-color: #D4AF37;
-    color: white;
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+
+  /* Smooth scroll & transitions */
+  html {
+    scroll-behavior: smooth;
   }
 }
 
@@ -74,6 +146,10 @@
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   }
+  .dark .glass-header {
+    background-color: rgba(20, 18, 16, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
 
   .glass-modal {
     background-color: rgba(13, 13, 13, 0.95);
@@ -83,9 +159,15 @@
 
   /* Text Gradients */
   .text-gradient-gold {
-    background: linear-gradient(to right, #D4AF37, #F3E5AB);
+    background: linear-gradient(135deg, #D4AF37 0%, #F3E5AB 50%, #D4AF37 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* Sidebar utility */
+  .sidebar-glass {
+    background-color: hsl(var(--sidebar-bg));
+    border-right: 1px solid hsl(var(--sidebar-border));
   }
 }
