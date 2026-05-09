@@ -376,24 +376,54 @@ enum DiscountType {
 }
 
 model DiscountCode {
-  id              String       @id @default(cuid())
-  code            String       @unique
-  type            DiscountType
-  value           Float        // 10 (yüzde için) veya 50 (sabit için)
-  minOrderAmount  Float?       // Minimum sipariş tutarı
-  maxUses         Int?         // Maksimum kullanım sayısı
-  usedCount       Int          @default(0)
-  isActive        Boolean      @default(true)
-  expiresAt       DateTime?
-  
-  // Kişiye Özel İndirim (VIP)
-  userId          String?
-  user            User?        @relation("PersonalDiscount", fields: [userId], references: [id])
-  
-  orders          Order[]
+  id                    String       @id @default(cuid())
+  code                  String       @unique
+  description           String?      // Admin notları
+  type                  DiscountType
+  value                 Float        // 10 (%10) veya 50 (50₺)
+  maxDiscount           Float?       // Yüzdelik indirimlerde tavan (Örn: max 200₺)
+
+  // ── Koşullar ──
+  minOrderAmount        Float?       // Minimum sepet tutarı
+  applicableCategories  String[]     // Geçerli kategori kodları (boş = tümü)
+  applicableProductIds  String[]     // Geçerli ürün ID'leri (boş = tümü)
+
+  // ── Limitler ──
+  maxUses               Int?         // Toplam kullanım limiti
+  perUserLimit          Int          @default(1)  // Kullanıcı başına limit
+  usedCount             Int          @default(0)  // Toplam kullanılma sayısı
+
+  // ── Zaman ──
+  startsAt              DateTime     @default(now())
+  expiresAt             DateTime?
+
+  // ── Durum & Raporlama ──
+  isActive              Boolean      @default(true)
+  totalDiscountGiven    Float        @default(0)  // Toplam indirim maliyeti (₺)
+
+  // ── İlişkiler ──
+  userId                String?      // Kişiye özel (VIP)
+  user                  User?        @relation("PersonalDiscount", fields: [userId], references: [id])
+  orders                Order[]
+  usageLogs             CouponUsageLog[]
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+// Kullanıcı başına kupon kullanım kaydı
+model CouponUsageLog {
+  id             String       @id @default(cuid())
+  discountCodeId String
+  discountCode   DiscountCode @relation(fields: [discountCodeId], references: [id], onDelete: Cascade)
+  userId         String
+  orderId        String?      // Hangi siparişte kullanıldı
+  discountAmount Float        // Bu kullanımda uygulanan indirim tutarı
+  createdAt      DateTime     @default(now())
+
+  @@index([discountCodeId, userId])
+}
+
 
 // ─────────────────────────────────────────────
 // ÜRÜN YORUMLARI & FAVORİLER
