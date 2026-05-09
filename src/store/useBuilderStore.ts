@@ -148,8 +148,10 @@ export const useBuilderStore = create<BuilderState>()(
       })),
 
       resetState: () => {
-        localStorage.removeItem("davut-builder-storage");
-        window.location.reload();
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("davut-builder-storage");
+          window.location.reload();
+        }
       }
     }),
     { name: "davut-builder-storage" }
