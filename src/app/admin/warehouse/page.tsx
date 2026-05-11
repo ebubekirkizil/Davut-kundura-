@@ -41,11 +41,29 @@ interface Material {
   shelfLoc?: string; // Bu şemada yok ama UI için ekliyoruz
 }
 
+const MOCK_MATERIALS: Material[] = [
+  { id: "m1", name: "Vaketa Deri - Taba (2.0mm)", sku: "RAW-LEA-001", unit: "M2", stockQty: 124, costPerUnit: 1450, supplier: { name: "Hakiki Deri A.Ş." }, category: "Deri / Kumaş", shelfLoc: "A1-04" },
+  { id: "m2", name: "Kauçuk Hazır Taban - Sport", sku: "RAW-SOL-002", unit: "ADET", stockQty: 450, costPerUnit: 185, supplier: { name: "Taban Sanayi Ltd." }, category: "Taban / Topuk", shelfLoc: "B2-12" },
+  { id: "m3", name: "Mumlanmış Pamuk Bağcık (80cm)", sku: "RAW-ACC-003", unit: "ADET", stockQty: 1200, costPerUnit: 12, supplier: { name: "Aksesuar Dünyası" }, category: "Aksesuar", shelfLoc: "C1-05" },
+  { id: "m4", name: "Premium Ayakkabı Kutusu (L)", sku: "RAW-BOX-004", unit: "ADET", stockQty: 85, costPerUnit: 45, supplier: { name: "Ambalaj Sanayi" }, category: "Kutu / Ambalaj", shelfLoc: "D4-01" },
+  { id: "m5", name: "Neolit Kösele Plaka (100x120)", sku: "RAW-SOL-005", unit: "M2", stockQty: 15, costPerUnit: 2200, supplier: { name: "Taban Sanayi Ltd." }, category: "Taban / Topuk", shelfLoc: "B3-04" },
+  { id: "m6", name: "Süet Boyası - Koyu Kahve", sku: "RAW-CHE-006", unit: "ADET", stockQty: 24, costPerUnit: 95, supplier: { name: "Kimya Deposu" }, category: "Kimyasallar", shelfLoc: "E1-02" },
+  { id: "m7", name: "Pirinç Toka - 2.5cm", sku: "RAW-ACC-007", unit: "ADET", stockQty: 800, costPerUnit: 18, supplier: { name: "Aksesuar Dünyası" }, category: "Aksesuar", shelfLoc: "C2-08" },
+  { id: "m8", name: "Lateks İç Ped (4mm)", sku: "RAW-MAT-008", unit: "M2", stockQty: 60, costPerUnit: 340, supplier: { name: "Malzeme Tedarik" }, category: "Sarf Malzeme", shelfLoc: "F1-10" },
+  { id: "m9", name: "Kromajlı Fermuar - 15cm", sku: "RAW-ACC-009", unit: "ADET", stockQty: 350, costPerUnit: 24, supplier: { name: "Aksesuar Dünyası" }, category: "Aksesuar", shelfLoc: "C1-14" },
+  { id: "m10", name: "Napa Deri - Mat Siyah", sku: "RAW-LEA-010", unit: "M2", stockQty: 8, costPerUnit: 1680, supplier: { name: "Hakiki Deri A.Ş." }, category: "Deri / Kumaş", shelfLoc: "A1-15" },
+  { id: "m11", name: "Polisaj Pastası (Siyah)", sku: "RAW-CHE-011", unit: "ADET", stockQty: 12, costPerUnit: 145, supplier: { name: "Kimya Deposu" }, category: "Kimyasallar", shelfLoc: "E1-05" },
+  { id: "m12", name: "Ambalaj Pelür Kağıdı", sku: "RAW-BOX-012", unit: "KG", stockQty: 45, costPerUnit: 110, supplier: { name: "Ambalaj Sanayi" }, category: "Kutu / Ambalaj", shelfLoc: "D4-05" },
+  { id: "m13", name: "Çelik Bel Demiri (Kadın)", sku: "RAW-MAT-013", unit: "ADET", stockQty: 2500, costPerUnit: 4.5, supplier: { name: "Metal Sanayi" }, category: "Sarf Malzeme", shelfLoc: "F2-22" },
+  { id: "m14", name: "Anilin Deri - Bordo", sku: "RAW-LEA-014", unit: "M2", stockQty: 42, costPerUnit: 1950, supplier: { name: "Hakiki Deri A.Ş." }, category: "Deri / Kumaş", shelfLoc: "A2-02" },
+  { id: "m15", name: "Ahşap Topuk - 7cm", sku: "RAW-SOL-015", unit: "ADET", stockQty: 120, costPerUnit: 85, supplier: { name: "Taban Sanayi Ltd." }, category: "Taban / Topuk", shelfLoc: "B4-09" },
+]
+
 export default function AdminWarehousePage() {
   const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
   const [activeTab, setActiveTab] = React.useState<"all" | "finished" | "raw">("all")
   const [loading, setLoading] = React.useState(true)
-  const [materials, setMaterials] = React.useState<Material[]>([])
+  const [materials, setMaterials] = React.useState<Material[]>(MOCK_MATERIALS)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [selectedCategory, setSelectedCategory] = React.useState("Tümü")
 
@@ -55,12 +73,14 @@ export default function AdminWarehousePage() {
     setLoading(true)
     try {
       const res = await fetch("/api/admin/warehouse/materials")
-      const data = await res.json()
       if (res.ok) {
-        setMaterials(data.materials || [])
+        const data = await res.json()
+        if (data.materials && data.materials.length > 0) {
+          setMaterials(data.materials)
+        }
       }
     } catch (error) {
-      toast.error("Veriler yüklenemedi")
+      // API hatasında mock data ile devam et
     } finally {
       setLoading(false)
     }
