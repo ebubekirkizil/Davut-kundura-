@@ -6,7 +6,7 @@ import {
   Plus, Search, Package, AlertTriangle, TrendingUp, Star,
   Globe, Users, ShoppingBag, MoreVertical, Edit, Trash2,
   Eye, Filter, RefreshCw, Save, X, ChevronDown, Layers,
-  CheckCircle, XCircle, BarChart3
+  CheckCircle, XCircle, BarChart3, LayoutGrid, List
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
