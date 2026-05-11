@@ -1,487 +1,343 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from "react"
-import {
-  Package, Warehouse as WarehouseIcon, AlertTriangle, ArrowDownRight, ArrowUpRight,
-  ArrowRightLeft, Plus, RefreshCw, Search, TrendingUp, TrendingDown, Eye, MapPin
+import * as React from "react"
+import { 
+  LayoutGrid, List, Search, Filter, Plus, 
+  Package, Box, Ruler, AlertTriangle, MoreVertical,
+  Warehouse as WarehouseIcon, RefreshCw, MapPin, 
+  ChevronDown, History, BarChart3, Settings
 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
+import Link from "next/link"
+import { toast } from "sonner"
 
-// ─── TYPES ───────────────────────────────────────────────────────────────────
-
-interface StockItem {
-  id: string
-  variantId: string
-  productName: string
-  productSku: string | null
-  variantName: string
-  variantSku: string | null
-  size: string | null
-  color: string | null
-  quantity: number
-  reserved: number
-  available: number
-  minStock: number
-  shelfLoc: string | null
-  isLowStock: boolean
+// --- TYPES ---
+interface Material {
+  id: string;
+  name: string;
+  sku: string | null;
+  unit: string;
+  stockQty: number;
+  costPerUnit: number;
+  supplier?: { name: string };
+  category?: string; // Bu şemada yok ama UI için ekliyoruz
+  shelfLoc?: string; // Bu şemada yok ama UI için ekliyoruz
 }
-
-interface WarehouseSummary {
-  id: string
-  name: string
-  code: string
-  address: string | null
-  managerName: string | null
-  isActive: boolean
-  totalSkus: number
-  totalQty: number
-  totalReserved: number
-  availableQty: number
-  lowStockCount: number
-  stockItems: StockItem[]
-}
-
-interface LedgerEntry {
-  id: string
-  movementType: string
-  quantity: number
-  unitCost: number | null
-  reference: string | null
-  notes: string | null
-  performedBy: string | null
-  createdAt: string
-  variant: { name: string; product: { name: string; sku: string | null } }
-  warehouse: { name: string; code: string }
-}
-
-interface AlertItem {
-  id: string
-  quantity: number
-  reserved: number
-  minStock: number
-  variant: { name: string; size: string | null; color: string | null; product: { id: string; name: string; sku: string | null } }
-  warehouse: { id: string; name: string; code: string }
-}
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-
-const movementLabels: Record<string, string> = {
-  PURCHASE: "Satın Alma", SALE: "Satış", RETURN_IN: "İade Girişi",
-  RETURN_OUT: "İade Çıkışı", TRANSFER_IN: "Transfer Girişi",
-  TRANSFER_OUT: "Transfer Çıkışı", ADJUSTMENT: "Düzeltme",
-  RESERVED: "Rezerve", UNRESERVED: "Rezerve İptali",
-}
-
-const movementColors: Record<string, string> = {
-  PURCHASE: "bg-emerald-100 text-emerald-700",
-  SALE: "bg-blue-100 text-blue-700",
-  RETURN_IN: "bg-teal-100 text-teal-700",
-  RETURN_OUT: "bg-orange-100 text-orange-700",
-  TRANSFER_IN: "bg-purple-100 text-purple-700",
-  TRANSFER_OUT: "bg-violet-100 text-violet-700",
-  ADJUSTMENT: "bg-amber-100 text-amber-700",
-  RESERVED: "bg-yellow-100 text-yellow-700",
-  UNRESERVED: "bg-gray-100 text-gray-700",
-}
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString("tr-TR", {
-    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-  })
-}
-
-// ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function AdminWarehousePage() {
-  const [warehouses, setWarehouses] = useState<WarehouseSummary[]>([])
-  const [ledger, setLedger] = useState<LedgerEntry[]>([])
-  const [alerts, setAlerts] = useState<AlertItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<"overview" | "ledger" | "alerts">("overview")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showMovementModal, setShowMovementModal] = useState(false)
+  const [viewMode, setViewMode] = React.useState<"grid" | "list">("grid")
+  const [activeTab, setActiveTab] = React.useState<"all" | "finished" | "raw">("all")
+  const [loading, setLoading] = React.useState(true)
+  const [materials, setMaterials] = React.useState<Material[]>([])
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const [selectedCategory, setSelectedCategory] = React.useState("Tümü")
 
-  // Movement form state
-  const [formVariantId, setFormVariantId] = useState("")
-  const [formWarehouseId, setFormWarehouseId] = useState("")
-  const [formType, setFormType] = useState("PURCHASE")
-  const [formQty, setFormQty] = useState("")
-  const [formCost, setFormCost] = useState("")
-  const [formNotes, setFormNotes] = useState("")
-  const [formRef, setFormRef] = useState("")
-  const [formTargetWh, setFormTargetWh] = useState("")
-  const [submitting, setSubmitting] = useState(false)
+  const categories = ["Tümü", "Deri / Kumaş", "Taban / Topuk", "Aksesuar", "Kutu / Ambalaj", "Kimyasallar"]
 
-  const fetchData = useCallback(async () => {
+  const fetchData = React.useCallback(async () => {
     setLoading(true)
     try {
-      const [sumRes, ledRes, alertRes] = await Promise.all([
-        fetch("/api/admin/warehouse?view=summary"),
-        fetch("/api/admin/warehouse?view=ledger"),
-        fetch("/api/admin/warehouse?view=alerts"),
-      ])
-      const sumData = await sumRes.json()
-      const ledData = await ledRes.json()
-      const alertData = await alertRes.json()
-      setWarehouses(sumData.warehouses ?? [])
-      setLedger(ledData.ledger ?? [])
-      setAlerts(alertData.alerts ?? [])
-    } catch (err) {
-      console.error("Veri çekilemedi:", err)
+      const res = await fetch("/api/admin/warehouse/materials")
+      const data = await res.json()
+      if (res.ok) {
+        setMaterials(data.materials || [])
+      }
+    } catch (error) {
+      toast.error("Veriler yüklenemedi")
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { fetchData() }, [fetchData])
+  React.useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
-  const handleSubmitMovement = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!formVariantId || !formWarehouseId || !formQty) return
-    setSubmitting(true)
-    try {
-      const res = await fetch("/api/admin/warehouse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          variantId: formVariantId,
-          warehouseId: formWarehouseId,
-          movementType: formType,
-          quantity: parseInt(formQty),
-          unitCost: formCost ? parseFloat(formCost) : undefined,
-          reference: formRef || undefined,
-          notes: formNotes || undefined,
-          targetWarehouseId: formType === "TRANSFER_OUT" ? formTargetWh : undefined,
-          performedBy: "admin",
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setShowMovementModal(false)
-      setFormVariantId(""); setFormWarehouseId(""); setFormQty(""); setFormCost("")
-      setFormNotes(""); setFormRef(""); setFormTargetWh("")
-      fetchData()
-    } catch (err: any) {
-      alert("Hata: " + (err.message || "Bilinmeyen hata"))
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  // Tüm depolardaki toplam veriler
-  const totalSkus = warehouses.reduce((s, w) => s + w.totalSkus, 0)
-  const totalQty = warehouses.reduce((s, w) => s + w.totalQty, 0)
-  const totalReserved = warehouses.reduce((s, w) => s + w.totalReserved, 0)
-  const totalAlerts = warehouses.reduce((s, w) => s + w.lowStockCount, 0)
-
-  // Tüm varyantları düz liste olarak topla (form dropdown için)
-  const allVariants = warehouses.flatMap((w) =>
-    w.stockItems.map((s) => ({ id: s.variantId, label: `${s.productName} — ${s.variantName}` }))
-  ).filter((v, i, arr) => arr.findIndex((x) => x.id === v.id) === i)
-
-  // Arama filtresi
-  const filteredLedger = ledger.filter((e) =>
-    !searchQuery ||
-    e.variant.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (e.reference?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
-  )
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <RefreshCw className="h-8 w-8 animate-spin text-amber-600" />
-      </div>
-    )
-  }
+  const filteredMaterials = materials.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         (m.sku?.toLowerCase().includes(searchQuery.toLowerCase()) || false)
+    return matchesSearch
+  })
 
   return (
-    <div className="space-y-8">
-      {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 p-6 max-w-[1600px] mx-auto">
+      {/* Üst Bar */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Depo & Stok Yönetimi</h1>
-          <p className="text-slate-500 mt-1">ERP seviyesinde envanter kontrolü ve stok defteri</p>
+          <h1 className="text-4xl font-serif font-bold text-slate-800 tracking-tight flex items-center gap-3">
+            <WarehouseIcon className="h-10 w-10 text-amber-500" />
+            Kurumsal Envanter
+          </h1>
+          <p className="text-slate-500 mt-2 text-lg">Tüm materyaller, hammaddeler ve depo lokasyon takibi</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={fetchData} className="px-4 py-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center gap-2 text-sm">
-            <RefreshCw className="h-4 w-4" /> Yenile
-          </button>
-          <button onClick={() => setShowMovementModal(true)} className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 flex items-center gap-2 text-sm font-semibold shadow-lg shadow-amber-500/25">
-            <Plus className="h-4 w-4" /> Stok Hareketi
-          </button>
+        
+        <div className="flex items-center gap-3">
+          {/* Görünüm Seçici */}
+          <div className="bg-slate-100 p-1 rounded-xl flex gap-1 mr-2 shadow-inner border border-slate-200">
+            <Button 
+              variant={viewMode === "grid" ? "white" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("grid")}
+              className={`px-3 ${viewMode === "grid" ? "shadow-sm" : ""}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={viewMode === "list" ? "white" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("list")}
+              className={`px-3 ${viewMode === "list" ? "shadow-sm" : ""}`}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <Button variant="outline" onClick={fetchData} className="bg-white border-slate-200 hover:bg-slate-50">
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> Yenile
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 px-6">
+                <Plus className="h-4 w-4 mr-2" /> Yeni Kayıt <ChevronDown className="h-3 w-3 ml-2" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 bg-white/95 backdrop-blur-md border-slate-200">
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/admin/warehouse/materials/new">
+                  <Box className="h-4 w-4 mr-2 text-amber-500" /> Hammadde / Sarf Malzeme
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="cursor-pointer">
+                <Link href="/admin/products/new">
+                  <Package className="h-4 w-4 mr-2 text-blue-500" /> Bitmiş Ürün
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <WarehouseIcon className="h-4 w-4 mr-2 text-emerald-500" /> Yeni Depo Tanımla
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
-      {/* ── KPI Cards ─────────────────────────────────────── */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* KPI Şeridi */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { title: "Toplam SKU", value: totalSkus, icon: Package, color: "from-blue-500 to-cyan-600" },
-          { title: "Toplam Stok", value: `${totalQty.toLocaleString("tr-TR")} adet`, icon: WarehouseIcon, color: "from-emerald-500 to-green-600" },
-          { title: "Rezerve", value: `${totalReserved.toLocaleString("tr-TR")} adet`, icon: ArrowUpRight, color: "from-purple-500 to-violet-600" },
-          { title: "Düşük Stok Uyarısı", value: totalAlerts, icon: AlertTriangle, color: totalAlerts > 0 ? "from-red-500 to-pink-600" : "from-slate-400 to-slate-500" },
-        ].map((kpi) => (
-          <div key={kpi.title} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-slate-500">{kpi.title}</span>
-              <div className={`p-2 rounded-lg bg-gradient-to-br ${kpi.color}`}>
-                <kpi.icon className="h-4 w-4 text-white" />
+          { label: "Toplam Malzeme", value: materials.length, icon: Box, color: "text-blue-600 bg-blue-50" },
+          { label: "Düşük Stok", value: "8", icon: AlertTriangle, color: "text-red-600 bg-red-50" },
+          { label: "Toplam Değer", value: "₺2.4M", icon: BarChart3, color: "text-emerald-600 bg-emerald-50" },
+          { label: "Aktif Depo", value: "3", icon: MapPin, color: "text-amber-600 bg-amber-50" },
+        ].map((stat, i) => (
+          <Card key={i} className="border-slate-200 shadow-sm overflow-hidden group hover:shadow-md transition-all">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className={`p-3 rounded-2xl ${stat.color} transition-transform group-hover:scale-110`}>
+                <stat.icon className="h-6 w-6" />
               </div>
-            </div>
-            <p className="text-2xl font-bold text-slate-800">{kpi.value}</p>
-          </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-800 tracking-tight">{stat.value}</p>
+                <p className="text-sm text-slate-500 font-medium">{stat.label}</p>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      {/* ── Tabs ───────────────────────────────────────────── */}
-      <div className="flex gap-1 bg-slate-100 p-1 rounded-lg w-fit">
-        {(["overview", "ledger", "alerts"] as const).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-md text-sm font-medium transition-all ${
-              activeTab === tab ? "bg-white text-slate-800 shadow-sm" : "text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            {tab === "overview" ? "Depo Özeti" : tab === "ledger" ? "Stok Defteri" : `Uyarılar (${alerts.length})`}
-          </button>
-        ))}
-      </div>
-
-      {/* ══════════════════════════════════════════════════════
-          TAB: DEPO ÖZETİ
-         ══════════════════════════════════════════════════════ */}
-      {activeTab === "overview" && (
-        <div className="grid gap-6 lg:grid-cols-2">
-          {warehouses.length === 0 ? (
-            <div className="lg:col-span-2 text-center py-20 bg-white rounded-xl border border-slate-200">
-              <WarehouseIcon className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500">Henüz depo tanımlanmamış. Veritabanına depo ekleyin.</p>
-            </div>
-          ) : warehouses.map((wh) => (
-            <div key={wh.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-amber-500 to-yellow-600 shadow-lg">
-                    <WarehouseIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800">{wh.name}</h3>
-                    <p className="text-xs text-slate-500">{wh.code} {wh.managerName && `• ${wh.managerName}`}</p>
-                  </div>
-                </div>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${wh.isActive ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-                  {wh.isActive ? "Aktif" : "Pasif"}
-                </span>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                <div className="bg-slate-50 rounded-lg p-3 text-center">
-                  <p className="text-xl font-bold text-slate-800">{wh.totalSkus}</p>
-                  <p className="text-xs text-slate-500">SKU</p>
-                </div>
-                <div className="bg-slate-50 rounded-lg p-3 text-center">
-                  <p className="text-xl font-bold text-slate-800">{wh.availableQty.toLocaleString("tr-TR")}</p>
-                  <p className="text-xs text-slate-500">Kullanılabilir</p>
-                </div>
-                <div className={`rounded-lg p-3 text-center ${wh.lowStockCount > 0 ? "bg-red-50" : "bg-emerald-50"}`}>
-                  <p className={`text-xl font-bold ${wh.lowStockCount > 0 ? "text-red-600" : "text-emerald-600"}`}>{wh.lowStockCount}</p>
-                  <p className="text-xs text-slate-500">Düşük Stok</p>
-                </div>
-              </div>
-
-              {/* Capacity Bar */}
-              {wh.totalQty > 0 && (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs text-slate-500">
-                    <span>Rezerve: {wh.totalReserved}</span>
-                    <span>Toplam: {wh.totalQty.toLocaleString("tr-TR")}</span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all"
-                      style={{ width: `${Math.min((wh.totalReserved / wh.totalQty) * 100, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Top low-stock items */}
-              {wh.stockItems.filter((s) => s.isLowStock).length > 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-100">
-                  <p className="text-xs font-semibold text-red-600 mb-2">⚠ Kritik Stok:</p>
-                  {wh.stockItems.filter((s) => s.isLowStock).slice(0, 3).map((s) => (
-                    <div key={s.id} className="flex justify-between text-xs py-1">
-                      <span className="text-slate-600 truncate mr-2">{s.productName} — {s.variantName}</span>
-                      <span className="font-bold text-red-600 whitespace-nowrap">{s.available} / {s.minStock}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+      {/* Bölüm Seçimi & Filtreler */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Sol: Kategori Navigasyonu */}
+        <div className="lg:w-64 space-y-2">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 mb-4">Bölümler</p>
+          {[
+            { id: "all", label: "Tüm Envanter", icon: LayoutGrid },
+            { id: "finished", label: "Bitmiş Ürünler", icon: Package },
+            { id: "raw", label: "Hammaddeler", icon: Box },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                activeTab === tab.id 
+                ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" 
+                : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <tab.icon className="h-4 w-4" />
+              {tab.label}
+            </button>
           ))}
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════
-          TAB: STOK DEFTERİ (LEDGER)
-         ══════════════════════════════════════════════════════ */}
-      {activeTab === "ledger" && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-          <div className="p-4 border-b border-slate-100 flex items-center gap-3">
-            <Search className="h-4 w-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Ürün adı veya referans ile ara..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 text-sm outline-none bg-transparent"
-            />
-          </div>
-          <div className="divide-y divide-slate-100 max-h-[600px] overflow-y-auto">
-            {filteredLedger.length === 0 ? (
-              <div className="py-16 text-center text-slate-400">
-                Henüz stok hareketi kaydı bulunmuyor.
-              </div>
-            ) : filteredLedger.map((entry) => (
-              <div key={entry.id} className="flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`p-2 rounded-lg ${
-                    entry.quantity > 0 ? "bg-emerald-100" : "bg-red-100"
-                  }`}>
-                    {entry.quantity > 0 ? <ArrowDownRight className="h-4 w-4 text-emerald-600" /> : <ArrowUpRight className="h-4 w-4 text-red-600" />}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-800">{entry.variant.product.name}</p>
-                    <p className="text-xs text-slate-500">{entry.variant.name} • {entry.warehouse.name}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${movementColors[entry.movementType] || "bg-slate-100 text-slate-600"}`}>
-                    {movementLabels[entry.movementType] || entry.movementType}
-                  </span>
-                  <span className={`text-sm font-bold tabular-nums ${entry.quantity > 0 ? "text-emerald-600" : "text-red-600"}`}>
-                    {entry.quantity > 0 ? "+" : ""}{entry.quantity}
-                  </span>
-                  <span className="text-xs text-slate-400 w-32 text-right">{formatDate(entry.createdAt)}</span>
-                </div>
-              </div>
+          
+          <div className="pt-6">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest px-2 mb-4">Kategoriler</p>
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`w-full flex items-center justify-between px-4 py-2 text-sm transition-all rounded-lg ${
+                  selectedCategory === cat ? "text-amber-600 font-bold" : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                {cat}
+                {selectedCategory === cat && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+              </button>
             ))}
           </div>
         </div>
-      )}
 
-      {/* ══════════════════════════════════════════════════════
-          TAB: UYARILAR
-         ══════════════════════════════════════════════════════ */}
-      {activeTab === "alerts" && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-          <div className="divide-y divide-slate-100">
-            {alerts.length === 0 ? (
-              <div className="py-16 text-center">
-                <AlertTriangle className="h-10 w-10 text-emerald-400 mx-auto mb-3" />
-                <p className="text-slate-500">Tüm stok seviyeleri güvenli aralıkta!</p>
+        {/* Sağ: İçerik Alanı */}
+        <div className="flex-1 space-y-6">
+          <Card className="bg-white/60 backdrop-blur-md border-white/40 shadow-xl shadow-slate-200/20">
+            <CardContent className="p-4 flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input 
+                  placeholder="Ürün, hammadde, SKU veya lokasyon ara..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 bg-slate-50 border-slate-200 focus:bg-white transition-all" 
+                />
               </div>
-            ) : alerts.map((a) => (
-              <div key={a.id} className="flex items-center justify-between px-5 py-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 rounded-lg bg-red-100">
-                    <AlertTriangle className="h-5 w-5 text-red-600" />
+              <Button variant="outline" className="border-slate-200 bg-white">
+                <Filter className="h-4 w-4 mr-2" /> Gelişmiş Filtrele
+              </Button>
+            </CardContent>
+          </Card>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-2xl" />
+              ))}
+            </div>
+          ) : filteredMaterials.length === 0 ? (
+            <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 border-dashed">
+              <Box className="h-16 w-16 text-slate-200 mx-auto mb-4" />
+              <p className="text-slate-500 text-lg">Aranan kriterlere uygun malzeme bulunamadı.</p>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredMaterials.map((m) => (
+                <Card key={m.id} className="group overflow-hidden hover:shadow-2xl transition-all duration-500 border-slate-200 shadow-sm bg-white hover:-translate-y-1">
+                  <div className="h-44 bg-slate-50 flex items-center justify-center relative group-hover:bg-slate-100 transition-colors">
+                    <Box className="h-16 w-16 text-slate-200 group-hover:text-amber-300 transition-colors" />
+                    <div className="absolute top-3 left-3 flex gap-2">
+                      <Badge className="bg-white/80 backdrop-blur-md text-slate-700 border-slate-200 shadow-sm">
+                        {m.unit}
+                      </Badge>
+                    </div>
+                    <div className="absolute bottom-3 right-3">
+                      <Badge className={m.stockQty < 10 ? "bg-red-500" : "bg-emerald-500"}>
+                        {m.stockQty < 10 ? "Düşük Stok" : "Stokta"}
+                      </Badge>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-800">{a.variant.product.name}</p>
-                    <p className="text-xs text-slate-500">{a.variant.name} • {a.warehouse.name}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-lg font-bold text-red-600">{a.quantity - a.reserved}</p>
-                  <p className="text-xs text-slate-500">Min: {a.minStock}</p>
-                </div>
+                  <CardContent className="p-5">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="font-bold text-slate-800 text-lg group-hover:text-amber-600 transition-colors">{m.name}</h3>
+                        <p className="text-xs text-slate-400 font-mono mt-1">{m.sku || "SKU_BELİRTİLMEDİ"}</p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400"><MoreVertical className="h-4 w-4" /></Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-white">
+                          <DropdownMenuItem>Düzenle</DropdownMenuItem>
+                          <DropdownMenuItem>Stok Hareketi</DropdownMenuItem>
+                          <DropdownMenuItem className="text-red-600">Sil</DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                      <div>
+                        <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest mb-1">Mevcut Stok</p>
+                        <p className="text-xl font-black text-slate-800">{m.stockQty.toLocaleString("tr-TR")} <span className="text-xs font-normal text-slate-400">{m.unit}</span></p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] uppercase text-slate-400 font-bold tracking-widest mb-1">Lokasyon</p>
+                        <div className="flex items-center justify-end gap-1 text-slate-600 font-bold">
+                          <MapPin className="h-3 w-3 text-amber-500" />
+                          <span>{m.shelfLoc || "—"}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <Card className="overflow-hidden border-slate-200 shadow-sm bg-white rounded-2xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-widest border-b border-slate-200">
+                    <tr>
+                      <th className="px-6 py-4">Malzeme Bilgisi</th>
+                      <th className="px-6 py-4">Kategori</th>
+                      <th className="px-6 py-4">Stok Durumu</th>
+                      <th className="px-6 py-4">Birim Maliyet</th>
+                      <th className="px-6 py-4">Lokasyon</th>
+                      <th className="px-6 py-4 text-right">İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredMaterials.map(m => (
+                      <tr key={m.id} className="hover:bg-slate-50 transition-colors group">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center group-hover:bg-white transition-colors">
+                                <Box className="h-5 w-5 text-slate-400" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-slate-800">{m.name}</p>
+                                <p className="text-[10px] text-slate-400 font-mono">{m.sku}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 font-medium">Hammade</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className="font-black text-slate-800">{m.stockQty.toLocaleString("tr-TR")}</span>
+                              <span className="text-xs text-slate-400">{m.unit}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-slate-600 font-bold">₺{m.costPerUnit.toLocaleString("tr-TR")}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1 text-slate-500">
+                              <MapPin className="h-3 w-3" />
+                              <span className="text-xs">{m.shelfLoc || "—"}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <Button variant="ghost" size="sm" className="hover:bg-amber-50 hover:text-amber-600">Detay</Button>
+                          </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-          </div>
+            </Card>
+          )}
         </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════
-          MODAL: YENİ STOK HAREKETİ
-         ══════════════════════════════════════════════════════ */}
-      {showMovementModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowMovementModal(false)} />
-          <form onSubmit={handleSubmitMovement} className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 space-y-5">
-            <h2 className="text-xl font-bold text-slate-800">Yeni Stok Hareketi</h2>
-
-            {/* Depo Seçimi */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Depo *</label>
-              <select value={formWarehouseId} onChange={(e) => setFormWarehouseId(e.target.value)} required className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                <option value="">Seçiniz...</option>
-                {warehouses.map((w) => <option key={w.id} value={w.id}>{w.name} ({w.code})</option>)}
-              </select>
-            </div>
-
-            {/* Varyant Seçimi */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Ürün / Varyant *</label>
-              <select value={formVariantId} onChange={(e) => setFormVariantId(e.target.value)} required className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                <option value="">Seçiniz...</option>
-                {allVariants.map((v) => <option key={v.id} value={v.id}>{v.label}</option>)}
-              </select>
-            </div>
-
-            {/* Hareket Tipi */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Hareket Tipi *</label>
-              <select value={formType} onChange={(e) => setFormType(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                {Object.entries(movementLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-              </select>
-            </div>
-
-            {/* Transfer hedef depo */}
-            {formType === "TRANSFER_OUT" && (
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Hedef Depo *</label>
-                <select value={formTargetWh} onChange={(e) => setFormTargetWh(e.target.value)} required className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">
-                  <option value="">Seçiniz...</option>
-                  {warehouses.filter((w) => w.id !== formWarehouseId).map((w) => <option key={w.id} value={w.id}>{w.name}</option>)}
-                </select>
-              </div>
-            )}
-
-            {/* Miktar + Birim Maliyet */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Miktar *</label>
-                <input type="number" min="1" value={formQty} onChange={(e) => setFormQty(e.target.value)} required className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Adet" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Birim Maliyet (₺)</label>
-                <input type="number" step="0.01" value={formCost} onChange={(e) => setFormCost(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Opsiyonel" />
-              </div>
-            </div>
-
-            {/* Referans + Notlar */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Referans No</label>
-              <input type="text" value={formRef} onChange={(e) => setFormRef(e.target.value)} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" placeholder="Sipariş no, irsaliye no..." />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">Notlar</label>
-              <textarea value={formNotes} onChange={(e) => setFormNotes(e.target.value)} rows={2} className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none" placeholder="Açıklama..." />
-            </div>
-
-            {/* Butonlar */}
-            <div className="flex gap-3 pt-2">
-              <button type="button" onClick={() => setShowMovementModal(false)} className="flex-1 px-4 py-3 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50">
-                İptal
-              </button>
-              <button type="submit" disabled={submitting} className="flex-1 px-4 py-3 bg-gradient-to-r from-amber-500 to-yellow-600 text-white rounded-lg text-sm font-bold hover:from-amber-600 hover:to-yellow-700 disabled:opacity-50 shadow-lg shadow-amber-500/25">
-                {submitting ? "Kaydediliyor..." : "Hareketi Kaydet"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      </div>
     </div>
   )
 }
