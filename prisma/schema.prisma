@@ -709,6 +709,8 @@ model BankAccount {
   currency        String  @default("TRY")
   currentBalance  Float   @default(0)
   apiProvider     String?
+  clientId        String? // Yeni: API Client ID
+  clientSecret    String? // Yeni: API Client Secret
   lastSyncedAt    DateTime?
   isReadOnly      Boolean  @default(true)
   rawTransactions BankTransactionRaw[]

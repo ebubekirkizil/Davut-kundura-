@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { 
   Building2, Lock, RefreshCw, Eye, EyeOff, CheckCircle2, 
   Clock, ArrowDownLeft, ArrowUpRight, Link2, Unlink, 
@@ -68,8 +68,9 @@ function maskIban(s: string) {
 }
 
 export default function BankPanel() {
-  const [banks, setBanks] = useState(INITIAL_BANKS)
-  const [txs, setTxs] = useState(INITIAL_TXS)
+  const [banks, setBanks] = useState<any[]>([])
+  const [txs, setTxs] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const [showIban, setShowIban] = useState<Record<string, boolean>>({})
   const [isSyncing, setIsSyncing] = useState(false)
   const [selectedTxForMatch, setSelectedTxForMatch] = useState<string | null>(null)
@@ -77,6 +78,7 @@ export default function BankPanel() {
 
   // Form state for connecting a new Bank (e.g. Kuveyt Türk)
   const [showAddBankModal, setShowAddBankModal] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [newBankName, setNewBankName] = useState("Kuveyt Türk Katılım Bankası")
   const [newAccountName, setNewAccountName] = useState("Kuveyt Türk Toptan & POS Hesabı")
   const [newIban, setNewIban] = useState("TR56 0020 5000 0001 2345 6789 01")
@@ -85,18 +87,50 @@ export default function BankPanel() {
   const [apiMethod, setApiMethod] = useState("Kuveyt Türk API Market (Doğrudan)")
   const [initialBalance, setInitialBalance] = useState("75000")
 
+  // Load banks and transactions from API
+  const loadData = async () => {
+    try {
+      setIsLoading(true)
+      const res = await fetch("/api/admin/banks")
+      const data = await res.json()
+      if (Array.isArray(data)) {
+        setBanks(data)
+        // Extract all raw transactions from all banks
+        const allTxs = data.flatMap((b: any) => 
+          (b.rawTransactions || []).map((t: any) => ({
+            ...t,
+            bankName: b.bankName,
+            type: t.amount > 0 ? "IN" : "OUT",
+            date: new Date(t.transactedAt).toLocaleString("tr-TR", { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+            matched: t.isMatched
+          }))
+        ).sort((a: any, b: any) => new Date(b.transactedAt).getTime() - new Date(a.transactedAt).getTime())
+        
+        setTxs(allTxs)
+      }
+    } catch (error) {
+      console.error("Banka verileri yüklenemedi:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadData()
+  }, [])
+
   const toggleIban = (id: string) => setShowIban(p => ({ ...p, [id]: !p[id] }))
 
-  const handleSync = () => {
+  const handleSync = async () => {
     setIsSyncing(true)
-    setTimeout(() => {
+    try {
+      await fetch("/api/admin/banks/sync", { method: "POST" })
+      await loadData()
+    } catch (error) {
+      console.error("Senkronizasyon hatası:", error)
+    } finally {
       setIsSyncing(false)
-      setBanks(prev => prev.map(b => ({
-        ...b,
-        lastSync: "Az önce güncellendi (Canlı)"
-      })))
-      // Trigger a simulated incoming pulse
-    }, 1000)
+    }
   }
 
   const handleMatchInvoice = (txId: string, invoiceNo: string) => {
@@ -118,46 +152,38 @@ export default function BankPanel() {
     }))
   }
 
-  const handleAddNewBankSubmit = (e: React.FormEvent) => {
+  const handleAddNewBankSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newIban.trim()) return
+    if (!newIban.trim() || isSubmitting) return
 
-    const newId = `b_${Date.now()}`
-    const bankObj = {
-      id: newId,
-      name: newBankName,
-      accountName: newAccountName || "Ticari Vadesiz Hesap",
-      iban: newIban,
-      balance: initialBalance ? parseFloat(initialBalance) : 0,
-      currency: "TRY",
-      lastSync: "Az önce API ile bağlandı",
-      provider: apiMethod,
-      status: "active",
-      color: newBankName.includes("Kuveyt") ? "#059669" : "#6366f1",
-      logoText: newBankName.includes("Kuveyt") ? "KT" : "BNK"
+    try {
+      setIsSubmitting(true)
+      const res = await fetch("/api/admin/banks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bankName: newBankName,
+          accountName: newAccountName,
+          iban: newIban,
+          clientId: newClientId,
+          clientSecret: newClientSecret,
+          apiProvider: apiMethod,
+          initialBalance: initialBalance
+        })
+      })
+
+      if (res.ok) {
+        await loadData()
+        setShowAddBankModal(false)
+      } else {
+        const err = await res.json()
+        alert(err.error || "Banka eklenemedi")
+      }
+    } catch (error) {
+      alert("Bir bağlantı hatası oluştu")
+    } finally {
+      setIsSubmitting(false)
     }
-
-    setBanks(prev => [...prev, bankObj])
-    
-    // Simulate incoming transfers from this newly linked account
-    if (newBankName.includes("Kuveyt")) {
-      setTxs(prev => [
-        {
-          id: `t_kt_${Date.now()}`,
-          bankName: "Kuveyt Türk Katılım Bankası",
-          amount: 32500,
-          desc: "EFT GELEN - PENDİK DERİCİLİK SAN. - KUVEYTTÜRK API",
-          date: "Bugün 14:10",
-          type: "IN",
-          matched: false,
-          matchedInvoice: null
-        },
-        ...prev
-      ])
-    }
-
-    setShowAddBankModal(false)
-    // reset form fields optionally
   }
 
   const filteredTxs = txs.filter(t => 
@@ -239,14 +265,14 @@ export default function BankPanel() {
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 group-hover:text-slate-950 tracking-tight">
-                      {b.name}
+                      {b.bankName}
                     </h3>
                     <p className="text-xs font-medium text-slate-500">{b.accountName}</p>
                   </div>
                 </div>
 
                 <Badge variant="outline" className="text-[10px] font-mono bg-slate-50 text-slate-600 border-slate-200 py-0.5">
-                  {b.provider.split(" ")[0]} API
+                  {(b.apiProvider || "Bulut").split(" ")[0]} API
                 </Badge>
               </div>
 
@@ -276,14 +302,14 @@ export default function BankPanel() {
                   <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Bağlantı Aktif</span>
                 </div>
                 <span className="text-[10px] text-slate-400 block font-medium truncate max-w-[140px]">
-                  {b.lastSync}
+                  {b.lastSyncedAt ? new Date(b.lastSyncedAt).toLocaleString() : "Henüz senkronize edilmedi"}
                 </span>
               </div>
 
               <div className="text-right">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Kullanılabilir Bakiye</span>
                 <span className="text-2xl font-black font-mono tabular-nums text-slate-900 block tracking-tight">
-                  {fmt(b.balance)}
+                  {fmt(b.currentBalance)}
                 </span>
               </div>
             </div>
@@ -469,10 +495,11 @@ export default function BankPanel() {
                 
                 <Button 
                   type="submit"
+                  disabled={isSubmitting}
                   className="h-9 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
                 >
-                  <Check className="w-4 h-4 stroke-[2.5]" />
-                  <span>Kuveyt Türk / Bankayı Bağla</span>
+                  {isSubmitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4 stroke-[2.5]" />}
+                  <span>{isSubmitting ? "Bağlanıyor..." : "Kuveyt Türk / Bankayı Bağla"}</span>
                 </Button>
               </div>
             </form>
@@ -535,7 +562,7 @@ export default function BankPanel() {
                       <div className="space-y-1.5 flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight block">
-                            {tx.desc}
+                            {tx.description}
                           </span>
                           
                           {tx.matched ? (

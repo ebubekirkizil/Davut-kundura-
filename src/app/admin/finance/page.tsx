@@ -119,6 +119,27 @@ export default function FinancePage() {
   // Navigation Tabs state
   const [activeTab, setActiveTab] = useState<"dashboard" | "banks" | "ledger" | "tags">("dashboard")
   
+  // Dynamic Banks Data for KPI
+  const [banks, setBanks] = useState<any[]>([])
+  const [totalBankBalance, setTotalBankBalance] = useState(0)
+
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const res = await fetch("/api/admin/banks")
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setBanks(data)
+          const total = data.reduce((sum: number, b: any) => sum + b.currentBalance, 0)
+          setTotalBankBalance(total)
+        }
+      } catch (error) {
+        console.error("Dashboard banka verileri yüklenemedi:", error)
+      }
+    }
+    fetchBanks()
+  }, [])
+
   // Custom Time Range Adjustments for the charts
   const [chartPeriod, setChartPeriod] = useState<"daily" | "weekly" | "monthly" | "quarterly" | "yearly" | "custom">("monthly")
   const [customStartDate, setCustomStartDate] = useState("2024-10-01")
@@ -363,11 +384,11 @@ export default function FinancePage() {
                 },
                 { 
                   title: "Kasa & Banka Toplamı", 
-                  value: 284320, 
+                  value: totalBankBalance || 284320, 
                   prev: null, 
                   icon: Building2, 
                   accent: "border-t-4 border-t-slate-800",
-                  sub: "Kuveyt Türk + Ziraat + İş Bankası",
+                  sub: banks.length > 0 ? banks.map(b => b.bankName).join(" + ") : "Kuveyt Türk + Ziraat + İş Bankası",
                   iconBg: "bg-slate-100 text-slate-800 border-slate-200"
                 },
               ].map(kpi => {
