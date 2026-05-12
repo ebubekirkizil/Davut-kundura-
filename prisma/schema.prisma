@@ -384,7 +384,8 @@ model Fulfillment {
   shippedAt   DateTime?
   deliveredAt DateTime?
 
-  items FulfillmentItem[]
+  items    FulfillmentItem[]
+  dispatch Dispatch?         // Kargo etiketi ilişkisi
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -500,6 +501,130 @@ model InventoryTransaction {
   createdBy String?
 
   createdAt DateTime @default(now())
+}
+
+// ─────────────────────────────────────────────
+// LOJİSTİK & SEVKİYAT MOTORU (GOD-TIER)
+// ─────────────────────────────────────────────
+
+enum ShippingProviderType {
+  COURIER    // B2C tekil kargo (Yurtiçi, Aras, MNG)
+  EXPRESS    // Hızlı kurye (DHL, UPS)
+  PALLET     // B2B palet/ambar nakliye
+  LOCAL      // Şehiriçi/kapıdan kapıya
+}
+
+model ShippingProvider {
+  id           String               @id @default(cuid())
+  name         String               // "Yurtiçi Kargo", "DHL Express"
+  slug         String               @unique // "yurtici", "dhl"
+  type         ShippingProviderType
+  logoUrl      String?
+  isActive     Boolean              @default(true)
+
+  // API Entegrasyon Bilgileri (şifrelenmiş)
+  apiBaseUrl   String?
+  apiKey       String?              // Şifreli
+  apiSecret    String?              // Şifreli
+  webhookUrl   String?              // Gelen tracking eventi için
+
+  dispatches   Dispatch[]
+  zones        ShippingZone[]
+
+  createdAt    DateTime             @default(now())
+}
+
+model ShippingZone {
+  id           String           @id @default(cuid())
+  providerId   String
+  provider     ShippingProvider @relation(fields: [providerId], references: [id])
+  name         String           // "Türkiye İçi", "Avrupa", "ABD"
+  countries    String[]         // ["TR"], ["DE","FR","NL"]
+
+  // Desi (Hacimsel Ağırlık) Bazlı Fiyatlandırma
+  baseFee      Float            @default(0)    // Taban ücret
+  perDesiRate  Float            @default(0)    // Her desi için ek ücret (₺ veya €)
+  currency     String           @default("TRY")
+  freeAbove    Float?           // Bu tutarın üzerinde kargo bedava
+
+  @@index([providerId])
+}
+
+// Depodaki standart kutu tipleri — Desi hesabı için
+model PackagePreset {
+  id           String  @id @default(cuid())
+  name         String  // "Tekli Ayakkabı Kutusu", "Çizme Kutusu", "B2B Palet"
+  widthCm      Float
+  heightCm     Float
+  depthCm      Float
+  emptyWeightKg Float  @default(0)
+
+  // Hesaplanan desi: (En x Boy x Yükseklik) / 3000
+  // Bu alan Prisma'da computed olmadığı için API'de hesaplanır
+  dispatches   Dispatch[]
+}
+
+// Ana Sevkiyat/Dispatch kaydı — Her kargo etiketine karşılık gelir
+enum DispatchStatus {
+  DRAFT        // Henüz API'ye gönderilmedi
+  LABEL_READY  // Etiket hazır, yazdırılmayı bekliyor
+  PRINTED      // Etiketi yazdırıldı
+  HANDED_OFF   // Kargo firmasına teslim edildi
+  IN_TRANSIT   // Yolda
+  DELIVERED    // Teslim edildi
+  FAILED       // Teslim edilemedi
+  RETURNED     // İade kargoya verildi
+}
+
+model Dispatch {
+  id              String           @id @default(cuid())
+  fulfillmentId   String           @unique
+  fulfillment     Fulfillment      @relation(fields: [fulfillmentId], references: [id])
+  providerId      String
+  provider        ShippingProvider @relation(fields: [providerId], references: [id])
+  packagePresetId String?
+  packagePreset   PackagePreset?   @relation(fields: [packagePresetId], references: [id])
+
+  status          DispatchStatus   @default(DRAFT)
+
+  // Kargo Detayları
+  trackingNo      String?          @unique
+  trackingUrl     String?
+  zplLabel        String?          @db.Text  // Zebra termal yazıcı için ZPL verisi
+  pdfLabelUrl     String?                    // PDF etiket linki
+
+  // Boyut & Ağırlık
+  grossWeightKg   Float?
+  desiWeight      Float?           // Hesaplanan desi ağırlığı
+  chargeableWeight Float?          // max(gerçek, desi)
+
+  // Fatura & İrsaliye
+  waybillNo       String?          // E-İrsaliye numarası
+  shippingCost    Float?           // Kargo firmasından dönen gerçek maliyet
+
+  // Tersine lojistik için iade kodu
+  returnBarcode   String?
+
+  trackingEvents  TrackingEvent[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+// Kargo firması API / Webhook'tan gelen anlık takip olayları
+model TrackingEvent {
+  id          String   @id @default(cuid())
+  dispatchId  String
+  dispatch    Dispatch @relation(fields: [dispatchId], references: [id], onDelete: Cascade)
+
+  status      String   // "ON_VEHICLE", "DELIVERED", "EXCEPTION"
+  description String   // "Dağıtıma çıktı - İstanbul / Kadıköy"
+  location    String?  // Şube veya koordinat
+  eventAt     DateTime // Kargo firmasından gelen gerçek zaman
+
+  createdAt   DateTime @default(now())
+
+  @@index([dispatchId, eventAt])
 }
 
 // ─────────────────────────────────────────────
