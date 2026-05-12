@@ -1,343 +1,367 @@
 "use client"
 
 import React, { useState } from "react"
-import { 
-  ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock, AlertCircle, 
-  Link2, Unlink, Plus, Tag, RefreshCw, Building2, Filter, ChevronDown
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from "recharts"
+import {
+  TrendingUp, TrendingDown, Wallet, ShoppingBag, Package,
+  ArrowDownLeft, ArrowUpRight, Plus, Tag, AlertCircle,
+  CheckCircle2, Clock, Building2, CreditCard, ChevronRight
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ── DATA ──────────────────────────────────────────────────────────────────────
 
-interface BankTx {
-  id: string
-  amount: number
-  description: string
-  transactedAt: string
-  isMatched: boolean
-}
-
-interface PendingPayment {
-  id: string
-  orderNumber: string
-  customer: string
-  amount: number
-  type: "B2B" | "B2C"
-  dueDate: string
-}
-
-interface RecentTx {
-  id: string
-  type: "INCOME" | "EXPENSE"
-  amount: number
-  description: string
-  tag: string
-  tagColor: string
-  source: string
-  status: "PENDING" | "CLEARED"
-  date: string
-}
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const BANK_TXS: BankTx[] = [
-  { id: "b1", amount: 45000, description: "EFT GELEN - KORAY AYAKKABICILIK - ORD-2024-1041", transactedAt: "2024-10-24T10:12:00Z", isMatched: false },
-  { id: "b2", amount: 3450, description: "EFT GELEN - AHMET YILMAZ - 05321234567", transactedAt: "2024-10-24T09:45:00Z", isMatched: false },
-  { id: "b3", amount: -8200, description: "OTOMATIK ODEME - ARAS KARGO TAKAS", transactedAt: "2024-10-23T16:00:00Z", isMatched: true },
-  { id: "b4", amount: 12800, description: "EFT GELEN - ZARIF DERI A.S. - AVANS", transactedAt: "2024-10-23T11:30:00Z", isMatched: false },
-  { id: "b5", amount: -4500, description: "CEKILIS - KIRA OCAK 2024", transactedAt: "2024-10-22T08:00:00Z", isMatched: true },
+const monthly = [
+  { ay: "Oca", gelir: 68000, gider: 32000, kar: 36000 },
+  { ay: "Şub", gelir: 74000, gider: 28000, kar: 46000 },
+  { ay: "Mar", gelir: 91000, gider: 41000, kar: 50000 },
+  { ay: "Nis", gelir: 85000, gider: 38000, kar: 47000 },
+  { ay: "May", gelir: 110000, gider: 45000, kar: 65000 },
+  { ay: "Haz", gelir: 98000, gider: 42000, kar: 56000 },
+  { ay: "Tem", gelir: 127000, gider: 48000, kar: 79000 },
+  { ay: "Ağu", gelir: 119000, gider: 44000, kar: 75000 },
+  { ay: "Eyl", gelir: 134000, gider: 51000, kar: 83000 },
+  { ay: "Eki", gelir: 142000, gider: 55000, kar: 87000 },
 ]
 
-const PENDING_PAYMENTS: PendingPayment[] = [
-  { id: "p1", orderNumber: "ORD-2024-1041", customer: "Koray Ayakkabıcılık", amount: 45000, type: "B2B", dueDate: "2024-10-24" },
-  { id: "p2", orderNumber: "ORD-2024-1042", customer: "Ahmet Yılmaz", amount: 3450, type: "B2C", dueDate: "2024-10-24" },
-  { id: "p3", orderNumber: "ORD-2024-1038", customer: "Zarif Deri A.Ş.", amount: 12800, type: "B2B", dueDate: "2024-11-18" },
-  { id: "p4", orderNumber: "ORD-2024-1037", customer: "Can Kaya", amount: 890, type: "B2C", dueDate: "2024-10-20" },
+const expenses = [
+  { name: "Hammadde / Deri", value: 38, color: "#b45309", amount: 20900 },
+  { name: "Kargo & Lojistik", value: 22, color: "#0891b2", amount: 12100 },
+  { name: "Pazarlama", value: 14, color: "#7c3aed", amount: 7700 },
+  { name: "Kira & Sabit", value: 18, color: "#475569", amount: 9900 },
+  { name: "Personel", value: 8, color: "#059669", amount: 4400 },
 ]
 
-const RECENT_TXS: RecentTx[] = [
-  { id: "t1", type: "INCOME", amount: 3450, description: "Ahmet Yılmaz - ORD-2024-1042", tag: "Web Satış", tagColor: "#10b981", source: "BANK", status: "CLEARED", date: "2024-10-24" },
-  { id: "t2", type: "EXPENSE", amount: 8200, description: "Aras Kargo - Ekim toplu ödeme", tag: "Kargo Gideri", tagColor: "#f59e0b", source: "BANK", status: "CLEARED", date: "2024-10-23" },
-  { id: "t3", type: "EXPENSE", amount: 1850, description: "Instagram Reklam Bütçesi", tag: "Pazarlama", tagColor: "#8b5cf6", source: "CARD", status: "CLEARED", date: "2024-10-22" },
-  { id: "t4", type: "INCOME", amount: 45000, description: "Koray Ayakkabıcılık B2B Avans", tag: "Toptan Satış", tagColor: "#3b82f6", source: "BANK", status: "PENDING", date: "2024-10-22" },
-  { id: "t5", type: "EXPENSE", amount: 22000, description: "Vaketa Deri Alımı - Hakiki Deri A.Ş.", tag: "Deri Alımı", tagColor: "#b45309", source: "TRANSFER", status: "CLEARED", date: "2024-10-21" },
-  { id: "t6", type: "EXPENSE", amount: 4500, description: "Ocak Kirası", tag: "Kira", tagColor: "#64748b", source: "BANK", status: "CLEARED", date: "2024-10-20" },
+const cashflow = [
+  { gun: "Pzt", nakit: 12400 }, { gun: "Sal", nakit: 8200 },
+  { gun: "Çar", nakit: 19800 }, { gun: "Per", nakit: 15600 },
+  { gun: "Cum", nakit: 27300 }, { gun: "Cmt", nakit: 34100 },
+  { gun: "Paz", nakit: 11200 },
 ]
 
-const TAGS = ["Web Satış", "Toptan Satış", "Kargo Gideri", "Deri Alımı", "Pazarlama", "Kira", "Maaş", "Diğer"]
+const recentTxs = [
+  { id: 1, desc: "Koray Ayakkabıcılık — B2B Sipariş", amount: 45000, type: "INCOME", tag: "Toptan", date: "Bugün 10:12", status: "CLEARED" },
+  { id: 2, desc: "Vaketa Deri Alımı — Hakiki Deri A.Ş.", amount: 22000, type: "EXPENSE", tag: "Hammadde", date: "Bugün 08:45", status: "CLEARED" },
+  { id: 3, desc: "Ahmet Yılmaz — ORD-2024-1042", amount: 3450, type: "INCOME", tag: "Web Satış", date: "Dün 16:30", status: "CLEARED" },
+  { id: 4, desc: "Instagram Reklam Bütçesi", amount: 1850, type: "EXPENSE", tag: "Pazarlama", date: "Dün 12:00", status: "CLEARED" },
+  { id: 5, desc: "Aras Kargo — Ekim Toplu", amount: 8200, type: "EXPENSE", tag: "Kargo", date: "23 Eki", status: "CLEARED" },
+  { id: 6, desc: "Zarif Deri A.Ş. — Avans", amount: 12800, type: "INCOME", tag: "Toptan", date: "23 Eki", status: "PENDING" },
+]
 
-// ─── KPI Bar ─────────────────────────────────────────────────────────────────
+const pending = [
+  { id: "p1", customer: "Koray Ayakkabıcılık", order: "ORD-2024-1041", amount: 25000, due: "30 Kas", type: "B2B", overdue: false },
+  { id: "p2", customer: "Zarif Deri A.Ş.", order: "ORD-2024-1038", amount: 12800, due: "18 Kas", type: "B2B", overdue: false },
+  { id: "p3", customer: "Mehmet Keleş", order: "ORD-2024-1035", amount: 890, due: "10 Kas", type: "B2C", overdue: true },
+]
 
 const KPIS = [
-  { label: "Banka Bakiyesi", value: "₺284.320", sub: "Ziraat + İş Bankası", trend: null },
-  { label: "Bu Ay Ciro", value: "₺127.450", sub: "+%14 geçen aya göre", trend: "up" },
-  { label: "Bu Ay Gider", value: "₺48.200", sub: "Bütçenin %71'i", trend: "neutral" },
-  { label: "Eşleşmeyi Bekleyen", value: "3 Havale", sub: "₺61.250 eşleşmedi", trend: "warn" },
+  { label: "Bu Ay Ciro", value: 142000, prev: 134000, icon: TrendingUp, color: "from-emerald-500 to-teal-400", fmt: true },
+  { label: "Bu Ay Gider", value: 55000, prev: 51000, icon: TrendingDown, color: "from-rose-500 to-orange-400", fmt: true },
+  { label: "Net Kâr", value: 87000, prev: 83000, icon: Wallet, color: "from-amber-500 to-yellow-400", fmt: true },
+  { label: "Kasa + Banka", value: 284320, prev: null, icon: Building2, color: "from-slate-700 to-slate-500", fmt: true },
 ]
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+const TAGS = ["Hammadde", "Kargo", "Pazarlama", "Kira", "Personel", "Web Satış", "Toptan", "Diğer"]
+
+function fmt(n: number) {
+  return new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", maximumFractionDigits: 0 }).format(n)
+}
+
+function pct(cur: number, prev: number) {
+  return (((cur - prev) / prev) * 100).toFixed(1)
+}
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="bg-slate-900 text-white rounded-xl px-4 py-3 shadow-2xl text-xs space-y-1.5">
+      <p className="font-semibold text-slate-300 mb-1">{label}</p>
+      {payload.map((p: any) => (
+        <div key={p.name} className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+          <span className="text-slate-400">{p.name}:</span>
+          <span className="font-mono font-bold">{fmt(p.value)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ── PAGE ──────────────────────────────────────────────────────────────────────
 
 export default function FinancePage() {
-  // Quick entry state
   const [qDesc, setQDesc] = useState("")
   const [qAmount, setQAmount] = useState("")
-  const [qType, setQType] = useState<"INCOME" | "EXPENSE">("EXPENSE")
+  const [qType, setQType] = useState("EXPENSE")
   const [qTag, setQTag] = useState("Diğer")
-  const [qSaved, setQSaved] = useState(false)
+  const [saved, setSaved] = useState(false)
 
-  // Reconciliation state
-  const [selectedBank, setSelectedBank] = useState<string | null>(null)
-  const [selectedPayment, setSelectedPayment] = useState<string | null>(null)
-  const [bankTxs, setBankTxs] = useState(BANK_TXS)
-  const [payments, setPayments] = useState(PENDING_PAYMENTS)
-
-  function handleQuickSave() {
-    if (!qDesc || !qAmount) return
-    setQSaved(true)
-    setQDesc("")
-    setQAmount("")
-    setTimeout(() => setQSaved(false), 2000)
+  function quickSave() {
+    if (!qDesc.trim() || !qAmount) return
+    setSaved(true); setQDesc(""); setQAmount("")
+    setTimeout(() => setSaved(false), 2000)
   }
-
-  function handleReconcile() {
-    if (!selectedBank || !selectedPayment) return
-    setBankTxs(b => b.map(t => t.id === selectedBank ? { ...t, isMatched: true } : t))
-    setPayments(p => p.filter(t => t.id !== selectedPayment))
-    setSelectedBank(null)
-    setSelectedPayment(null)
-  }
-
-  const unmatchedCount = bankTxs.filter(b => !b.isMatched).length
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-50 font-sans">
 
-      {/* ── Sticky Top Bar ── */}
-      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm px-6 py-3">
-        <div className="max-w-screen-2xl mx-auto flex flex-wrap items-center gap-3">
-          {/* Quick Expense Bar */}
-          <div className="flex items-center gap-2 flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
-            <Select value={qType} onValueChange={v => setQType(v as "INCOME" | "EXPENSE")}>
-              <SelectTrigger className="h-7 w-24 border-0 bg-transparent text-xs font-semibold p-0 focus:ring-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="EXPENSE" className="text-xs">Gider</SelectItem>
-                <SelectItem value="INCOME" className="text-xs">Gelir</SelectItem>
-              </SelectContent>
-            </Select>
-            <div className="h-4 w-px bg-slate-200" />
-            <Input
-              value={qDesc}
-              onChange={e => setQDesc(e.target.value)}
-              placeholder="Açıklama (Örn: Kırtasiye gideri...)"
-              className="h-7 border-0 bg-transparent text-sm flex-1 focus-visible:ring-0 p-0"
-            />
-            <Input
-              value={qAmount}
-              onChange={e => setQAmount(e.target.value)}
-              placeholder="₺ tutar"
-              className="h-7 border-0 bg-transparent text-sm w-24 text-right focus-visible:ring-0 p-0 font-mono"
-              type="number"
-            />
-            <Select value={qTag} onValueChange={setQTag}>
-              <SelectTrigger className="h-7 w-28 border border-slate-200 bg-white text-xs rounded-lg">
-                <Tag className="h-3 w-3 mr-1 text-slate-400" /><SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TAGS.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Button
-              size="sm"
-              onClick={handleQuickSave}
-              className={`h-7 px-3 text-xs transition-all ${qSaved ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-900 hover:bg-slate-800"} text-white`}
-            >
-              {qSaved ? <><CheckCircle2 className="h-3 w-3 mr-1" />Kaydedildi</> : <><Plus className="h-3 w-3 mr-1" />Kaydet</>}
-            </Button>
+      {/* ── STICKY QUICK ENTRY ── */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div className="max-w-screen-2xl mx-auto px-6 py-2.5 flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 mr-2">
+            <div className="w-6 h-6 bg-slate-900 rounded-lg flex items-center justify-center">
+              <CreditCard className="w-3.5 h-3.5 text-white" />
+            </div>
+            <span className="text-sm font-serif font-bold text-slate-900">Finans</span>
           </div>
-
-          <Button variant="outline" size="sm" className="border-slate-300 bg-white text-xs h-9 gap-1.5 whitespace-nowrap">
-            <RefreshCw className="h-3.5 w-3.5" />Banka Senkronize Et
+          <div className="h-5 w-px bg-slate-200 mx-1" />
+          <Select value={qType} onValueChange={setQType}>
+            <SelectTrigger className="h-8 w-20 border-slate-200 bg-slate-50 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="EXPENSE" className="text-xs">Gider</SelectItem>
+              <SelectItem value="INCOME" className="text-xs">Gelir</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input value={qDesc} onChange={e => setQDesc(e.target.value)}
+            placeholder="Açıklama... (örn: Kırtasiye gideri)" className="h-8 text-xs flex-1 min-w-[180px] bg-slate-50 border-slate-200" />
+          <Input value={qAmount} onChange={e => setQAmount(e.target.value)}
+            placeholder="₺ Tutar" type="number" className="h-8 text-xs w-28 font-mono bg-slate-50 border-slate-200" />
+          <Select value={qTag} onValueChange={setQTag}>
+            <SelectTrigger className="h-8 w-32 border-slate-200 bg-slate-50 text-xs">
+              <Tag className="w-3 h-3 mr-1 text-slate-400" /><SelectValue />
+            </SelectTrigger>
+            <SelectContent>{TAGS.map(t => <SelectItem key={t} value={t} className="text-xs">{t}</SelectItem>)}</SelectContent>
+          </Select>
+          <Button onClick={quickSave} size="sm" className={`h-8 text-xs px-4 transition-all ${saved ? "bg-emerald-600" : "bg-slate-900"} text-white`}>
+            {saved ? <><CheckCircle2 className="w-3 h-3 mr-1" />Kaydedildi</> : <><Plus className="w-3 h-3 mr-1" />Kaydet</>}
           </Button>
         </div>
       </div>
 
-      <div className="max-w-screen-2xl mx-auto w-full px-6 py-6 space-y-6">
+      <div className="max-w-screen-2xl mx-auto px-6 py-6 space-y-6">
 
-        {/* ── KPI Cards ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {KPIS.map(k => (
-            <Card key={k.label} className="border-slate-200 bg-white shadow-sm">
-              <CardContent className="p-5">
-                <p className="text-xs text-slate-500 uppercase tracking-widest font-semibold">{k.label}</p>
-                <p className="text-2xl font-bold font-mono text-slate-900 mt-2 tabular-nums">{k.value}</p>
-                <p className={`text-xs mt-1 ${k.trend === "up" ? "text-emerald-600" : k.trend === "warn" ? "text-amber-600" : "text-slate-400"}`}>
-                  {k.sub}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* ── Main Content: Reconciliation (Left) + Recent Txs (Right) ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-
-          {/* RECONCILIATION PANEL — 3 cols */}
-          <div className="lg:col-span-3 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-serif font-bold text-slate-900">Banka Mutabakatı</h2>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  <span className="text-amber-600 font-semibold">{unmatchedCount} havale</span> eşleşmeyi bekliyor
-                </p>
-              </div>
-              {selectedBank && selectedPayment && (
-                <Button
-                  onClick={handleReconcile}
-                  size="sm"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs gap-1.5"
-                >
-                  <Link2 className="h-3.5 w-3.5" /> Eşleştir
-                </Button>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {/* Sol: Banka Hareketleri */}
-              <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
-                <CardHeader className="py-3 px-4 border-b border-slate-100 bg-slate-50">
-                  <CardTitle className="text-xs uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <Building2 className="h-3.5 w-3.5" /> Banka Hareketleri
-                  </CardTitle>
-                </CardHeader>
-                <div className="divide-y divide-slate-100 max-h-[420px] overflow-y-auto">
-                  {bankTxs.map(tx => (
-                    <div
-                      key={tx.id}
-                      onClick={() => !tx.isMatched && setSelectedBank(selectedBank === tx.id ? null : tx.id)}
-                      className={`px-4 py-3 transition-colors ${tx.isMatched ? "opacity-40 cursor-default" : "cursor-pointer hover:bg-slate-50"} ${selectedBank === tx.id ? "bg-amber-50 border-l-2 border-l-amber-400" : ""}`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed">{tx.description}</p>
-                          <p className="text-[10px] text-slate-400 mt-1 font-mono">
-                            {new Date(tx.transactedAt).toLocaleDateString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className={`text-sm font-bold font-mono tabular-nums ${tx.amount > 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                            {tx.amount > 0 ? "+" : ""}{tx.amount.toLocaleString("tr-TR")} ₺
-                          </p>
-                          {tx.isMatched && <span className="text-[10px] text-emerald-600 flex items-center gap-0.5 justify-end mt-0.5"><CheckCircle2 className="h-3 w-3" /> Eşlendi</span>}
-                        </div>
-                      </div>
+        {/* ── KPI CARDS ── */}
+        <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+          {KPIS.map(k => {
+            const diff = k.prev ? parseFloat(pct(k.value, k.prev)) : 0
+            const up = diff >= 0
+            return (
+              <Card key={k.label} className="border-slate-200 bg-white shadow-sm overflow-hidden">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest font-bold text-slate-400">{k.label}</p>
+                      <p className="text-2xl font-black font-mono tabular-nums text-slate-900 mt-2">{fmt(k.value)}</p>
                     </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Sağ: Bekleyen Ödemeler */}
-              <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
-                <CardHeader className="py-3 px-4 border-b border-slate-100 bg-slate-50">
-                  <CardTitle className="text-xs uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5" /> Bekleyen Ödemeler
-                  </CardTitle>
-                </CardHeader>
-                <div className="divide-y divide-slate-100 max-h-[420px] overflow-y-auto">
-                  {payments.map(p => (
-                    <div
-                      key={p.id}
-                      onClick={() => setSelectedPayment(selectedPayment === p.id ? null : p.id)}
-                      className={`px-4 py-3 cursor-pointer transition-colors hover:bg-slate-50 ${selectedPayment === p.id ? "bg-amber-50 border-l-2 border-l-amber-400" : ""}`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-800 truncate">{p.customer}</p>
-                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">{p.orderNumber}</p>
-                          <div className="flex items-center gap-1.5 mt-1.5">
-                            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${p.type === "B2B" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>
-                              {p.type}
-                            </Badge>
-                            <span className="text-[10px] text-slate-400">{new Date(p.dueDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}</span>
-                          </div>
-                        </div>
-                        <p className="text-sm font-bold font-mono tabular-nums text-slate-900 flex-shrink-0">
-                          {p.amount.toLocaleString("tr-TR")} ₺
-                        </p>
-                      </div>
+                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${k.color} shadow-sm`}>
+                      <k.icon className="w-4 h-4 text-white" />
                     </div>
-                  ))}
-                  {payments.length === 0 && (
-                    <div className="py-12 text-center text-slate-400">
-                      <CheckCircle2 className="h-8 w-8 mx-auto mb-2 text-emerald-400" />
-                      <p className="text-xs">Tüm ödemeler eşleştirildi</p>
+                  </div>
+                  {k.prev && (
+                    <div className={`flex items-center gap-1 mt-3 text-xs font-semibold ${up ? "text-emerald-600" : "text-rose-500"}`}>
+                      {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      %{Math.abs(diff)} geçen aya göre
                     </div>
                   )}
-                </div>
+                </CardContent>
               </Card>
-            </div>
+            )
+          })}
+        </div>
 
-            {/* Eşleştirme ipucu */}
-            {(selectedBank || selectedPayment) && !(selectedBank && selectedPayment) && (
-              <p className="text-xs text-center text-amber-600 bg-amber-50 border border-amber-200 rounded-lg py-2">
-                Şimdi {selectedBank ? "sağdan bir ödeme" : "soldan bir banka hareketi"} seçin → Yeşil "Eşleştir" butonu belirecek.
-              </p>
-            )}
-          </div>
+        {/* ── CHARTS ROW 1 ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-          {/* RECENT TRANSACTIONS — 2 cols */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-serif font-bold text-slate-900">Son Hareketler</h2>
-              <Button variant="outline" size="sm" className="border-slate-200 bg-white text-xs h-8 gap-1">
-                <Filter className="h-3 w-3" /> Filtrele
-              </Button>
-            </div>
-            <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
-              <div className="divide-y divide-slate-100">
-                {RECENT_TXS.map(tx => (
-                  <div key={tx.id} className="px-5 py-3.5 hover:bg-slate-50/50 transition-colors group">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${tx.type === "INCOME" ? "bg-emerald-50" : "bg-rose-50"}`}>
-                        {tx.type === "INCOME"
-                          ? <ArrowDownLeft className="h-3.5 w-3.5 text-emerald-600" />
-                          : <ArrowUpRight className="h-3.5 w-3.5 text-rose-600" />
-                        }
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-800 truncate">{tx.description}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: tx.tagColor + "22", color: tx.tagColor }}>
-                            {tx.tag}
-                          </span>
-                          <span className="text-[10px] text-slate-400">{tx.source}</span>
-                          {tx.status === "PENDING" && (
-                            <span className="text-[10px] text-amber-600 flex items-center gap-0.5">
-                              <Clock className="h-2.5 w-2.5" /> Bekliyor
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right flex-shrink-0">
-                        <p className={`text-sm font-bold font-mono tabular-nums ${tx.type === "INCOME" ? "text-emerald-600" : "text-rose-600"}`}>
-                          {tx.type === "INCOME" ? "+" : "-"}{tx.amount.toLocaleString("tr-TR")} ₺
-                        </p>
-                        <p className="text-[10px] text-slate-400 mt-0.5">{new Date(tx.date).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}</p>
-                      </div>
+          {/* Monthly Revenue/Expense Area Chart — 2 cols */}
+          <Card className="xl:col-span-2 border-slate-200 bg-white shadow-sm">
+            <CardHeader className="pb-2 pt-5 px-6">
+              <CardTitle className="text-sm font-serif font-bold text-slate-900">Gelir & Gider Trendi (10 Ay)</CardTitle>
+              <p className="text-xs text-slate-400 mt-0.5">Aylık net kâr performansı</p>
+            </CardHeader>
+            <CardContent className="px-2 pb-4">
+              <ResponsiveContainer width="100%" height={240}>
+                <AreaChart data={monthly} margin={{ top: 5, right: 20, left: 10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="gGelir" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="gGider" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="gKar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="ay" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={v => `₺${v / 1000}K`} tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={48} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Area type="monotone" dataKey="gelir" name="Gelir" stroke="#10b981" strokeWidth={2} fill="url(#gGelir)" dot={false} />
+                  <Area type="monotone" dataKey="gider" name="Gider" stroke="#f43f5e" strokeWidth={2} fill="url(#gGider)" dot={false} />
+                  <Area type="monotone" dataKey="kar" name="Net Kâr" stroke="#f59e0b" strokeWidth={2.5} fill="url(#gKar)" dot={false} strokeDasharray="0" />
+                </AreaChart>
+              </ResponsiveContainer>
+              <div className="flex items-center gap-5 justify-center mt-1">
+                {[{ c: "#10b981", l: "Gelir" }, { c: "#f43f5e", l: "Gider" }, { c: "#f59e0b", l: "Net Kâr" }].map(i => (
+                  <div key={i.l} className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-sm" style={{ background: i.c }} />
+                    <span className="text-xs text-slate-500">{i.l}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Expense Pie — 1 col */}
+          <Card className="border-slate-200 bg-white shadow-sm">
+            <CardHeader className="pb-2 pt-5 px-6">
+              <CardTitle className="text-sm font-serif font-bold text-slate-900">Gider Dağılımı</CardTitle>
+              <p className="text-xs text-slate-400 mt-0.5">Bu ay toplam: {fmt(55000)}</p>
+            </CardHeader>
+            <CardContent className="pb-4">
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie data={expenses} cx="50%" cy="50%" innerRadius={45} outerRadius={72}
+                    dataKey="value" paddingAngle={3} startAngle={90} endAngle={-270}>
+                    {expenses.map((e, i) => <Cell key={i} fill={e.color} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: any) => `%${v}`} contentStyle={{ borderRadius: 12, fontSize: 12, border: "none", background: "#1e293b", color: "#fff" }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="space-y-2 mt-1 px-1">
+                {expenses.map(e => (
+                  <div key={e.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-sm flex-shrink-0" style={{ background: e.color }} />
+                      <span className="text-xs text-slate-600">{e.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-slate-400">%{e.value}</span>
+                      <span className="text-xs font-mono font-semibold text-slate-800">{fmt(e.amount)}</span>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
-          </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* ── CHARTS ROW 2 ── */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+          {/* Weekly Cash Flow Bar */}
+          <Card className="border-slate-200 bg-white shadow-sm">
+            <CardHeader className="pb-2 pt-5 px-6">
+              <CardTitle className="text-sm font-serif font-bold text-slate-900">Bu Hafta Nakit Akışı</CardTitle>
+              <p className="text-xs text-slate-400 mt-0.5">Günlük kasa girişleri</p>
+            </CardHeader>
+            <CardContent className="px-2 pb-4">
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={cashflow} margin={{ top: 5, right: 10, left: 0, bottom: 0 }} barSize={28}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                  <XAxis dataKey="gun" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                  <YAxis tickFormatter={v => `₺${v / 1000}K`} tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={40} />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Bar dataKey="nakit" name="Nakit Giriş" radius={[6, 6, 0, 0]}>
+                    {cashflow.map((_, i) => (
+                      <Cell key={i} fill={i === 5 ? "#f59e0b" : "#1e293b"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <p className="text-center text-xs text-slate-400 mt-1">En yüksek: <span className="text-amber-600 font-semibold">Cumartesi</span></p>
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions — 2 cols */}
+          <Card className="xl:col-span-2 border-slate-200 bg-white shadow-sm overflow-hidden">
+            <CardHeader className="pb-2 pt-5 px-6 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-serif font-bold text-slate-900">Son İşlemler</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5">Gerçek zamanlı kasa ve banka hareketleri</p>
+              </div>
+              <Button variant="ghost" size="sm" className="text-xs text-amber-600 h-7 gap-1">
+                Tümü <ChevronRight className="w-3 h-3" />
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y divide-slate-100">
+                {recentTxs.map(tx => (
+                  <div key={tx.id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-slate-50/70 transition-colors">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${tx.type === "INCOME" ? "bg-emerald-50" : "bg-rose-50"}`}>
+                      {tx.type === "INCOME"
+                        ? <ArrowDownLeft className="w-4 h-4 text-emerald-600" />
+                        : <ArrowUpRight className="w-4 h-4 text-rose-500" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-800 truncate">{tx.desc}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded font-medium">{tx.tag}</span>
+                        <span className="text-[10px] text-slate-400">{tx.date}</span>
+                        {tx.status === "PENDING" && <span className="text-[10px] text-amber-600 flex items-center gap-0.5"><Clock className="w-2.5 h-2.5" />Bekliyor</span>}
+                      </div>
+                    </div>
+                    <p className={`text-sm font-bold font-mono tabular-nums ${tx.type === "INCOME" ? "text-emerald-600" : "text-rose-500"}`}>
+                      {tx.type === "INCOME" ? "+" : "-"}{fmt(tx.amount)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* ── PENDING PAYMENTS ── */}
+        <Card className="border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="pt-5 pb-3 px-6 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-sm font-serif font-bold text-slate-900">Tahsilat Bekleyen Borçlar</CardTitle>
+              <p className="text-xs text-slate-400 mt-0.5">B2B açık hesap ve vadeli ödemeler</p>
+            </div>
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 text-xs">
+              {pending.length} bekliyor
+            </Badge>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+              {pending.map(p => (
+                <div key={p.id} className={`px-6 py-4 flex items-start justify-between gap-4 ${p.overdue ? "bg-rose-50/40" : ""}`}>
+                  <div className="flex items-start gap-3">
+                    {p.overdue
+                      ? <AlertCircle className="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0" />
+                      : <Clock className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />}
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">{p.customer}</p>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">{p.order}</p>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <Badge variant="outline" className={`text-[10px] border-0 px-1.5 py-0 ${p.type === "B2B" ? "bg-indigo-100 text-indigo-700" : "bg-slate-100 text-slate-600"}`}>{p.type}</Badge>
+                        <span className={`text-[10px] font-semibold ${p.overdue ? "text-rose-600" : "text-slate-500"}`}>Son: {p.due}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-base font-black font-mono tabular-nums text-slate-900">{fmt(p.amount)}</p>
+                    <Button size="sm" variant="outline" className="text-[10px] h-6 mt-1.5 border-slate-300">Tahsil Et</Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
       </div>
     </div>
   )
