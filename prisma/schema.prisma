@@ -641,9 +641,24 @@ model ExpenseTag {
 }
 
 // Tüm para hareketlerinin merkezi
-enum TxType   { INCOME  EXPENSE }
-enum TxStatus { PENDING CLEARED VOID }
-enum TxSource { BANK  CASH  POS  CARD  TRANSFER }
+enum TxType {
+  INCOME
+  EXPENSE
+}
+
+enum TxStatus {
+  PENDING
+  CLEARED
+  VOID
+}
+
+enum TxSource {
+  BANK
+  CASH
+  POS
+  CARD
+  TRANSFER
+}
 
 model FinancialTransaction {
   id          String    @id @default(cuid())
@@ -667,7 +682,10 @@ model FinancialTransaction {
 }
 
 // Cari Hesaplar (B2B Bayi & Tedarikçi)
-enum CurrentAccountType { CUSTOMER  SUPPLIER }
+enum CurrentAccountType {
+  CUSTOMER
+  SUPPLIER
+}
 
 model CurrentAccount {
   id           String             @id @default(cuid())
@@ -714,7 +732,11 @@ model BankTransactionRaw {
 }
 
 // Banka hareketi <-> Sistemdeki işlem eşleştirme
-enum ReconciliationStatus { MATCHED  UNMATCHED  DISPUTED }
+enum ReconciliationStatus {
+  MATCHED
+  UNMATCHED
+  DISPUTED
+}
 
 model BankReconciliation {
   id            String     @id @default(cuid())
@@ -730,7 +752,13 @@ model BankReconciliation {
 }
 
 // Değişiklik iz kaydı
-enum AuditAction { CREATE  UPDATE  DELETE  RECONCILE  UNRECONCILE }
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RECONCILE
+  UNRECONCILE
+}
 
 model FinanceAuditLog {
   id        String      @id @default(cuid())
