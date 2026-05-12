@@ -628,43 +628,136 @@ model TrackingEvent {
 }
 
 // ─────────────────────────────────────────────
-// MUHASEBE & FİNANS
+// NAKİT AKIŞI & ÖN MUHASEBE MOTORU (ERP-GRADE)
 // ─────────────────────────────────────────────
 
-enum ExpenseCategory {
-  SHIPPING // Kargo gideri
-  SUPPLIES // Hammadde/malzeme
-  RENT // Kira
-  SALARY // Personel
-  MARKETING // Reklam
-  OTHER // Diğer
+// Özelleştirilebilir masraf/gelir etiketleri
+model ExpenseTag {
+  id           String                @id @default(cuid())
+  name         String                @unique
+  color        String                @default("#94a3b8")
+  transactions FinancialTransaction[]
+  createdAt    DateTime              @default(now())
 }
 
-model Expense {
-  id          String          @id @default(cuid())
-  title       String
+// Tüm para hareketlerinin merkezi
+enum TxType   { INCOME  EXPENSE }
+enum TxStatus { PENDING CLEARED VOID }
+enum TxSource { BANK  CASH  POS  CARD  TRANSFER }
+
+model FinancialTransaction {
+  id          String    @id @default(cuid())
+  type        TxType
+  status      TxStatus  @default(PENDING)
+  source      TxSource  @default(CASH)
   amount      Float
-  category    ExpenseCategory @default(OTHER)
-  description String?
-  date        DateTime        @default(now())
-  receiptUrl  String? // Fiş/fatura görseli
-
-  createdAt DateTime @default(now())
+  currency    String    @default("TRY")
+  description String
+  reference   String?
+  receiptUrl  String?
+  tagId       String?
+  tag         ExpenseTag?     @relation(fields: [tagId], references: [id])
+  currentAccountId String?
+  currentAccount   CurrentAccount? @relation(fields: [currentAccountId], references: [id])
+  reconciliation   BankReconciliation?
+  transactionDate  DateTime @default(now())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  auditLogs        FinanceAuditLog[]
 }
 
+// Cari Hesaplar (B2B Bayi & Tedarikçi)
+enum CurrentAccountType { CUSTOMER  SUPPLIER }
+
+model CurrentAccount {
+  id           String             @id @default(cuid())
+  name         String
+  type         CurrentAccountType
+  phone        String?
+  email        String?
+  taxNo        String?
+  balance      Float              @default(0)
+  transactions FinancialTransaction[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Sadece Okuma (Read-Only) Banka Entegrasyonu
+model BankAccount {
+  id              String  @id @default(cuid())
+  bankName        String
+  iban            String  @unique
+  accountName     String
+  currency        String  @default("TRY")
+  currentBalance  Float   @default(0)
+  apiProvider     String?
+  lastSyncedAt    DateTime?
+  isReadOnly      Boolean  @default(true)
+  rawTransactions BankTransactionRaw[]
+  createdAt       DateTime @default(now())
+}
+
+// Banka API'sinden gelen ham hareket satırları
+model BankTransactionRaw {
+  id            String      @id @default(cuid())
+  bankAccountId String
+  bankAccount   BankAccount @relation(fields: [bankAccountId], references: [id])
+  externalId    String
+  amount        Float
+  description   String
+  transactedAt  DateTime
+  isMatched     Boolean     @default(false)
+  reconciliation BankReconciliation?
+  createdAt     DateTime    @default(now())
+  @@unique([bankAccountId, externalId])
+  @@index([bankAccountId, isMatched])
+}
+
+// Banka hareketi <-> Sistemdeki işlem eşleştirme
+enum ReconciliationStatus { MATCHED  UNMATCHED  DISPUTED }
+
+model BankReconciliation {
+  id            String     @id @default(cuid())
+  rawTxId       String     @unique
+  rawTx         BankTransactionRaw    @relation(fields: [rawTxId], references: [id])
+  financialTxId String?    @unique
+  financialTx   FinancialTransaction? @relation(fields: [financialTxId], references: [id])
+  status        ReconciliationStatus  @default(UNMATCHED)
+  matchedBy     String?
+  matchedAt     DateTime?
+  notes         String?
+  createdAt     DateTime   @default(now())
+}
+
+// Değişiklik iz kaydı
+enum AuditAction { CREATE  UPDATE  DELETE  RECONCILE  UNRECONCILE }
+
+model FinanceAuditLog {
+  id        String      @id @default(cuid())
+  txId      String
+  tx        FinancialTransaction @relation(fields: [txId], references: [id], onDelete: Cascade)
+  action    AuditAction
+  fieldName String?
+  oldValue  String?
+  newValue  String?
+  reason    String?
+  userId    String?
+  ipAddress String?
+  createdAt DateTime    @default(now())
+}
+
+// Aylık özet (raporlama)
 model FinancialRecord {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   month       Int
   year        Int
-  revenue     Float  @default(0)
-  expense     Float  @default(0)
-  profit      Float  @default(0)
-  taxEstimate Float  @default(0)
-  orderCount  Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  revenue     Float    @default(0)
+  expense     Float    @default(0)
+  profit      Float    @default(0)
+  taxEstimate Float    @default(0)
+  orderCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   @@unique([month, year])
 }
 
