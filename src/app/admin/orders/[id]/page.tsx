@@ -5,13 +5,12 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { 
   ArrowLeft, Printer, Truck, FileText, Check, AlertCircle, 
-  Package, MapPin, User, Clock, CreditCard, Box, ShieldCheck, ChevronRight
+  Package, MapPin, User, Clock, CreditCard, Box, ShieldCheck, ChevronRight, ArrowUpRight
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 
 // --- MOCK DATA ---
 const ORDER = {
@@ -195,7 +194,7 @@ export default function OrderDetailPage({ params }: { params: { id: string } }) 
                     <span className="text-slate-500">KDV (%18)</span>
                     <span className="font-mono text-slate-800">{new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(ORDER.financials.tax)}</span>
                   </div>
-                  <Separator className="bg-slate-200" />
+                  <hr className="border-slate-200 my-2" />
                   <div className="flex justify-between items-end">
                     <span className="text-sm font-bold text-slate-900 uppercase tracking-widest">Genel Toplam</span>
                     <span className="font-mono text-2xl font-bold text-slate-900">{new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(ORDER.financials.total)}</span>
