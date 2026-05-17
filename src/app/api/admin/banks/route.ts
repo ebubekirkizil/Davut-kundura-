@@ -57,9 +57,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json(updatedBank)
   } catch (error: any) {
+    console.error("BANK_ADD_ERROR:", error)
+    
     if (error.code === 'P2002') {
       return NextResponse.json({ error: "Bu IBAN adresi zaten sisteme kayıtlı" }, { status: 400 })
     }
-    return NextResponse.json({ error: "Banka eklenirken hata oluştu" }, { status: 500 })
+    
+    // Daha detaylı hata mesajı dönelim (Debug için)
+    return NextResponse.json({ 
+      error: "Banka eklenirken teknik bir hata oluştu",
+      details: error.message || "Bilinmeyen hata"
+    }, { status: 500 })
   }
 }

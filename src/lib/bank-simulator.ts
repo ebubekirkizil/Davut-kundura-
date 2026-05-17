@@ -1,4 +1,5 @@
 import { prisma } from "./prisma"
+import { KuveytTurkAPI } from "./kuveyt-turk-api"
 
 export interface BankTransaction {
   externalId: string
@@ -10,38 +11,30 @@ export interface BankTransaction {
 export class BankSimulator {
   /**
    * Kuveyt Türk API Market yapısını taklit eden simülatör.
-   * Gerçek anahtarlar girildiğinde bu metodlar gerçek HTTP isteklerine dönüştürülebilir.
    */
   static async fetchRecentTransactions(bankName: string): Promise<BankTransaction[]> {
-    // Banka bazlı farklı mock veriler dönebiliriz
+    // Simulator logic remains same for fallback
     if (bankName.includes("Kuveyt")) {
       return [
         {
           externalId: `kt_tx_${Date.now()}_1`,
           amount: 32500,
-          description: "EFT GELEN - PENDİK DERİCİLİK SAN. - KUVEYTTÜRK API",
+          description: "EFT GELEN - PENDİK DERİCİLİK SAN. - KUVEYTTÜRK (SİMÜLASYON)",
           transactedAt: new Date(),
         },
         {
           externalId: `kt_tx_${Date.now()}_2`,
           amount: -4200,
-          description: "KİRA ÖDEMESİ - KUVEYT TÜRK OTOMATİK",
-          transactedAt: new Date(Date.now() - 86400000), // Dün
-        },
-        {
-          externalId: `kt_tx_${Date.now()}_3`,
-          amount: 15750,
-          description: "POS TAHSİLAT - GÜNLÜK MAĞAZA CIRO",
-          transactedAt: new Date(Date.now() - 172800000), // 2 gün önce
+          description: "KİRA ÖDEMESİ - KUVEYT TÜRK OTOMATİK (SİMÜLASYON)",
+          transactedAt: new Date(Date.now() - 86400000),
         }
       ]
     }
-    
     return []
   }
 
   /**
-   * Banka hesabını veritabanına bağlar ve ilk hareketleri çeker.
+   * Banka hesabını veritabanına bağlar ve gerçek veya simüle verileri çeker.
    */
   static async connectAndSync(bankAccountId: string) {
     const bankAccount = await prisma.bankAccount.findUnique({
@@ -50,7 +43,30 @@ export class BankSimulator {
 
     if (!bankAccount) return
 
-    const transactions = await this.fetchRecentTransactions(bankAccount.bankName)
+    let transactions: BankTransaction[] = []
+    let currentBalance: number | null = null
+
+    // EĞER GERÇEK API ANAHTARLARI VARSA GERÇEK API'YE BAĞLAN
+    if (bankAccount.clientId && bankAccount.clientSecret && bankAccount.bankName.includes("Kuveyt")) {
+      const api = new KuveytTurkAPI(bankAccount.clientId, bankAccount.clientSecret)
+      
+      const realTxs = await api.getTransactions(bankAccount.iban)
+      if (realTxs.length > 0) {
+        transactions = realTxs.map(t => ({
+          externalId: t.id,
+          amount: t.amount,
+          description: t.description,
+          transactedAt: new Date(t.date)
+        }))
+      }
+
+      currentBalance = await api.getBalance(bankAccount.iban)
+    } 
+
+    // EĞER GERÇEK VERİ GELMEDİYSE VEYA ANAHTAR YOKSA SİMÜLASYONA DEVAM ET
+    if (transactions.length === 0) {
+      transactions = await this.fetchRecentTransactions(bankAccount.bankName)
+    }
 
     // Hareketleri kaydet
     for (const tx of transactions) {
@@ -72,13 +88,14 @@ export class BankSimulator {
       })
     }
 
-    // Bakiyeyi güncelle (Mock: Tüm hareketlerin toplamı + başlangıç bakiyesi)
+    // Bakiyeyi güncelle
     const totalTxAmount = transactions.reduce((sum, t) => sum + t.amount, 0)
+    const finalBalance = currentBalance !== null ? currentBalance : (bankAccount.currentBalance + totalTxAmount)
     
     await prisma.bankAccount.update({
       where: { id: bankAccount.id },
       data: {
-        currentBalance: bankAccount.currentBalance + totalTxAmount,
+        currentBalance: finalBalance,
         lastSyncedAt: new Date()
       }
     })

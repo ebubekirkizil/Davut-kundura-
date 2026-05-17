@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import {
   LayoutDashboard, Package, ShoppingCart, Users, DollarSign, BarChart3,
   Layout, Settings, LogOut, Menu, X, Warehouse, Truck, FileText, Tag,
+  PackageCheck, Activity,
 } from "lucide-react"
 
 const navGroups = [
@@ -30,7 +31,8 @@ const navGroups = [
     label: "Operasyon",
     items: [
       { name: "Depo Yönetimi", href: "/admin/warehouse", icon: Warehouse },
-      { name: "Kargo & Lojistik", href: "/admin/shipping", icon: Truck },
+      { name: "Sevkiyat Analitiği", href: "/admin/shipping", icon: Activity },
+      { name: "Sevkiyat Kumanda", href: "/admin/logistics", icon: PackageCheck },
       { name: "Finans", href: "/admin/finance", icon: DollarSign },
       { name: "Raporlar", href: "/admin/reports", icon: FileText },
     ],
