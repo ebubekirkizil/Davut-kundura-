@@ -56,6 +56,7 @@ interface BuilderState {
   addPage: (slug: string, title: string) => void;
   removePage: (slug: string) => void;
   renamePage: (slug: string, newTitle: string, newSlug: string) => void;
+  loadPage: (slug: string, data: PageData) => void;
 
   // Section management
   addSection: (page: string, sectionType: string) => void;
@@ -277,6 +278,18 @@ export const useBuilderStore = create<BuilderState>()(
             activePage: newSlug,
           };
         }),
+
+      loadPage: (slug, data) =>
+        set((s) => ({
+          pages: {
+            ...s.pages,
+            [slug]: data,
+          },
+          activePage: slug,
+          selectedId: null,
+          undoStack: [],
+          redoStack: [],
+        })),
 
       // ── Section Management ──
       addSection: (page, type) =>
