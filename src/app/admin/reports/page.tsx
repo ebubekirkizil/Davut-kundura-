@@ -216,9 +216,14 @@ const categoryDistribution = [
 ]
 
 export default function AdminReportsPage() {
+  const [mounted, setMounted] = React.useState(false)
   const [selectedCategory, setSelectedCategory] = React.useState("all")
   const [dateRange, setDateRange] = React.useState("7d")
   const [searchQuery, setSearchQuery] = React.useState("")
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -269,6 +274,8 @@ export default function AdminReportsPage() {
       default: return FileText
     }
   }
+
+  if (!mounted) return null
 
   return (
     <div className="space-y-8">

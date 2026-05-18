@@ -133,7 +133,7 @@ export default function AdminCouponsPage() {
 
   const filtered = coupons.filter((c) => !search || c.code.toLowerCase().includes(search.toLowerCase()) || (c.description?.toLowerCase().includes(search.toLowerCase()) ?? false))
   const activeCoupons = coupons.filter((c) => c.isActive && !c.isExpired && !c.isLimitReached)
-  const totalCost = coupons.reduce((s, c) => s + c.totalDiscountGiven, 0)
+  const totalCost = coupons.reduce((s, c) => s + (c.totalDiscountGiven || 0), 0)
 
   if (!mounted) return null
 
@@ -173,7 +173,7 @@ export default function AdminCouponsPage() {
           {[
             { title: "Sistemdeki Toplam Kupon", value: coupons.length, icon: Tag, grad: "from-blue-500 to-indigo-600", color: "text-blue-600" },
             { title: "Aktif ve Geçerli Kampanya", value: activeCoupons.length, icon: Activity, grad: "from-emerald-500 to-green-600", color: "text-emerald-600" },
-            { title: "Toplam Kupon Kullanımı", value: coupons.reduce((s, c) => s + c.usedCount, 0), icon: Users, grad: "from-purple-500 to-violet-600", color: "text-purple-600" },
+            { title: "Toplam Kupon Kullanımı", value: coupons.reduce((s, c) => s + (c.usedCount || c.usageCount || 0), 0), icon: Users, grad: "from-purple-500 to-violet-600", color: "text-purple-600" },
             { title: "Toplam İndirim Maliyeti", value: `₺${totalCost.toLocaleString("tr-TR")}`, icon: DollarSign, grad: "from-amber-500 to-orange-600", color: "text-amber-600" },
           ].map((kpi, i) => (
             <motion.div key={kpi.title} variants={itemVars} whileHover={{ y: -5 }}>
@@ -262,14 +262,14 @@ export default function AdminCouponsPage() {
                       <div className="flex items-center gap-6">
                         <div className="text-center">
                           <p className="font-mono font-black text-slate-900 dark:text-slate-100 text-lg">
-                            {c.usedCount}<span className="text-slate-400 text-sm font-medium">{c.maxUses ? `/${c.maxUses}` : ""}</span>
+                            {c.usedCount || c.usageCount || 0}<span className="text-slate-400 text-sm font-medium">{c.maxUses ? `/${c.maxUses}` : ""}</span>
                           </p>
                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Kullanım</p>
                         </div>
                         <div className="text-center w-px h-8 bg-slate-200 dark:bg-white/10 hidden sm:block" />
                         <div className="text-center hidden sm:block">
                           <p className="font-mono font-black text-amber-600 dark:text-amber-500 text-lg">
-                            ₺{c.totalDiscountGiven.toLocaleString("tr-TR")}
+                            ₺{(c.totalDiscountGiven || 0).toLocaleString("tr-TR")}
                           </p>
                           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Maliyet</p>
                         </div>
