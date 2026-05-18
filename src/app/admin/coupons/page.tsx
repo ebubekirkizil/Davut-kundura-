@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import {
   Tag, Plus, RefreshCw, Search, Trash2, ToggleLeft, ToggleRight,
   Clock, Users, Percent, DollarSign, Truck, Copy, Check, X,
-  Activity, ArrowUpRight, CheckCircle2, AlertTriangle
+  Activity, CheckCircle2, AlertTriangle, Pencil, Filter
 } from "lucide-react"
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -61,6 +61,7 @@ export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<Coupon[]>(MOCK_COUPONS)
   const [isFetching, setIsFetching] = useState(false)
   const [search, setSearch] = useState("")
+  const [activeFilter, setActiveFilter] = useState<"all"|"active"|"passive"|"expired">("all")
   const [showCreate, setShowCreate] = useState(false)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
@@ -132,7 +133,15 @@ export default function AdminCouponsPage() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  const filtered = coupons.filter((c) => !search || c.code.toLowerCase().includes(search.toLowerCase()) || (c.description?.toLowerCase().includes(search.toLowerCase()) ?? false))
+  const filtered = coupons.filter((c) => {
+    const matchSearch = !search || c.code.toLowerCase().includes(search.toLowerCase()) || (c.description?.toLowerCase().includes(search.toLowerCase()) ?? false)
+    const matchFilter = activeFilter === "all" ? true
+      : activeFilter === "active" ? (c.isActive && !c.isExpired && !c.isLimitReached)
+      : activeFilter === "passive" ? !c.isActive
+      : activeFilter === "expired" ? (c.isExpired || c.isLimitReached)
+      : true
+    return matchSearch && matchFilter
+  })
   const activeCoupons = coupons.filter((c) => c.isActive && !c.isExpired && !c.isLimitReached)
   const totalCost = coupons.reduce((s, c) => s + (c.totalDiscountGiven || 0), 0)
 
@@ -144,10 +153,10 @@ export default function AdminCouponsPage() {
       {/* ─── Header ─── */}
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-serif font-black bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-4xl font-serif font-black bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent">
             Kupon & Promosyon Ağı
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-2 text-lg font-medium">
+          <p className="text-slate-600 dark:text-slate-400 mt-1 text-sm sm:text-base font-medium">
             Müşteri indirimleri, kampanya motoru ve kullanım analizi.
           </p>
         </div>
@@ -196,16 +205,41 @@ export default function AdminCouponsPage() {
         <motion.div variants={itemVars}>
           <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl overflow-hidden flex flex-col min-h-[400px]">
             
-            {/* Search Bar */}
-            <div className="p-5 border-b border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-black/20 flex items-center gap-3">
-              <Search className="h-5 w-5 text-slate-400" />
-              <input 
-                type="text" placeholder="Kupon kodu (örn: YAZ20) veya açıklama ara..." value={search} onChange={(e) => setSearch(e.target.value)} 
-                className="flex-1 text-sm font-medium outline-none bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400" 
-              />
-              <Badge className="bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-slate-300 font-bold hover:bg-slate-200 shadow-none border-0">
-                {filtered.length} Sonuç
-              </Badge>
+            {/* Filter Tabs + Search Bar */}
+            <div className="border-b border-slate-100 dark:border-white/5">
+              {/* Filter Tabs */}
+              <div className="flex items-center gap-1 px-4 pt-3 overflow-x-auto">
+                {([
+                  { key: "all", label: "Tümü", count: coupons.length },
+                  { key: "active", label: "Aktif", count: coupons.filter(c => c.isActive && !c.isExpired && !c.isLimitReached).length },
+                  { key: "passive", label: "Pasif", count: coupons.filter(c => !c.isActive).length },
+                  { key: "expired", label: "Süresi Dolmuş", count: coupons.filter(c => c.isExpired || c.isLimitReached).length },
+                ] as const).map(tab => (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveFilter(tab.key)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all mb-2 ${
+                      activeFilter === tab.key
+                        ? "bg-amber-500 text-white shadow-md shadow-amber-500/25"
+                        : "text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5"
+                    }`}
+                  >
+                    {tab.label}
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
+                      activeFilter === tab.key ? "bg-white/20 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300"
+                    }`}>{tab.count}</span>
+                  </button>
+                ))}
+              </div>
+              {/* Search */}
+              <div className="px-4 pb-3 flex items-center gap-3 bg-slate-50/50 dark:bg-black/20">
+                <Search className="h-4 w-4 text-slate-400 shrink-0" />
+                <input 
+                  type="text" placeholder="Kod veya açıklama ile ara..." value={search} onChange={(e) => setSearch(e.target.value)} 
+                  className="flex-1 text-sm font-medium outline-none bg-transparent text-slate-900 dark:text-slate-100 placeholder:text-slate-400" 
+                />
+                <span className="text-[10px] font-bold text-slate-400 shrink-0">{filtered.length} sonuç</span>
+              </div>
             </div>
 
             {/* List */}
@@ -239,10 +273,10 @@ export default function AdminCouponsPage() {
                         <Icon className="h-6 w-6" />
                       </div>
                       <div className="min-w-0 space-y-1.5">
-                        <div className="flex flex-wrap items-center gap-3">
-                          <code className="text-lg font-black font-mono text-slate-900 dark:text-slate-100 tracking-widest">{c.code}</code>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <code className="text-base sm:text-lg font-black font-mono text-slate-900 dark:text-slate-100 tracking-widest">{c.code}</code>
                           <button onClick={() => copyCode(c.code, c.id)} className="text-slate-400 hover:text-amber-500 bg-black/5 dark:bg-white/5 p-1 rounded-md transition-colors" title="Kodu Kopyala">
-                            {copiedId === c.id ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                            {copiedId === c.id ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
                           </button>
                           <span className={`flex items-center gap-1 text-[10px] font-black uppercase px-2 py-0.5 rounded border ${statusColor}`}>
                             <StatusIcon className="h-3 w-3" /> {statusText}
@@ -283,12 +317,27 @@ export default function AdminCouponsPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => toggleActive(c)} className={`p-2.5 rounded-xl border transition-colors ${c.isActive ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-200'}`} title={c.isActive ? "Pasifleştir" : "Aktifleştir"}>
-                          {c.isActive ? <ToggleRight className="h-5 w-5" /> : <ToggleLeft className="h-5 w-5" />}
+                      <div className="flex items-center gap-1.5">
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                          onClick={() => toggleActive(c)}
+                          className={`p-2 sm:p-2.5 rounded-xl border transition-colors ${
+                            c.isActive
+                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                              : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500'
+                          }`}
+                          title={c.isActive ? "Pasifleştir" : "Aktifleştir"}>
+                          {c.isActive ? <ToggleRight className="h-4 w-4 sm:h-5 sm:w-5" /> : <ToggleLeft className="h-4 w-4 sm:h-5 sm:w-5" />}
                         </motion.button>
-                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => deleteCoupon(c.id)} className="p-2.5 rounded-xl border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
-                          <Trash2 className="h-5 w-5" />
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                          onClick={() => setShowCreate(true)}
+                          className="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-white/10 text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-500/10 hover:border-amber-200 transition-colors"
+                          title="Düzenle">
+                          <Pencil className="h-4 w-4 sm:h-4 sm:w-4" />
+                        </motion.button>
+                        <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                          onClick={() => deleteCoupon(c.id)}
+                          className="p-2 sm:p-2.5 rounded-xl border border-transparent hover:border-rose-200 dark:hover:border-rose-500/30 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors">
+                          <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
                         </motion.button>
                       </div>
 
