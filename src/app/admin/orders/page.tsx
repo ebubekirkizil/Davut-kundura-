@@ -2,7 +2,7 @@
 
 import React, { useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { 
   Search, Filter, Plus, MoreVertical, 
   ChevronDown, Calendar, Package, ArrowUpRight, CheckCircle2, Clock
@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Card } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
@@ -47,20 +47,20 @@ const MOCK_ORDERS: OrderRow[] = [
 
 // --- HELPERS ---
 const statusConfig: Record<OrderStatus, { label: string, color: string }> = {
-  PENDING: { label: "Bekliyor", color: "bg-amber-100 text-amber-800 border-amber-200" },
-  PROCESSING: { label: "Hazırlanıyor", color: "bg-blue-100 text-blue-800 border-blue-200" },
-  PARTIAL: { label: "Parçalı Gönderim", color: "bg-indigo-100 text-indigo-800 border-indigo-200" },
-  SHIPPED: { label: "Kargolandı", color: "bg-purple-100 text-purple-800 border-purple-200" },
-  DELIVERED: { label: "Teslim Edildi", color: "bg-emerald-100 text-emerald-800 border-emerald-200" },
-  CANCELLED: { label: "İptal", color: "bg-slate-100 text-slate-800 border-slate-200" },
-  REFUNDED: { label: "İade Edildi", color: "bg-red-100 text-red-800 border-red-200" }
+  PENDING: { label: "Bekliyor", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" },
+  PROCESSING: { label: "Hazırlanıyor", color: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20" },
+  PARTIAL: { label: "Parçalı Gönderim", color: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20" },
+  SHIPPED: { label: "Kargolandı", color: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20" },
+  DELIVERED: { label: "Teslim Edildi", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" },
+  CANCELLED: { label: "İptal", color: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border border-slate-500/10" },
+  REFUNDED: { label: "İade Edildi", color: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/25" }
 }
 
 const paymentConfig: Record<PaymentStatus, { label: string, color: string }> = {
-  UNPAID: { label: "Ödenmedi", color: "text-red-600 bg-red-50" },
-  PARTIALLY_PAID: { label: "Kısmi Ödeme", color: "text-amber-600 bg-amber-50" },
-  PAID: { label: "Ödendi", color: "text-emerald-600 bg-emerald-50" },
-  REFUNDED: { label: "İade", color: "text-slate-600 bg-slate-50" }
+  UNPAID: { label: "Ödenmedi", color: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border border-rose-500/20" },
+  PARTIALLY_PAID: { label: "Kısmi Ödeme", color: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20" },
+  PAID: { label: "Ödendi", color: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" },
+  REFUNDED: { label: "İade", color: "text-slate-600 dark:text-slate-400 bg-slate-500/10 border border-slate-500/20" }
 }
 
 export default function AdminOrdersPage() {
@@ -72,158 +72,171 @@ export default function AdminOrdersPage() {
     o.customerName.toLowerCase().includes(search.toLowerCase())
   )
 
-  // Inline status update handler (Excel-like experience)
+  // Inline status update handler
   const updateStatus = (id: string, newStatus: OrderStatus) => {
     setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o))
   }
 
   return (
-    <div className="space-y-8 p-6 max-w-7xl mx-auto font-sans">
+    <div className="space-y-8 p-6 max-w-[1600px] mx-auto text-slate-800 dark:text-slate-100 font-sans">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif text-slate-900 tracking-tight">Sipariş Yönetimi (OMS)</h1>
-          <p className="text-slate-500 mt-1">B2B ve B2C siparişlerinizi, kargo ve ödeme durumlarını yönetin.</p>
+          <h1 className="text-4xl font-serif font-bold text-slate-900 dark:text-white tracking-tight">Sipariş Yönetimi (OMS)</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg font-medium font-sans">B2B ve B2C siparişlerinizi, kargo ve ödeme durumlarını tek panelden yönetin.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="border-slate-300 text-slate-700 h-10">
-            <Filter className="h-4 w-4 mr-2" /> Gelişmiş Filtre
+          <Button 
+            variant="outline" 
+            className="h-10 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 shadow-sm font-bold rounded-xl"
+          >
+            <Filter className="h-4 w-4 mr-2" /> Gelişmiş Filtrele
           </Button>
-          <Button className="bg-slate-900 text-white hover:bg-slate-800 h-10 px-6 shadow-md">
-            <Plus className="h-4 w-4 mr-2" /> Manuel Sipariş (Taslak)
-          </Button>
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="h-10 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white shadow-lg shadow-amber-500/25 font-bold transition-all text-sm flex items-center"
+          >
+            <Plus className="h-4 w-4 mr-2 stroke-[3]" /> Manuel Sipariş Oluştur
+          </motion.button>
         </div>
       </div>
 
       {/* FILTER BAR */}
-      <Card className="p-4 border-slate-200 shadow-sm bg-white rounded-xl flex flex-wrap gap-4 items-center">
-        <div className="relative flex-1 min-w-[250px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
-            placeholder="Sipariş No, Müşteri Adı..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-            className="pl-9 bg-slate-50 border-slate-200 focus-visible:ring-slate-300 h-10" 
-          />
-        </div>
-        
-        <Select defaultValue="ALL">
-          <SelectTrigger className="w-[160px] h-10 bg-slate-50 border-slate-200">
-            <SelectValue placeholder="Satış Kanalı" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Tüm Kanallar</SelectItem>
-            <SelectItem value="B2C">Perakende (B2C)</SelectItem>
-            <SelectItem value="B2B">Toptan (B2B)</SelectItem>
-          </SelectContent>
-        </Select>
+      <Card className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl">
+        <CardContent className="p-4 flex flex-wrap gap-4 items-center">
+          <div className="relative flex-1 min-w-[250px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
+            <Input 
+              placeholder="Sipariş No, Müşteri Adı..." 
+              value={search} 
+              onChange={e => setSearch(e.target.value)} 
+              className="pl-9 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 focus:bg-white dark:focus:bg-slate-950 transition-all text-slate-800 dark:text-slate-200 h-10 rounded-xl" 
+            />
+          </div>
+          
+          <Select defaultValue="ALL">
+            <SelectTrigger className="w-[160px] h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-xl">
+              <SelectValue placeholder="Satış Kanalı" />
+            </SelectTrigger>
+            <SelectContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+              <SelectItem value="ALL" className="font-semibold text-xs rounded-lg">Tüm Kanallar</SelectItem>
+              <SelectItem value="B2C" className="font-semibold text-xs rounded-lg">Perakende (B2C)</SelectItem>
+              <SelectItem value="B2B" className="font-semibold text-xs rounded-lg text-indigo-600 focus:text-indigo-600">Toptan (B2B)</SelectItem>
+            </SelectContent>
+          </Select>
 
-        <Select defaultValue="ALL">
-          <SelectTrigger className="w-[160px] h-10 bg-slate-50 border-slate-200">
-            <SelectValue placeholder="Durum" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Tüm Durumlar</SelectItem>
-            <SelectItem value="PENDING">Bekliyor</SelectItem>
-            <SelectItem value="PROCESSING">Hazırlanıyor</SelectItem>
-            <SelectItem value="SHIPPED">Kargolandı</SelectItem>
-          </SelectContent>
-        </Select>
-        
-        <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500 hover:text-slate-900 border border-slate-200 bg-slate-50">
-          <Calendar className="h-4 w-4" />
-        </Button>
+          <Select defaultValue="ALL">
+            <SelectTrigger className="w-[160px] h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-xl">
+              <SelectValue placeholder="Durum" />
+            </SelectTrigger>
+            <SelectContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+              <SelectItem value="ALL" className="font-semibold text-xs rounded-lg">Tüm Durumlar</SelectItem>
+              <SelectItem value="PENDING" className="font-semibold text-xs rounded-lg text-amber-600">Bekliyor</SelectItem>
+              <SelectItem value="PROCESSING" className="font-semibold text-xs rounded-lg text-blue-600">Hazırlanıyor</SelectItem>
+              <SelectItem value="SHIPPED" className="font-semibold text-xs rounded-lg text-purple-600">Kargolandı</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-slate-200 border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-slate-900/40 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5">
+            <Calendar className="h-4 w-4" />
+          </Button>
+        </CardContent>
       </Card>
 
       {/* DATA TABLE */}
-      <Card className="border-slate-200 shadow-sm rounded-xl overflow-hidden bg-white">
+      <Card className="overflow-hidden border border-slate-200 dark:border-white/5 shadow-lg bg-white/70 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl">
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-slate-50 border-b border-slate-100">
+            <thead className="bg-slate-50/50 dark:bg-black/20 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest border-b border-slate-200 dark:border-white/5">
               <tr>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs">Sipariş</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs">Müşteri</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs text-right">Tutar</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs">Ödeme</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs">Durum</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 uppercase tracking-wider text-xs text-right">İşlem</th>
+                <th className="px-6 py-4">Sipariş Bilgisi</th>
+                <th className="px-6 py-4">Müşteri</th>
+                <th className="px-6 py-4 text-right">Tutar</th>
+                <th className="px-6 py-4">Ödeme Durumu</th>
+                <th className="px-6 py-4">Sipariş Durumu</th>
+                <th className="px-6 py-4 text-right">Detay</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                    Sipariş bulunamadı.
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((order) => (
-                  <motion.tr 
-                    key={order.id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="hover:bg-slate-50/80 transition-colors group"
-                  >
-                    <td className="px-6 py-4">
-                      <Link href={`/admin/orders/${order.id}`} className="block">
-                        <span className="font-mono font-medium text-slate-900 hover:text-amber-600 transition-colors">{order.orderNumber}</span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-slate-400">{new Date(order.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-                          <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border-0 ${order.orderType === 'B2B' ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'}`}>
-                            {order.orderType}
-                          </Badge>
-                        </div>
-                      </Link>
+            <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-sans">
+              <AnimatePresence mode="popLayout">
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400 font-bold text-base">
+                      Kritere uygun sipariş bulunamadı.
                     </td>
-                    
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-slate-800">{order.customerName}</span>
-                      <p className="text-xs text-slate-500 mt-1">{order.itemCount} Ürün</p>
-                    </td>
-                    
-                    <td className="px-6 py-4 text-right">
-                      <span className="font-mono text-base text-slate-900">
-                        {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(order.totalAmount)}
-                      </span>
-                    </td>
-                    
-                    <td className="px-6 py-4">
-                      <Badge variant="outline" className={`border-0 px-2 py-1 font-medium ${paymentConfig[order.paymentStatus].color}`}>
-                        {order.paymentStatus === 'PAID' && <CheckCircle2 className="w-3 h-3 mr-1 inline-block" />}
-                        {order.paymentStatus === 'PARTIALLY_PAID' && <Clock className="w-3 h-3 mr-1 inline-block" />}
-                        {paymentConfig[order.paymentStatus].label}
-                      </Badge>
-                    </td>
-                    
-                    <td className="px-6 py-4">
-                      {/* INLINE EDIT STATUS */}
-                      <Select 
-                        value={order.status} 
-                        onValueChange={(val) => updateStatus(order.id, val as OrderStatus)}
-                      >
-                        <SelectTrigger className={`h-8 w-[140px] text-xs font-medium border ${statusConfig[order.status].color} hover:opacity-80 transition-opacity`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(statusConfig).map(([key, config]) => (
-                            <SelectItem key={key} value={key} className="text-xs">
-                              {config.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    
-                    <td className="px-6 py-4 text-right">
-                      <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-slate-400 hover:text-slate-900 group-hover:bg-slate-200">
-                        <Link href={`/admin/orders/${order.id}`}>
-                          <ArrowUpRight className="h-4 w-4" />
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <motion.tr 
+                      key={order.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                      className="hover:bg-slate-100/50 dark:hover:bg-white/[0.02] transition-colors group"
+                    >
+                      <td className="px-6 py-4">
+                        <Link href={`/admin/orders/${order.id}`} className="block">
+                          <span className="font-mono font-extrabold text-slate-900 dark:text-slate-100 hover:text-amber-600 dark:hover:text-amber-400 transition-colors text-base">{order.orderNumber}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-xs text-slate-400 dark:text-slate-500 font-semibold">{new Date(order.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
+                            <Badge className={`text-[9px] font-black rounded-lg px-1.5 py-0 border-0 ${order.orderType === 'B2B' ? 'bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' : 'bg-slate-500/10 text-slate-600 dark:text-slate-300'}`}>
+                              {order.orderType}
+                            </Badge>
+                          </div>
                         </Link>
-                      </Button>
-                    </td>
-                  </motion.tr>
-                ))
-              )}
+                      </td>
+                      
+                      <td className="px-6 py-4">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{order.customerName}</span>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 font-bold">{order.itemCount} Ürün Paketlendi</p>
+                      </td>
+                      
+                      <td className="px-6 py-4 text-right">
+                        <span className="font-mono font-black text-slate-900 dark:text-white text-base">
+                          {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(order.totalAmount)}
+                        </span>
+                      </td>
+                      
+                      <td className="px-6 py-4">
+                        <Badge variant="outline" className={`border font-bold rounded-xl px-2.5 py-1 text-[10px] ${paymentConfig[order.paymentStatus].color}`}>
+                          {order.paymentStatus === 'PAID' && <CheckCircle2 className="w-3.5 h-3.5 mr-1 inline-block" />}
+                          {order.paymentStatus === 'PARTIALLY_PAID' && <Clock className="w-3.5 h-3.5 mr-1 inline-block" />}
+                          {paymentConfig[order.paymentStatus].label}
+                        </Badge>
+                      </td>
+                      
+                      <td className="px-6 py-4">
+                        {/* INLINE EDIT STATUS WITH DYNAMIC CONTRAST SELECT */}
+                        <Select 
+                          value={order.status} 
+                          onValueChange={(val) => updateStatus(order.id, val as OrderStatus)}
+                        >
+                          <SelectTrigger className={`h-8 w-[140px] text-xs font-black rounded-xl border ${statusConfig[order.status].color} hover:opacity-80 transition-opacity`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+                            {Object.entries(statusConfig).map(([key, config]) => (
+                              <SelectItem key={key} value={key} className="text-xs font-bold rounded-lg p-2">
+                                {config.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </td>
+                      
+                      <td className="px-6 py-4 text-right">
+                        <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-slate-400 hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg">
+                          <Link href={`/admin/orders/${order.id}`}>
+                            <ArrowUpRight className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </td>
+                    </motion.tr>
+                  ))
+                )}
+              </AnimatePresence>
             </tbody>
           </table>
         </div>

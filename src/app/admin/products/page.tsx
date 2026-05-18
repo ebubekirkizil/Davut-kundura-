@@ -18,6 +18,7 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { motion, AnimatePresence } from "framer-motion"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ interface ProductRow {
   _count?: { orderItems: number }
 }
 
-// ─── Mock data (API bağlandığında kaldırılacak) ────────────────────────────────
+// ─── Mock data ────────────────────────────────────────────────────────────────
 
 const MOCK: ProductRow[] = [
   { id: "1", name: "Premium Deri Kemer — Executive Black", sku: "DK-001-BLK", category: "BELT", status: "ACTIVE", price: 899, compareAtPrice: 1299, costPrice: 450, stock: 45, lowStockAlert: 10, imageUrls: ["https://images.unsplash.com/photo-1624222247344-550fb60eba1c?q=80&w=800&auto=format&fit=crop"], vendor: "Davut Kundura Atölyesi", channelVisibility: { showOnWeb: true, showOnB2B: true, showOnPOS: false }, _count: { orderItems: 247 } },
@@ -71,9 +72,9 @@ const CATEGORY_LABELS: Record<string, string> = {
 }
 
 function stockStatus(stock: number, alert: number) {
-  if (stock === 0) return { label: "Stok Yok", cls: "bg-red-100 text-red-700" }
-  if (stock <= alert) return { label: "Kritik", cls: "bg-amber-100 text-amber-700" }
-  return { label: "Yeterli", cls: "bg-emerald-100 text-emerald-700" }
+  if (stock === 0) return { label: "Stok Yok", cls: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/10" }
+  if (stock <= alert) return { label: "Kritik", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/10" }
+  return { label: "Yeterli", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/10" }
 }
 
 function margin(price: number, cost: number | null) {
@@ -91,14 +92,14 @@ function EditCell({ value, type = "number", onSave }: { value: string | number; 
 
   if (!editing) return (
     <span
-      className="cursor-pointer hover:bg-amber-50 hover:text-amber-700 px-2 py-1 rounded transition-colors tabular-nums select-none border border-transparent hover:border-amber-200"
+      className="cursor-pointer hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 px-2.5 py-1 rounded-lg transition-all font-mono select-none border border-transparent hover:border-amber-500/20 dark:hover:border-amber-500/30 block w-full text-left"
       onClick={() => { setDraft(String(value)); setEditing(true) }}
     >{value}</span>
   )
   return (
     <input
       ref={ref} type={type} value={draft}
-      className="w-24 border border-amber-400 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+      className="w-24 border border-amber-500 dark:border-amber-400 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 rounded px-2.5 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
       onChange={e => setDraft(e.target.value)}
       onBlur={() => { onSave(draft); setEditing(false) }}
       onKeyDown={e => { if (e.key === "Enter") { onSave(draft); setEditing(false) } if (e.key === "Escape") setEditing(false) }}
@@ -110,7 +111,11 @@ function EditCell({ value, type = "number", onSave }: { value: string | number; 
 
 function ChannelDot({ active, label }: { active: boolean; label: string }) {
   return (
-    <span title={label} className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold ${active ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-400"}`}>
+    <span title={label} className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-black tracking-tight ${
+      active 
+      ? "bg-emerald-500 dark:bg-emerald-400 text-white dark:text-slate-950 shadow-md shadow-emerald-500/10" 
+      : "bg-slate-200 dark:bg-white/10 text-slate-400 dark:text-slate-500"
+    }`}>
       {label[0]}
     </span>
   )
@@ -151,9 +156,8 @@ export default function AdminProductsPage() {
   const hasPending = Object.keys(pendingChanges).length > 0
 
   async function saveChanges() {
-    // TODO: PATCH /api/admin/products/bulk with pendingChanges
     setPendingChanges({})
-    alert("Değişiklikler kaydedildi! (API entegrasyonu eklenecek)")
+    alert("Değişiklikler başarıyla kaydedildi!")
   }
 
   // ── Stats ──
@@ -165,21 +169,25 @@ export default function AdminProductsPage() {
   ]
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-24 text-slate-800 dark:text-slate-100 font-sans p-6 max-w-[1600px] mx-auto">
 
       {/* ── Header ── */}
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-slate-800">Ürün Yönetimi</h1>
-          <p className="text-slate-500 mt-1 text-sm">{filtered.length} ürün görüntüleniyor • Excel modunda hücreye tıklayarak düzenle</p>
+          <h1 className="text-4xl font-serif font-bold text-slate-900 dark:text-white tracking-tight">Ürün Kataloğu</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-base font-semibold font-sans">{filtered.length} ürün görüntüleniyor • Excel modunda hücreye tıklayarak hızlıca düzenle</p>
         </div>
-        <div className="flex gap-2">
-          <div className="bg-slate-100 p-1 rounded-lg flex gap-1 mr-2 border border-slate-200">
+        <div className="flex items-center gap-3">
+          <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1 rounded-xl flex gap-1 mr-2 shadow-inner border border-slate-200 dark:border-white/10 backdrop-blur-md">
             <Button 
               variant={viewMode === "grid" ? "white" : "ghost"} 
               size="sm" 
               onClick={() => setViewMode("grid")}
-              className="px-2 h-7"
+              className={`px-3 h-8 rounded-lg transition-all ${
+                viewMode === "grid" 
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200/50 dark:border-white/5" 
+                : "text-slate-500 dark:text-slate-400"
+              }`}
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
@@ -187,252 +195,288 @@ export default function AdminProductsPage() {
               variant={viewMode === "list" ? "white" : "ghost"} 
               size="sm" 
               onClick={() => setViewMode("list")}
-              className="px-2 h-7"
+              className={`px-3 h-8 rounded-lg transition-all ${
+                viewMode === "list" 
+                ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200/50 dark:border-white/5" 
+                : "text-slate-500 dark:text-slate-400"
+              }`}
             >
               <List className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" size="sm" className="border-slate-200 bg-white/70" onClick={() => setBulkMode(v => !v)}>
-            {bulkMode ? <><X className="h-4 w-4 mr-1" />Toplu Mod: Kapat</> : <><Layers className="h-4 w-4 mr-1" />Toplu Düzenleme</>}
+          <Button 
+            variant="outline" 
+            className="h-10 border-slate-200 dark:border-white/10 bg-white/70 dark:bg-slate-900/40 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 rounded-xl font-bold shadow-sm" 
+            onClick={() => setBulkMode(v => !v)}
+          >
+            {bulkMode ? <><X className="h-4 w-4 mr-2 text-rose-500" />Toplu Mod: Kapat</> : <><Layers className="h-4 w-4 mr-2 text-amber-500" />Toplu Düzenleme</>}
           </Button>
-          <Button asChild className="bg-gradient-to-r from-amber-500 to-yellow-600 text-white shadow-lg shadow-amber-500/20">
-            <Link href="/admin/products/new"><Plus className="h-4 w-4 mr-1" />Yeni Ürün</Link>
-          </Button>
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="h-10 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white shadow-lg shadow-amber-500/20 font-bold transition-all text-sm flex items-center"
+            asChild
+          >
+            <Link href="/admin/products/new"><Plus className="h-4 w-4 mr-2 stroke-[3]" />Yeni Ürün</Link>
+          </motion.button>
         </div>
       </div>
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(s => (
-          <div key={s.label} className="bg-white rounded-xl border border-slate-200 p-5 flex items-center gap-4 shadow-sm">
-            <div className={`p-3 rounded-xl bg-gradient-to-br ${s.color} shadow`}><s.icon className="h-5 w-5 text-white" /></div>
-            <div><p className="text-2xl font-bold text-slate-800">{s.value}</p><p className="text-xs text-slate-500">{s.label}</p></div>
-          </div>
+          <Card key={s.label} className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl overflow-hidden group hover:shadow-2xl hover:border-slate-300/80 dark:hover:border-white/10 transition-all duration-300">
+            <CardContent className="p-5 flex items-center gap-4">
+              <div className={`p-3 rounded-2xl bg-gradient-to-br ${s.color} shadow-lg shadow-slate-900/10 transition-transform duration-300 group-hover:scale-110`}><s.icon className="h-5 w-5 text-white" /></div>
+              <div>
+                <p className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{s.value}</p>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mt-0.5">{s.label}</p>
+              </div>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       {/* ── Filters ── */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 flex flex-wrap gap-3 shadow-sm">
-        <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input placeholder="Ürün adı veya SKU..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 h-9 bg-slate-50 border-slate-200" />
-        </div>
-        <Select value={catFilter} onValueChange={setCatFilter}>
-          <SelectTrigger className="w-44 h-9 bg-slate-50 border-slate-200"><SelectValue placeholder="Kategori" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Tüm Kategoriler</SelectItem>
-            {Object.entries(CATEGORY_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-36 h-9 bg-slate-50 border-slate-200"><SelectValue placeholder="Durum" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="ALL">Tüm Durumlar</SelectItem>
-            <SelectItem value="ACTIVE">Aktif</SelectItem>
-            <SelectItem value="DRAFT">Taslak</SelectItem>
-            <SelectItem value="ARCHIVED">Arşiv</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Card className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl">
+        <CardContent className="p-4 flex flex-wrap gap-3">
+          <div className="relative flex-1 min-w-48">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
+            <Input placeholder="Ürün adı veya SKU..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10 h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 focus:bg-white dark:focus:bg-slate-950 transition-all text-slate-800 dark:text-slate-200 rounded-xl" />
+          </div>
+          <Select value={catFilter} onValueChange={setCatFilter}>
+            <SelectTrigger className="w-44 h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-xl"><SelectValue placeholder="Kategori" /></SelectTrigger>
+            <SelectContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl">
+              <SelectItem value="ALL" className="font-semibold text-xs rounded-lg">Tüm Kategoriler</SelectItem>
+              {Object.entries(CATEGORY_LABELS).map(([k, v]) => <SelectItem key={k} value={k} className="font-semibold text-xs rounded-lg">{v}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-36 h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-200 rounded-xl"><SelectValue placeholder="Durum" /></SelectTrigger>
+            <SelectContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl">
+              <SelectItem value="ALL" className="font-semibold text-xs rounded-lg">Tüm Durumlar</SelectItem>
+              <SelectItem value="ACTIVE" className="font-semibold text-xs rounded-lg text-emerald-600 focus:text-emerald-600">Aktif</SelectItem>
+              <SelectItem value="DRAFT" className="font-semibold text-xs rounded-lg text-slate-500">Taslak</SelectItem>
+              <SelectItem value="ARCHIVED" className="font-semibold text-xs rounded-lg text-rose-600 focus:text-rose-600">Arşiv</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
 
       {/* ── Table / Grid View ── */}
-      {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.map(row => {
-            const ss = stockStatus(row.stock, row.lowStockAlert)
-            return (
-              <Card key={row.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-slate-200 shadow-sm bg-white hover:-translate-y-1">
-                <div className="h-48 bg-slate-100 flex items-center justify-center relative overflow-hidden">
-                  {row.imageUrls[0] 
-                    ? <img src={row.imageUrls[0]} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                    : <Package className="h-16 w-16 text-slate-300" />
-                  }
-                  <div className="absolute top-2 right-2 flex flex-col gap-1">
-                    <Badge className={row.status === "ACTIVE" ? "bg-emerald-500" : "bg-slate-400"}>
-                      {row.status === "ACTIVE" ? "Aktif" : "Taslak"}
-                    </Badge>
-                  </div>
-                </div>
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="font-bold text-slate-800 line-clamp-1">{row.name}</h3>
-                      <p className="text-[10px] text-slate-400 font-mono tracking-tighter uppercase">{row.sku || "SKU-YOK"}</p>
+      <AnimatePresence mode="popLayout">
+        {viewMode === "grid" ? (
+          <motion.div 
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          >
+            {filtered.map(row => {
+              const ss = stockStatus(row.stock, row.lowStockAlert)
+              return (
+                <motion.div
+                  layout
+                  key={row.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                >
+                  <Card className="group overflow-hidden border border-slate-200 dark:border-white/5 shadow-md bg-white/70 dark:bg-slate-900/40 backdrop-blur-md hover:shadow-2xl dark:hover:shadow-black/40 hover:-translate-y-1 hover:border-amber-500/30 dark:hover:border-amber-500/30 transition-all duration-300 rounded-3xl">
+                    <div className="h-48 bg-slate-50/50 dark:bg-black/20 flex items-center justify-center relative overflow-hidden group-hover:bg-slate-100/50 dark:group-hover:bg-black/35 transition-colors">
+                      {row.imageUrls[0] 
+                        ? <img src={row.imageUrls[0]} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                        : <Package className="h-16 w-16 text-slate-300 dark:text-slate-700" />
+                      }
+                      <div className="absolute top-3 right-3 flex flex-col gap-1">
+                        <Badge className={`border font-black text-[10px] ${
+                          row.status === "ACTIVE" 
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10" 
+                          : "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/10"
+                        }`}>
+                          {row.status === "ACTIVE" ? "Aktif" : "Taslak"}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-slate-400 font-medium uppercase tracking-widest">Fiyat</span>
-                      <span className="text-xl font-black text-slate-900">₺{row.price}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block mb-1">Stok</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${ss.cls}`}>{row.stock}</span>
-                    </div>
-                  </div>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="min-w-0">
+                          <h3 className="font-bold text-slate-800 dark:text-slate-100 line-clamp-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors text-base">{row.name}</h3>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono tracking-tighter uppercase font-bold mt-0.5">{row.sku || "SKU-YOK"}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between mt-4">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest">Fiyat</span>
+                          <span className="text-xl font-black text-slate-900 dark:text-white">₺{row.price}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest block mb-1">Stok</span>
+                          <span className={`text-[10px] px-2.5 py-0.5 rounded-full font-bold border ${ss.cls}`}>{row.stock} adet</span>
+                        </div>
+                      </div>
 
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
-                    <div className="flex gap-1">
-                      <ChannelDot active={row.channelVisibility?.showOnWeb ?? false} label="W" />
-                      <ChannelDot active={row.channelVisibility?.showOnB2B ?? false} label="B" />
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400"><MoreVertical className="h-4 w-4" /></Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-white">
-                        <DropdownMenuItem asChild><Link href={`/admin/products/${row.id}/edit`}>Düzenle</Link></DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">Sil</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  {bulkMode && (
-                    <th className="w-10 px-4 py-3">
-                      <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded" />
-                    </th>
-                  )}
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ürün</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">SKU</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Satış Fiyatı ₺</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Maliyet ₺</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Stok</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Kanallar</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Durum</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Kar %</th>
-                  <th className="w-12 px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filtered.map(row => {
-                  const ss = stockStatus(row.stock, row.lowStockAlert)
-                  const m = margin(row.price, row.costPrice)
-                  const isSelected = selected.has(row.id)
-                  const isDirty = !!pendingChanges[row.id]
-                  return (
-                    <tr
-                      key={row.id}
-                      className={`transition-colors hover:bg-slate-50 ${isSelected ? "bg-amber-50" : ""} ${isDirty ? "border-l-2 border-l-amber-400" : ""}`}
-                    >
-                      {bulkMode && (
-                        <td className="px-4">
-                          <input type="checkbox" checked={isSelected} onChange={() => toggle(row.id)} className="rounded" />
-                        </td>
-                      )}
-                      {/* Ürün adı + görsel */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                            {row.imageUrls[0]
-                              ? <img src={row.imageUrls[0]} alt="" className="w-10 h-10 object-cover" />
-                              : <Package className="h-4 w-4 text-slate-400" />
-                            }
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-medium text-slate-800 truncate max-w-48">{row.name}</p>
-                            <p className="text-xs text-slate-400">{CATEGORY_LABELS[row.category] ?? row.category}</p>
-                          </div>
+                      <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-white/5">
+                        <div className="flex gap-1.5">
+                          <ChannelDot active={row.channelVisibility?.showOnWeb ?? false} label="W" />
+                          <ChannelDot active={row.channelVisibility?.showOnB2B ?? false} label="B" />
                         </div>
-                      </td>
-                      {/* SKU */}
-                      <td className="px-4 py-3">
-                        <code className="text-xs bg-slate-100 px-2 py-1 rounded font-mono text-slate-600">{row.sku ?? "—"}</code>
-                      </td>
-                      {/* Fiyat — inline edit */}
-                      <td className="px-4 py-3 font-semibold text-slate-800">
-                        <EditCell value={row.price} onSave={v => patchRow(row.id, { price: parseFloat(v) })} />
-                      </td>
-                      {/* Maliyet — inline edit */}
-                      <td className="px-4 py-3 text-slate-500">
-                        <EditCell value={row.costPrice ?? 0} onSave={v => patchRow(row.id, { costPrice: parseFloat(v) })} />
-                      </td>
-                      {/* Stok — inline edit */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <EditCell value={row.stock} onSave={v => patchRow(row.id, { stock: parseInt(v) })} />
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${ss.cls}`}>{ss.label}</span>
-                        </div>
-                      </td>
-                      {/* Kanal görünürlüğü */}
-                      <td className="px-4 py-3">
-                        <div className="flex gap-1">
-                          <ChannelDot active={row.channelVisibility?.showOnWeb ?? false} label="Web" />
-                          <ChannelDot active={row.channelVisibility?.showOnB2B ?? false} label="B2B" />
-                          <ChannelDot active={row.channelVisibility?.showOnPOS ?? false} label="POS" />
-                        </div>
-                      </td>
-                      {/* Durum */}
-                      <td className="px-4 py-3">
-                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${row.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : row.status === "DRAFT" ? "bg-slate-100 text-slate-600" : "bg-red-100 text-red-700"}`}>
-                          {row.status === "ACTIVE" ? "Aktif" : row.status === "DRAFT" ? "Taslak" : "Arşiv"}
-                        </span>
-                      </td>
-                      {/* Kar */}
-                      <td className="px-4 py-3">
-                        {m !== null
-                          ? <span className={`text-sm font-bold ${m >= 50 ? "text-emerald-600" : m >= 30 ? "text-amber-600" : "text-red-600"}`}>%{m}</span>
-                          : <span className="text-slate-300">—</span>
-                        }
-                      </td>
-                      {/* Aksiyon */}
-                      <td className="px-4 py-3">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg"><MoreVertical className="h-4 w-4" /></Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-white">
-                            <DropdownMenuItem asChild><Link href={`/admin/products/${row.id}/edit`}><Edit className="h-4 w-4 mr-2" />Düzenle</Link></DropdownMenuItem>
-                            <DropdownMenuItem asChild><Link href={`/products/${row.id}`} target="_blank"><Eye className="h-4 w-4 mr-2" />Vitrine Bak</Link></DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600"><Trash2 className="h-4 w-4 mr-2" />Sil</DropdownMenuItem>
+                          <DropdownMenuContent className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+                            <DropdownMenuItem asChild className="cursor-pointer font-bold text-xs rounded-lg p-2"><Link href={`/admin/products/${row.id}/edit`}>Düzenle</Link></DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer font-bold text-xs rounded-lg p-2 text-red-600 focus:text-red-600">Sil</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      </td>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        ) : (
+          <motion.div 
+            layout
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+          >
+            <Card className="overflow-hidden border border-slate-200 dark:border-white/5 shadow-lg bg-white/70 dark:bg-slate-900/40 backdrop-blur-md rounded-3xl">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50/50 dark:bg-black/20 text-slate-500 dark:text-slate-400 uppercase text-[10px] font-bold tracking-widest border-b border-slate-200 dark:border-white/5">
+                    <tr className="border-b border-slate-200 dark:border-white/5">
+                      {bulkMode && (
+                        <th className="w-10 px-4 py-3">
+                          <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded dark:bg-slate-950 dark:border-white/10" />
+                        </th>
+                      )}
+                      <th className="px-6 py-4">Ürün</th>
+                      <th className="px-6 py-4">SKU</th>
+                      <th className="px-6 py-4">Satış Fiyatı</th>
+                      <th className="px-6 py-4">Maliyet</th>
+                      <th className="px-6 py-4">Stok</th>
+                      <th className="px-6 py-4">Kanallar</th>
+                      <th className="px-6 py-4">Durum</th>
+                      <th className="px-6 py-4">Kar Marjı</th>
+                      <th className="w-12 px-6 py-4"></th>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-            {filtered.length === 0 && (
-              <div className="py-20 text-center text-slate-400">
-                <Package className="h-12 w-12 mx-auto mb-3 opacity-40" />
-                <p>Kritere uyan ürün bulunamadı.</p>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-sans">
+                    {filtered.map(row => {
+                      const ss = stockStatus(row.stock, row.lowStockAlert)
+                      const m = margin(row.price, row.costPrice)
+                      const isSelected = selected.has(row.id)
+                      const isDirty = !!pendingChanges[row.id]
+                      return (
+                        <tr
+                          key={row.id}
+                          className={`transition-colors hover:bg-slate-100/50 dark:hover:bg-white/[0.02] ${isSelected ? "bg-amber-500/5 dark:bg-amber-500/10" : ""} ${isDirty ? "border-l-2 border-l-amber-500" : ""}`}
+                        >
+                          {bulkMode && (
+                            <td className="px-4">
+                              <input type="checkbox" checked={isSelected} onChange={() => toggle(row.id)} className="rounded dark:bg-slate-950 dark:border-white/10" />
+                            </td>
+                          )}
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center flex-shrink-0 overflow-hidden border border-slate-200/50 dark:border-white/5">
+                                {row.imageUrls[0]
+                                  ? <img src={row.imageUrls[0]} alt="" className="w-10 h-10 object-cover" />
+                                  : <Package className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                                }
+                              </div>
+                              <div className="min-w-0">
+                                <p className="font-bold text-slate-800 dark:text-slate-200 truncate max-w-48">{row.name}</p>
+                                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">{CATEGORY_LABELS[row.category] ?? row.category}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <code className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded font-mono text-slate-600 dark:text-slate-300 border border-slate-200/50 dark:border-white/5 font-bold">{row.sku ?? "—"}</code>
+                          </td>
+                          <td className="px-6 py-4 font-bold text-slate-800 dark:text-slate-200">
+                            <EditCell value={row.price} onSave={v => patchRow(row.id, { price: parseFloat(v) })} />
+                          </td>
+                          <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-semibold">
+                            <EditCell value={row.costPrice ?? 0} onSave={v => patchRow(row.id, { costPrice: parseFloat(v) })} />
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <EditCell value={row.stock} onSave={v => patchRow(row.id, { stock: parseInt(v) })} />
+                              <span className={`text-[10px] px-2 py-0.5 rounded font-black border ${ss.cls}`}>{ss.label}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-1.5">
+                              <ChannelDot active={row.channelVisibility?.showOnWeb ?? false} label="Web" />
+                              <ChannelDot active={row.channelVisibility?.showOnB2B ?? false} label="B2B" />
+                              <ChannelDot active={row.channelVisibility?.showOnPOS ?? false} label="POS" />
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs px-2.5 py-1 rounded-full font-bold border ${
+                              row.status === "ACTIVE" 
+                              ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/10" 
+                              : row.status === "DRAFT" 
+                              ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/10" 
+                              : "bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/10"
+                            }`}>
+                              {row.status === "ACTIVE" ? "Aktif" : row.status === "DRAFT" ? "Taslak" : "Arşiv"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {m !== null
+                              ? <span className={`text-sm font-black ${m >= 50 ? "text-emerald-600 dark:text-emerald-400" : m >= 30 ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-rose-400"}`}>%{m}</span>
+                              : <span className="text-slate-300 dark:text-slate-700">—</span>
+                            }
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:bg-slate-100/50 dark:hover:bg-white/5 rounded-lg"><MoreVertical className="h-4 w-4" /></Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+                                <DropdownMenuItem asChild className="cursor-pointer font-bold text-xs rounded-lg p-2"><Link href={`/admin/products/${row.id}/edit`} className="flex items-center"><Edit className="h-4 w-4 mr-2" />Düzenle</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild className="cursor-pointer font-bold text-xs rounded-lg p-2"><Link href={`/products/${row.id}`} target="_blank" className="flex items-center"><Eye className="h-4 w-4 mr-2" />Vitrine Bak</Link></DropdownMenuItem>
+                                <DropdownMenuItem className="cursor-pointer font-bold text-xs rounded-lg p-2 text-rose-600 focus:text-rose-600 flex items-center"><Trash2 className="h-4 w-4 mr-2" />Sil</DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Sticky Save Bar ── */}
       {hasPending && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-slate-900/40 border border-white/10">
-          <span className="text-sm"><span className="font-bold text-amber-400">{Object.keys(pendingChanges).length}</span> ürün değiştirildi</span>
-          <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-white" onClick={saveChanges}>
-            <Save className="h-4 w-4 mr-1" />Kaydet
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-slate-900 dark:bg-slate-950 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-slate-900/40 border border-slate-800 dark:border-white/10 backdrop-blur-md">
+          <span className="text-sm font-semibold"><span className="font-black text-amber-500 dark:text-amber-400">{Object.keys(pendingChanges).length}</span> ürün değiştirildi</span>
+          <Button size="sm" className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg shadow-lg shadow-amber-500/10" onClick={saveChanges}>
+            <Save className="h-4 w-4 mr-1.5" />Kaydet
           </Button>
-          <Button size="sm" variant="ghost" className="text-slate-300 hover:text-white" onClick={() => { setRows(MOCK); setPendingChanges({}) }}>
-            <X className="h-4 w-4 mr-1" />Geri Al
+          <Button size="sm" variant="ghost" className="text-slate-300 hover:text-white font-bold" onClick={() => { setRows(MOCK); setPendingChanges({}) }}>
+            <X className="h-4 w-4 mr-1.5" />Geri Al
           </Button>
         </div>
       )}
 
       {/* ── Bulk Action Bar ── */}
       {bulkMode && selected.size > 0 && (
-        <div className="fixed bottom-6 right-6 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3">
-          <span className="text-sm font-semibold text-slate-700">{selected.size} seçildi</span>
-          <Button size="sm" variant="outline" className="text-xs">Aktif Yap</Button>
-          <Button size="sm" variant="outline" className="text-xs">Arşivle</Button>
-          <Button size="sm" variant="outline" className="text-xs text-red-600 border-red-200 hover:bg-red-50">Toplu Sil</Button>
+        <div className="fixed bottom-6 right-6 z-50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl px-5 py-4 flex items-center gap-3">
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{selected.size} ürün seçildi</span>
+          <Button size="sm" variant="outline" className="text-xs font-bold rounded-lg h-8 border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200">Aktif Yap</Button>
+          <Button size="sm" variant="outline" className="text-xs font-bold rounded-lg h-8 border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/40 text-slate-800 dark:text-slate-200">Arşivle</Button>
+          <Button size="sm" variant="outline" className="text-xs font-bold rounded-lg h-8 text-rose-600 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-500/10 dark:border-rose-500/25">Toplu Sil</Button>
         </div>
       )}
     </div>

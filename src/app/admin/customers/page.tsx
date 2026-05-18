@@ -25,6 +25,7 @@ import {
   Eye,
   Star,
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 
 // Mock customers data
 const customers = [
@@ -35,7 +36,7 @@ const customers = [
     phone: "+90 532 123 4567",
     company: "ABC Holding A.Ş.",
     position: "Satın Alma Müdürü",
-    location: "İstanbul, Maslak",
+    location: "Maslak, İstanbul",
     totalOrders: 47,
     totalSpent: 284500,
     averageOrder: 6053,
@@ -61,7 +62,7 @@ const customers = [
     phone: "+90 533 234 5678",
     company: "XYZ Tekstil Ltd. Şti.",
     position: "Genel Müdür",
-    location: "Bursa, Organize Sanayi",
+    location: "Organize Sanayi, Bursa",
     totalOrders: 32,
     totalSpent: 156800,
     averageOrder: 4900,
@@ -87,7 +88,7 @@ const customers = [
     phone: "+90 534 345 6789",
     company: "DEF İnşaat A.Ş.",
     position: "Proje Müdürü",
-    location: "Ankara, Çankaya",
+    location: "Çankaya, Ankara",
     totalOrders: 18,
     totalSpent: 89400,
     averageOrder: 4967,
@@ -113,7 +114,7 @@ const customers = [
     phone: "+90 535 456 7890",
     company: "GHI Otomotiv Ltd. Şti.",
     position: "Satın Alma Uzmanı",
-    location: "İzmir, Bornova",
+    location: "Bornova, İzmir",
     totalOrders: 28,
     totalSpent: 134600,
     averageOrder: 4807,
@@ -139,7 +140,7 @@ const customers = [
     phone: "+90 536 567 8901",
     company: "JKL Enerji A.Ş.",
     position: "Operasyon Müdürü",
-    location: "Adana, Seyhan",
+    location: "Seyhan, Adana",
     totalOrders: 8,
     totalSpent: 34200,
     averageOrder: 4275,
@@ -165,7 +166,7 @@ const customers = [
     phone: "+90 537 678 9012",
     company: "MNP Gıda San. Tic. A.Ş.",
     position: "İdari İşler Müdürü",
-    location: "Konya, Selçuklu",
+    location: "Selçuklu, Konya",
     totalOrders: 15,
     totalSpent: 67800,
     averageOrder: 4520,
@@ -226,11 +227,11 @@ const customerStats = [
 ]
 
 const segmentColors = {
-  enterprise: "bg-purple-500/10 text-purple-700 border-purple-200",
-  corporate: "bg-blue-500/10 text-blue-700 border-blue-200",
-  growing: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
-  regular: "bg-slate-500/10 text-slate-700 border-slate-200",
-  "at-risk": "bg-red-500/10 text-red-700 border-red-200",
+  enterprise: "bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-500/20",
+  corporate: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-500/20",
+  growing: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20",
+  regular: "bg-slate-500/10 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/10",
+  "at-risk": "bg-red-500/10 text-red-700 dark:text-red-400 border-red-200 dark:border-red-500/20",
 }
 
 const segmentLabels = {
@@ -242,8 +243,8 @@ const segmentLabels = {
 }
 
 const statusColors = {
-  active: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
-  inactive: "bg-slate-500/10 text-slate-700 border-slate-200",
+  active: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20",
+  inactive: "bg-slate-500/10 text-slate-700 dark:text-slate-400 border-slate-200 dark:border-white/10",
 }
 
 const statusLabels = {
@@ -252,9 +253,9 @@ const statusLabels = {
 }
 
 const riskColors = {
-  "Düşük": "bg-emerald-500/10 text-emerald-700",
-  "Orta": "bg-amber-500/10 text-amber-700",
-  "Yüksek": "bg-red-500/10 text-red-700",
+  "Düşük": "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20",
+  "Orta": "bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20",
+  "Yüksek": "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20",
 }
 
 export default function AdminCustomersPage() {
@@ -296,49 +297,56 @@ export default function AdminCustomersPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-6 max-w-[1600px] mx-auto text-slate-800 dark:text-slate-100 font-sans">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-4xl font-serif font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-600 bg-clip-text text-transparent">
-            Müşteri Yönetimi
+          <h1 className="text-4xl font-serif font-bold text-slate-900 dark:text-white tracking-tight">
+            Müşteri CRM Portalı
           </h1>
-          <p className="text-slate-600 mt-2 text-lg">
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg font-medium font-sans">
             {customers.length} toplam müşteri • {filteredCustomers.length} görüntülenen
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="bg-white/60 backdrop-blur-sm border-white/40 hover:bg-white/80">
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            className="h-10 bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 shadow-sm font-bold"
+          >
             <TrendingUp className="h-4 w-4 mr-2" />
             CRM Raporu
           </Button>
-          <Button className="bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white shadow-lg shadow-amber-500/25">
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="h-10 px-6 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white shadow-lg shadow-amber-500/25 font-bold transition-all text-sm flex items-center"
+          >
             <Mail className="h-4 w-4 mr-2" />
             Toplu E-posta
-          </Button>
+          </motion.button>
         </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {customerStats.map((stat, index) => (
-          <Card key={stat.title} className="relative overflow-hidden bg-white/60 backdrop-blur-sm border-white/40 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-slate-300/30 transition-all duration-300 group">
+          <Card key={stat.title} className="relative overflow-hidden bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl group hover:shadow-2xl hover:border-slate-300/80 dark:hover:border-white/10 transition-all duration-300">
             <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
               <div>
-                <CardTitle className="text-sm font-medium text-slate-600">{stat.title}</CardTitle>
-                <p className="text-xs text-slate-500 mt-1">{stat.subtitle}</p>
+                <CardTitle className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.title}</CardTitle>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 font-bold">{stat.subtitle}</p>
               </div>
-              <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg`}>
+              <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.color} shadow-lg shadow-slate-900/10`}>
                 <stat.icon className="h-5 w-5 text-white" />
               </div>
             </CardHeader>
             <CardContent className="relative">
-              <div className="text-3xl font-bold text-slate-800 mb-2">{stat.value}</div>
-              <div className="flex items-center text-sm">
-                <TrendingUp className="h-4 w-4 mr-1 text-emerald-600" />
-                <span className="font-semibold text-emerald-600">{stat.change}</span>
-                <span className="ml-2 text-slate-500">geçen aya göre</span>
+              <div className="text-3xl font-black text-slate-900 dark:text-white mb-2">{stat.value}</div>
+              <div className="flex items-center text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-500/10 p-1.5 rounded-lg border border-emerald-500/10 w-fit">
+                <TrendingUp className="h-3.5 w-3.5 mr-1" />
+                <span>{stat.change}</span>
+                <span className="ml-1 opacity-70">geçen aya göre</span>
               </div>
             </CardContent>
           </Card>
@@ -346,45 +354,45 @@ export default function AdminCustomersPage() {
       </div>
 
       {/* Enhanced Filters */}
-      <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-xl shadow-slate-200/20">
-        <CardContent className="p-6">
+      <Card className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl">
+        <CardContent className="p-4">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500" />
               <Input
                 placeholder="Müşteri ara (isim, email, telefon, şirket)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/60 border-white/40 focus:bg-white/80 transition-all"
+                className="pl-10 h-10 bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-white/10 focus:bg-white dark:focus:bg-slate-950 transition-all text-slate-800 dark:text-slate-200 rounded-xl"
               />
             </div>
 
             {/* Segment Filter */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-48 bg-white/60 border-white/40 hover:bg-white/80">
+                <Button variant="outline" className="h-10 w-full lg:w-48 bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 rounded-xl font-bold">
                   <Filter className="h-4 w-4 mr-2" />
                   {segmentFilter ? segmentLabels[segmentFilter as keyof typeof segmentLabels] : "Tüm Segmentler"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border-white/40">
-                <DropdownMenuItem onClick={() => setSegmentFilter(null)}>
+              <DropdownMenuContent align="end" className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setSegmentFilter(null)}>
                   Tüm Segmentler
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSegmentFilter("enterprise")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setSegmentFilter("enterprise")}>
                   Kurumsal
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSegmentFilter("corporate")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setSegmentFilter("corporate")}>
                   Şirket
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSegmentFilter("growing")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setSegmentFilter("growing")}>
                   Büyüyen
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSegmentFilter("regular")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setSegmentFilter("regular")}>
                   Düzenli
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSegmentFilter("at-risk")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg text-rose-600 focus:text-rose-600" onClick={() => setSegmentFilter("at-risk")}>
                   Risk Altında
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -393,19 +401,19 @@ export default function AdminCustomersPage() {
             {/* Status Filter */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full lg:w-48 bg-white/60 border-white/40 hover:bg-white/80">
+                <Button variant="outline" className="h-10 w-full lg:w-48 bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 rounded-xl font-bold">
                   <Filter className="h-4 w-4 mr-2" />
                   {statusFilter ? statusLabels[statusFilter as keyof typeof statusLabels] : "Tüm Durumlar"}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border-white/40">
-                <DropdownMenuItem onClick={() => setStatusFilter(null)}>
+              <DropdownMenuContent align="end" className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl">
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg" onClick={() => setStatusFilter(null)}>
                   Tüm Durumlar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("active")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg text-emerald-600 focus:text-emerald-600" onClick={() => setStatusFilter("active")}>
                   Aktif
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setStatusFilter("inactive")}>
+                <DropdownMenuItem className="cursor-pointer font-semibold text-xs rounded-lg text-slate-600" onClick={() => setStatusFilter("inactive")}>
                   Pasif
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -416,268 +424,292 @@ export default function AdminCustomersPage() {
 
       {/* Customers Grid */}
       <div className="grid gap-6">
-        {filteredCustomers.map((customer) => (
-          <Card key={customer.id} className="group relative overflow-hidden bg-white/60 backdrop-blur-sm border-white/40 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-slate-300/30 transition-all duration-300">
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-                {/* Customer Info */}
-                <div className="flex-1 space-y-4">
-                  {/* Header Row */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
-                          {customer.name.split(' ').map(n => n[0]).join('')}
+        <AnimatePresence mode="popLayout">
+          {filteredCustomers.map((customer) => (
+            <motion.div
+              layout
+              key={customer.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ type: "spring", stiffness: 350, damping: 26 }}
+            >
+              <Card className="group relative overflow-hidden bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg shadow-slate-200/20 dark:shadow-black/40 rounded-3xl hover:shadow-2xl dark:hover:shadow-black/40 hover:border-slate-300/80 dark:hover:border-white/10 transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+                    {/* Customer Info */}
+                    <div className="flex-1 space-y-4">
+                      {/* Header Row */}
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="relative">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-500/20">
+                              {customer.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center ${
+                              customer.riskScore === 'Düşük' ? 'bg-emerald-500' :
+                              customer.riskScore === 'Orta' ? 'bg-amber-500' :
+                              'bg-rose-500'
+                            }`} />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">{customer.name}</h3>
+                            <p className="text-slate-700 dark:text-slate-200 font-extrabold text-sm">{customer.company}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold">{customer.position}</p>
+                          </div>
                         </div>
-                        <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${riskColors[customer.riskScore as keyof typeof riskColors].split(' ')[0]} border-2 border-white`} />
+                        <div className="sm:text-right">
+                          <p className="text-2xl font-black text-slate-900 dark:text-white">₺{customer.totalSpent.toLocaleString()}</p>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-wider mt-0.5">Toplam Harcama</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800">{customer.name}</h3>
-                        <p className="text-slate-600 font-semibold">{customer.company}</p>
-                        <p className="text-sm text-slate-500">{customer.position}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-2xl font-bold text-slate-800">₺{customer.totalSpent.toLocaleString()}</p>
-                      <p className="text-sm text-slate-500">Toplam Harcama</p>
-                    </div>
-                  </div>
 
-                  {/* Contact & Location Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Mail className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm text-slate-700">{customer.email}</span>
+                      {/* Contact & Location Info */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div className="space-y-2.5">
+                          <div className="flex items-center gap-3">
+                            <Mail className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{customer.email}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Phone className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{customer.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <MapPin className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            <span className="text-sm font-bold text-slate-600 dark:text-slate-300">{customer.location}</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          <div className="flex items-center gap-3">
+                            <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            <div>
+                              <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Müşteri Olma: {formatDate(customer.joinDate)}</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 font-bold">Son Sipariş: {getRelativeTime(customer.lastOrder)}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <TrendingUp className="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            <div>
+                              <p className="text-sm font-bold text-slate-600 dark:text-slate-300">Sorumlu: {customer.assignedManager}</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500 font-bold">Sonraki Takip: {formatDate(customer.nextFollowUp)}</p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Phone className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm text-slate-700">{customer.phone}</span>
+
+                      {/* Business Metrics */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-slate-50/50 dark:bg-black/20 border border-slate-100 dark:border-white/5 rounded-2xl">
+                        <div className="text-center">
+                          <p className="text-xl font-black text-slate-900 dark:text-white">{customer.totalOrders}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Toplam Sipariş</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-black text-slate-900 dark:text-white">₺{customer.averageOrder.toLocaleString()}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Ortalama Sipariş</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-black text-slate-900 dark:text-white">₺{customer.creditLimit.toLocaleString()}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Kredi Limiti</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Star className="h-4 w-4 text-amber-500 fill-current" />
+                            <p className="text-xl font-black text-slate-900 dark:text-white">{customer.satisfaction}</p>
+                          </div>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-extrabold uppercase">Memnuniyet</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm text-slate-700">{customer.location}</span>
+
+                      {/* Payment Terms & Tags */}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2 px-3 py-1 bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/10 rounded-xl">
+                          <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          <span className="text-xs font-bold text-blue-700 dark:text-blue-400">{customer.paymentTerms} Vade</span>
+                        </div>
+                        {customer.tags.map((tag, index) => (
+                          <Badge key={index} variant="outline" className="bg-white/40 dark:bg-white/5 border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 font-bold rounded-xl text-[10px]">
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
+
+                      {/* Notes */}
+                      {customer.notes && (
+                        <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/10 rounded-2xl p-3">
+                          <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                            <span className="font-extrabold text-amber-600 dark:text-amber-400">Yönetici Notu:</span> {customer.notes}
+                          </p>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-4 w-4 text-slate-500" />
+                    {/* Status & Actions */}
+                    <div className="lg:w-72 space-y-4 shrink-0">
+                      {/* Status Badges */}
+                      <div className="space-y-3">
                         <div>
-                          <p className="text-sm text-slate-700">Müşteri Olma: {formatDate(customer.joinDate)}</p>
-                          <p className="text-xs text-slate-500">Son Sipariş: {getRelativeTime(customer.lastOrder)}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">Müşteri Segmenti</p>
+                          <Badge className={`${segmentColors[customer.segment as keyof typeof segmentColors]} border w-full justify-center py-2 font-black rounded-xl text-xs`}>
+                            {segmentLabels[customer.segment as keyof typeof segmentLabels]}
+                          </Badge>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <TrendingUp className="h-4 w-4 text-slate-500" />
                         <div>
-                          <p className="text-sm text-slate-700">Sorumlu: {customer.assignedManager}</p>
-                          <p className="text-xs text-slate-500">Sonraki Takip: {formatDate(customer.nextFollowUp)}</p>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">Durum</p>
+                          <Badge className={`${statusColors[customer.status as keyof typeof statusColors]} border w-full justify-center py-2 font-black rounded-xl text-xs`}>
+                            {statusLabels[customer.status as keyof typeof statusLabels]}
+                          </Badge>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">Risk Skoru</p>
+                          <Badge className={`${
+                            customer.riskScore === 'Düşük' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' :
+                            customer.riskScore === 'Orta' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20' :
+                            'bg-rose-500/10 text-rose-700 dark:text-rose-400 border-rose-500/20'
+                          } border w-full justify-center py-2 font-black rounded-xl text-xs`}>
+                            {customer.riskScore} Risk
+                          </Badge>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Business Metrics */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-slate-50/50 rounded-lg">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-slate-800">{customer.totalOrders}</p>
-                      <p className="text-xs text-slate-500">Toplam Sipariş</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-slate-800">₺{customer.averageOrder.toLocaleString()}</p>
-                      <p className="text-xs text-slate-500">Ortalama Sipariş</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-slate-800">₺{customer.creditLimit.toLocaleString()}</p>
-                      <p className="text-xs text-slate-500">Kredi Limiti</p>
-                    </div>
-                    <div className="text-center">
-                      <div className="flex items-center justify-center gap-1">
-                        <Star className="h-4 w-4 text-amber-500 fill-current" />
-                        <p className="text-2xl font-bold text-slate-800">{customer.satisfaction}</p>
+                      {/* Customer Type & Last Contact */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-purple-500/5 dark:bg-purple-500/10 border border-purple-500/10 rounded-2xl p-3 text-center">
+                          <div className="flex items-center justify-center gap-1.5 mb-1">
+                            <ShoppingBag className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            <span className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase">Tipi</span>
+                          </div>
+                          <p className="text-xs font-extrabold text-purple-600 dark:text-purple-400">{customer.customerType}</p>
+                        </div>
+
+                        <div className="bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 rounded-2xl p-3 text-center">
+                          <div className="flex items-center justify-center gap-1.5 mb-1">
+                            <Phone className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase">İletişim</span>
+                          </div>
+                          <p className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 truncate">
+                            {getRelativeTime(customer.lastContact)}
+                          </p>
+                        </div>
                       </div>
-                      <p className="text-xs text-slate-500">Memnuniyet</p>
-                    </div>
-                  </div>
 
-                  {/* Payment Terms & Tags */}
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2 px-3 py-1 bg-blue-50/50 rounded-lg">
-                      <Calendar className="h-3 w-3 text-blue-600" />
-                      <span className="text-sm font-semibold text-blue-700">{customer.paymentTerms}</span>
-                    </div>
-                    {customer.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="bg-white/60 border-white/40">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Notes */}
-                  {customer.notes && (
-                    <div className="bg-blue-50/50 rounded-lg p-3">
-                      <p className="text-sm text-slate-700">
-                        <span className="font-semibold">Not:</span> {customer.notes}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Status & Actions */}
-                <div className="lg:w-72 space-y-4">
-                  {/* Status Badges */}
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Müşteri Segmenti</p>
-                      <Badge className={`${segmentColors[customer.segment as keyof typeof segmentColors]} border w-full justify-center py-2`}>
-                        {segmentLabels[customer.segment as keyof typeof segmentLabels]}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Durum</p>
-                      <Badge className={`${statusColors[customer.status as keyof typeof statusColors]} border w-full justify-center py-2`}>
-                        {statusLabels[customer.status as keyof typeof statusLabels]}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 mb-1">Risk Skoru</p>
-                      <Badge className={`${riskColors[customer.riskScore as keyof typeof riskColors]} w-full justify-center py-2`}>
-                        {customer.riskScore} Risk
-                      </Badge>
-                    </div>
-                  </div>
-
-                  {/* Customer Type */}
-                  <div className="bg-purple-50/50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <ShoppingBag className="h-4 w-4 text-purple-600" />
-                      <span className="text-sm font-semibold text-purple-700">Müşteri Tipi</span>
-                    </div>
-                    <p className="text-sm text-purple-600">{customer.customerType}</p>
-                  </div>
-
-                  {/* Last Contact Info */}
-                  <div className="bg-green-50/50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Phone className="h-4 w-4 text-green-600" />
-                      <span className="text-sm font-semibold text-green-700">Son İletişim</span>
-                    </div>
-                    <p className="text-sm text-green-600">
-                      {getRelativeTime(customer.lastContact)}
-                    </p>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      className="w-full bg-white/60 border-white/40 hover:bg-white/80"
-                      asChild
-                    >
-                      <Link href={`/admin/customers/${customer.id}`}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Müşteri Detayı
-                      </Link>
-                    </Button>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-white/60 border-white/40 hover:bg-white/80"
-                      >
-                        <Mail className="h-4 w-4 mr-1" />
-                        E-posta
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-white/60 border-white/40 hover:bg-white/80"
-                      >
-                        <Phone className="h-4 w-4 mr-1" />
-                        Ara
-                      </Button>
-                    </div>
-
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      {/* Action Buttons */}
+                      <div className="space-y-2">
                         <Button
                           variant="outline"
-                          className="w-full bg-white/60 border-white/40 hover:bg-white/80"
+                          className="w-full bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-bold rounded-xl h-10"
+                          asChild
                         >
-                          <MoreVertical className="h-4 w-4 mr-2" />
-                          Diğer İşlemler
+                          <Link href={`/admin/customers/${customer.id}`}>
+                            <Eye className="h-4 w-4 mr-2 text-slate-500" />
+                            Müşteri Detayı
+                          </Link>
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border-white/40 w-56">
-                        <DropdownMenuItem>Sipariş Geçmişi</DropdownMenuItem>
-                        <DropdownMenuItem>Ödeme Geçmişi</DropdownMenuItem>
-                        <DropdownMenuItem>Segment Değiştir</DropdownMenuItem>
-                        <DropdownMenuItem>Kredi Limiti Güncelle</DropdownMenuItem>
-                        <DropdownMenuItem>Takip Notu Ekle</DropdownMenuItem>
-                        <DropdownMenuItem>Özel Fiyat Tanımla</DropdownMenuItem>
-                        <DropdownMenuItem>Rapor Oluştur</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:text-red-600">
-                          Müşteriyi Pasifleştir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
 
-                    {/* Quick Actions based on status */}
-                    {customer.status === 'inactive' && (
-                      <Button
-                        size="sm"
-                        className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white"
-                      >
-                        Müşteriyi Aktifleştir
-                      </Button>
-                    )}
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-bold rounded-xl"
+                          >
+                            <Mail className="h-4 w-4 mr-1 text-slate-500" />
+                            E-posta
+                          </Button>
 
-                    {customer.riskScore === 'Yüksek' && (
-                      <Button
-                        size="sm"
-                        className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white"
-                      >
-                        Acil Takip Başlat
-                      </Button>
-                    )}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-bold rounded-xl"
+                          >
+                            <Phone className="h-4 w-4 mr-1 text-slate-500" />
+                            Ara
+                          </Button>
+                        </div>
 
-                    {customer.segment === 'growing' && (
-                      <Button
-                        size="sm"
-                        className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white"
-                      >
-                        Segment Yükselt
-                      </Button>
-                    )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-bold rounded-xl"
+                            >
+                              <MoreVertical className="h-4 w-4 mr-2 text-slate-500" />
+                              Diğer İşlemler
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl p-1 shadow-xl w-56 font-semibold text-xs">
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Sipariş Geçmişi</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Ödeme Geçmişi</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Segment Değiştir</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Kredi Limiti Güncelle</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Takip Notu Ekle</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Özel Fiyat Tanımla</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5">Rapor Oluştur</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer rounded-lg p-2.5 text-red-600 focus:text-red-600">
+                              Müşteriyi Pasifleştir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* Quick Actions based on status */}
+                        {customer.status === 'inactive' && (
+                          <Button
+                            size="sm"
+                            className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold rounded-xl h-10 shadow-md shadow-emerald-500/10"
+                          >
+                            Müşteriyi Aktifleştir
+                          </Button>
+                        )}
+
+                        {customer.riskScore === 'Yüksek' && (
+                          <Button
+                            size="sm"
+                            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold rounded-xl h-10 shadow-md shadow-red-500/10"
+                          >
+                            Acil Takip Başlat
+                          </Button>
+                        )}
+
+                        {customer.segment === 'growing' && (
+                          <Button
+                            size="sm"
+                            className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold rounded-xl h-10 shadow-md shadow-purple-500/10"
+                          >
+                            Segment Yükselt
+                          </Button>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {/* Empty State */}
       {filteredCustomers.length === 0 && (
-        <Card className="bg-white/60 backdrop-blur-sm border-white/40 shadow-xl shadow-slate-200/20">
+        <Card className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/80 dark:border-white/5 shadow-lg rounded-3xl">
           <CardContent className="text-center py-16">
             <ShoppingBag className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-slate-800 mb-2">Müşteri bulunamadı</h3>
-            <p className="text-slate-600 mb-6">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Müşteri bulunamadı</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-6 font-medium">
               Arama kriterlerinize uygun müşteri bulunmuyor. Filtreleri değiştirmeyi deneyin.
             </p>
             <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => {
-                setSearchQuery("")
-                setSegmentFilter(null)
-                setStatusFilter(null)
-              }}>
+              <Button 
+                variant="outline" 
+                className="h-10 bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl font-bold"
+                onClick={() => {
+                  setSearchQuery("")
+                  setSegmentFilter(null)
+                  setStatusFilter(null)
+                }}
+              >
                 Filtreleri Temizle
               </Button>
-              <Button className="bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white">
+              <Button className="h-10 bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-white font-bold rounded-xl shadow-lg shadow-amber-500/20">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 CRM Raporu
               </Button>
