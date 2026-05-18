@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import {
   Tag, Plus, RefreshCw, Search, Trash2, ToggleLeft, ToggleRight,
   Clock, Users, Percent, DollarSign, Truck, Copy, Check, X,
-  Activity, ArrowUpRight, ShieldCheck, ShieldAlert
+  Activity, ArrowUpRight, CheckCircle2, AlertTriangle
 } from "lucide-react"
 
 // ─── Interfaces ─────────────────────────────────────────────────────────────
@@ -223,7 +223,7 @@ export default function AdminCouponsPage() {
                   : "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]"
                 
                 const statusText = isPassive ? "Pasif" : c.isExpired ? "Süresi Dolmuş" : c.isLimitReached ? "Limit Doldu" : "Aktif"
-                const StatusIcon = isPassive ? Clock : c.isExpired ? ShieldAlert : c.isLimitReached ? Users : ShieldCheck
+                const StatusIcon = isPassive ? Clock : c.isExpired ? AlertTriangle : c.isLimitReached ? Users : CheckCircle2
 
                 return (
                   <motion.div 
@@ -390,7 +390,7 @@ export default function AdminCouponsPage() {
                   İptal Et
                 </button>
                 <button type="submit" disabled={submitting} className="flex-[2] py-4 bg-amber-500 text-white rounded-xl text-sm font-black hover:bg-amber-600 disabled:opacity-50 transition-colors shadow-lg shadow-amber-500/30 flex items-center justify-center gap-2">
-                  {submitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+                  {submitting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                   {submitting ? "KAYDEDİLİYOR..." : "KAMPANYAYI YAYINLA"}
                 </button>
               </div>
