@@ -33,7 +33,7 @@ const breadcrumbMap: Record<string, string> = {
   "/admin/orders": "Sipariş Yönetimi",
   "/admin/customers": "Müşteri Yönetimi",
   "/admin/finance": "Finansal Yönetim",
-  "/admin/analytics": "Analitik & Raporlar",
+  "/admin/analytics": "Analiz",
   "/admin/page-builder": "Sayfa Oluşturucu",
   "/admin/settings": "Sistem Ayarları",
 }
