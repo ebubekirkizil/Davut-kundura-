@@ -496,18 +496,18 @@ export default function AdminReportsPage() {
               <p className="text-sm text-muted-foreground mt-1">En son oluşturulan ve güncellenen raporlar</p>
             </div>
             <div className="flex gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tüm Kategoriler</SelectItem>
-                  <SelectItem value="sales">Satış</SelectItem>
-                  <SelectItem value="inventory">Envanter</SelectItem>
-                  <SelectItem value="customers">Müşteri</SelectItem>
-                  <SelectItem value="financial">Finansal</SelectItem>
-                </SelectContent>
-              </Select>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tüm Kategoriler</SelectItem>
+                    <SelectItem value="sales">Satış</SelectItem>
+                    <SelectItem value="inventory">Envanter</SelectItem>
+                    <SelectItem value="customers">Müşteri</SelectItem>
+                    <SelectItem value="financial">Finansal</SelectItem>
+                  </SelectContent>
+                </Select>
               <Button variant="outline">
                 <Filter className="h-4 w-4 mr-2" />
                 Filtrele

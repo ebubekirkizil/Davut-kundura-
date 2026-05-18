@@ -146,10 +146,10 @@ export function AdminTopbar() {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+              <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 overflow-hidden">
                 <Avatar className="h-10 w-10 ring-2 ring-border">
                   <AvatarImage src="/avatars/admin.jpg" alt="Admin" />
-                  <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
+                  <AvatarFallback className="bg-amber-600 text-white font-bold">
                     AD
                   </AvatarFallback>
                 </Avatar>
