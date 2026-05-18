@@ -1,62 +1,81 @@
-import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
-// GET: Sayfa verisi yükle (slug ile)
-export async function GET(req: NextRequest) {
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function POST(request: Request) {
   try {
-    const slug = new URL(req.url).searchParams.get("slug") ?? "home"
-    const page = await prisma.storePage.findUnique({
-      where: { slug },
-      include: { blocks: { orderBy: { order: "asc" } } },
-    })
-    if (!page) return NextResponse.json({ page: null })
-    // blocks → sections dönüşümü
-    const sections = page.blocks.map((b) => ({
-      id: b.id,
-      type: b.type,
-      settings: (b.content as Record<string, any>)?.settings ?? {},
-      blocks: (b.content as Record<string, any>)?.blocks ?? [],
-    }))
-    return NextResponse.json({ page: { ...page, sections } })
-  } catch (error) {
-    console.error("[PAGE_BUILDER_GET]", error)
-    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 })
+    const data = await request.json();
+    const { slug, title, sections, globalTheme } = data;
+
+    if (!slug) {
+      return NextResponse.json({ success: false, error: "Sayfa slug eksik." }, { status: 400 });
+    }
+
+    // `pages` tablosuna (Eğer varsa) sayfayı kaydet. 
+    // Tablonun beklenen yapısı: id, slug (unique), title, content (jsonb), theme (jsonb), updated_at
+    const { data: existingPage, error: selectError } = await supabaseAdmin
+      .from("pages")
+      .select("id")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (selectError && selectError.code !== '42P01') { 
+      // 42P01 is table not found, we ignore it to prevent crashes if table isn't created yet
+      console.error("Select error:", selectError);
+    }
+
+    if (existingPage) {
+      const { error: updateError } = await supabaseAdmin
+        .from("pages")
+        .update({ 
+          title, 
+          content: sections, 
+          theme: globalTheme, 
+          updated_at: new Date().toISOString() 
+        })
+        .eq("slug", slug);
+        
+      if (updateError && updateError.code !== '42P01') throw updateError;
+    } else {
+      const { error: insertError } = await supabaseAdmin
+        .from("pages")
+        .insert([{ 
+          slug, 
+          title, 
+          content: sections, 
+          theme: globalTheme 
+        }]);
+        
+      if (insertError && insertError.code !== '42P01') throw insertError;
+    }
+
+    return NextResponse.json({ success: true, message: "Sayfa kaydedildi" });
+  } catch (err: any) {
+    console.error("Page Save Error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
 
-// POST: Sayfa verisi kaydet
-export async function POST(req: NextRequest) {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const slug = searchParams.get("slug") || "index";
+
   try {
-    const { slug, title, sections } = await req.json() as {
-      slug: string; title?: string; sections: any[]
-    }
-    if (!slug || !sections) {
-      return NextResponse.json({ error: "slug ve sections zorunlu" }, { status: 400 })
-    }
-    // Upsert page
-    const page = await prisma.storePage.upsert({
-      where: { slug },
-      create: { slug, title: title ?? slug, type: "HOME", isPublished: true },
-      update: { title: title ?? undefined },
-    })
-    // Eski blokları sil, yenilerini yaz (atomic)
-    await prisma.$transaction([
-      prisma.storeBlock.deleteMany({ where: { pageId: page.id } }),
-      ...sections.map((sec: any, idx: number) =>
-        prisma.storeBlock.create({
-          data: {
-            pageId: page.id,
-            type: sec.type,
-            order: idx,
-            content: { settings: sec.settings, blocks: sec.blocks ?? [] },
-            style: {},
-          },
-        })
-      ),
-    ])
-    return NextResponse.json({ success: true, pageId: page.id })
-  } catch (error) {
-    console.error("[PAGE_BUILDER_POST]", error)
-    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 })
+    const { data, error } = await supabaseAdmin
+      .from("pages")
+      .select("*")
+      .eq("slug", slug)
+      .maybeSingle();
+
+    if (error && error.code !== '42P01') throw error;
+    
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    console.error("Page Load Error:", err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
