@@ -14,6 +14,7 @@ interface HeroSectionProps {
     badgeText?: string;
     image?: string;
   };
+  blocks?: any[];
 }
 
 const staggerContainer = {

@@ -22,9 +22,12 @@ const DEFAULT_INDEX_SECTIONS = [
     id: "hero-1",
     type: "hero",
     settings: {
-      title: "Zanaatın Geleceği",
-      subtitle: "Pendik'te Geleneksel Deri İşçiliği ve Profesyonel Bakım",
-      buttonText: "Katalogları Gör",
+      title: "Premium Deri İşçiliği",
+      subtitle: "Pendik'te Yarım Asırlık Ustalık ve Zarafet",
+      buttonText: "Koleksiyonu Gör",
+      image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2012&auto=format&fit=crop",
+      badgeText: "Özel Tasarım",
+      alignment: "left"
     },
     blocks: [],
   },
@@ -36,9 +39,9 @@ const DEFAULT_INDEX_SECTIONS = [
       subtitle: "Pendik Mağazamızdan Seçkin Zanaat Ürünleri",
     },
     blocks: [
-      { id: "cat-1", type: "category_item", settings: { title: "Hakiki Deri Kemerler" } },
-      { id: "cat-2", type: "category_item", settings: { title: "Ortopedik Tabanlıklar" } },
-      { id: "cat-3", type: "category_item", settings: { title: "Ayakkabı Bakım Ürünleri" } },
+      { id: "cat-1", type: "category_item", settings: { title: "Klasik Ayakkabılar", image: "https://images.unsplash.com/photo-1614252339476-53784e0bf8dd?q=80&w=800&auto=format&fit=crop" } },
+      { id: "cat-2", type: "category_item", settings: { title: "Hakiki Deri Kemerler", image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=800&auto=format&fit=crop" } },
+      { id: "cat-3", type: "category_item", settings: { title: "Ortopedik Tabanlıklar", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop" } },
     ],
   },
   {

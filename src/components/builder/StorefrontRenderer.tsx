@@ -27,6 +27,7 @@ import ImageBannerSection from './sections/ImageBannerSection';
 import StoreLocatorSection from './sections/StoreLocatorSection';
 import ProductFeaturesSection from './sections/ProductFeaturesSection';
 import TimelineSection from './sections/TimelineSection';
+import BeforeAfterSection from './sections/BeforeAfterSection';
 import SectionOverlay from './SectionOverlay';
 
 // ── Package 1: E-Commerce ──
@@ -119,7 +120,7 @@ interface StorefrontRendererProps {
 
 export default function StorefrontRenderer({ initialSections, isBuilder = false, pageSlug = "index" }: StorefrontRendererProps) {
   const renderSectionContent = (section: Section) => {
-    const p = { key: section.id, settings: section.settings, blocks: section.blocks ?? [] };
+    const p: any = { key: section.id, settings: section.settings, blocks: section.blocks ?? [] };
     switch (section.type) {
       // ── Phase 1 originals ──
       case 'header':           return <HeaderSection {...p} />;

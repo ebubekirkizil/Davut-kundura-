@@ -6,6 +6,8 @@ import { Palette, Eye, Edit, Copy, MoreVertical, Plus, Monitor, LayoutTemplate, 
 import { TEMPLATES } from "@/lib/templates"
 import { useBuilderStore } from "@/store/useBuilderStore"
 
+import StorefrontRenderer from "@/components/builder/StorefrontRenderer"
+
 export default function ThemeDashboard() {
   const router = useRouter()
   const store = useBuilderStore()
@@ -17,6 +19,7 @@ export default function ThemeDashboard() {
   ])
 
   const [applyingTemplate, setApplyingTemplate] = useState<string | null>(null)
+  const [previewTemplateId, setPreviewTemplateId] = useState<string | null>(null)
 
   const handleApplyTemplate = async (templateId: string) => {
     if (!confirm("Dikkat: Bu şablonu uygulamak, mevcut Canlı Ana Sayfa (index) tasarımınızın üzerine yazacaktır. Devam etmek istiyor musunuz?")) {
@@ -172,13 +175,21 @@ export default function ThemeDashboard() {
                 <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1 line-clamp-2">
                   {tpl.description}
                 </p>
-                <button 
-                  onClick={() => handleApplyTemplate(tpl.id)}
-                  disabled={applyingTemplate === tpl.id}
-                  className="w-full py-3 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all disabled:opacity-50"
-                >
-                  {applyingTemplate === tpl.id ? "Uygulanıyor..." : "Şablonu Uygula"}
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setPreviewTemplateId(tpl.id)}
+                    className="flex-1 py-3 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    <Eye className="w-4 h-4" /> Önizle
+                  </button>
+                  <button 
+                    onClick={() => handleApplyTemplate(tpl.id)}
+                    disabled={applyingTemplate === tpl.id}
+                    className="flex-1 py-3 bg-slate-900 dark:bg-white hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white text-white dark:text-slate-900 font-bold rounded-xl transition-all disabled:opacity-50"
+                  >
+                    {applyingTemplate === tpl.id ? "..." : "Uygula"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
@@ -232,6 +243,60 @@ export default function ThemeDashboard() {
           ))}
         </div>
       </div>
+
+      {/* ── ŞABLON ÖNİZLEME MODALI ── */}
+      {previewTemplateId && (() => {
+        const tpl = TEMPLATES.find(t => t.id === previewTemplateId);
+        if (!tpl) return null;
+        return (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col">
+            {/* Modal Header */}
+            <div className="h-16 bg-white dark:bg-[#0a0a0a] border-b border-zinc-200 dark:border-white/10 flex items-center justify-between px-6 shrink-0">
+              <div>
+                <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                  <LayoutTemplate className="w-5 h-5 text-indigo-500" />
+                  Şablon Önizleme: {tpl.name}
+                </h3>
+              </div>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => { setPreviewTemplateId(null); handleApplyTemplate(tpl.id); }}
+                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors"
+                >
+                  Bu Şablonu Kullan
+                </button>
+                <button 
+                  onClick={() => setPreviewTemplateId(null)}
+                  className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-white/10 text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
+                >
+                  <Eye className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body (Preview) */}
+            <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-[#050505]">
+              <div 
+                className="w-full min-h-full transition-colors duration-500"
+                style={{
+                  "--primary": tpl.theme.primaryColor,
+                  "--secondary": tpl.theme.secondaryColor,
+                  "--accent": tpl.theme.accentColor,
+                  "--bg-primary": tpl.theme.bgColor,
+                  "--text-primary": tpl.theme.textColor,
+                  "--font-heading": tpl.theme.fontHeading,
+                  "--font-body": tpl.theme.fontBody,
+                  "--border-radius": `${tpl.theme.borderRadius}px`,
+                  backgroundColor: "var(--bg-primary)"
+                } as any}
+              >
+                {/* Pointer events none is to prevent interactions inside preview if desired, but we can leave it interactive */}
+                <StorefrontRenderer initialSections={tpl.sections} isBuilder={false} pageSlug="preview" />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
     </div>
   )

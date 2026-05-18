@@ -38,7 +38,13 @@ export const TEMPLATES: Template[] = [
       {
         id: "hero-1",
         type: "hero",
-        settings: { title: "Zanaatın Geleceği", subtitle: "Pendik'te Yarım Asırlık Ustalık", buttonText: "Keşfet", alignment: "center" },
+        settings: { 
+          title: "Zanaatın Geleceği", 
+          subtitle: "Pendik'te Yarım Asırlık Ustalık", 
+          buttonText: "Keşfet", 
+          alignment: "center",
+          image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=2000&auto=format&fit=crop"
+        },
         blocks: []
       },
       {
@@ -46,8 +52,9 @@ export const TEMPLATES: Template[] = [
         type: "categoryGrid",
         settings: { title: "Koleksiyonlar", subtitle: "Özel el işçiliği" },
         blocks: [
-          { id: "c1", type: "category_item", settings: { title: "Deri Kemerler" } },
-          { id: "c2", type: "category_item", settings: { title: "Ortopedik Çözümler" } },
+          { id: "c1", type: "category_item", settings: { title: "Klasik Ayakkabılar", image: "https://images.unsplash.com/photo-1614252339476-53784e0bf8dd?q=80&w=800&auto=format&fit=crop" } },
+          { id: "c2", type: "category_item", settings: { title: "Deri Kemerler", image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=800&auto=format&fit=crop" } },
+          { id: "c3", type: "category_item", settings: { title: "Ortopedik Çözümler", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800&auto=format&fit=crop" } },
         ]
       }
     ]
@@ -77,7 +84,13 @@ export const TEMPLATES: Template[] = [
       {
         id: "hero-2",
         type: "hero",
-        settings: { title: "Sade & Zamansız", subtitle: "En kaliteli materyallerle üretildi.", buttonText: "Alışverişe Başla", alignment: "left" },
+        settings: { 
+          title: "Sade & Zamansız", 
+          subtitle: "En kaliteli materyallerle üretildi.", 
+          buttonText: "Alışverişe Başla", 
+          alignment: "left",
+          image: "https://images.unsplash.com/photo-1595341888016-a392ef81b7de?q=80&w=2000&auto=format&fit=crop"
+        },
         blocks: []
       }
     ]
@@ -107,7 +120,13 @@ export const TEMPLATES: Template[] = [
       {
         id: "hero-3",
         type: "hero",
-        settings: { title: "Harekete Geç", subtitle: "Maksimum konfor için ortopedik destek.", buttonText: "Ürünleri Gör", alignment: "center" },
+        settings: { 
+          title: "Harekete Geç", 
+          subtitle: "Maksimum konfor için ortopedik destek.", 
+          buttonText: "Ürünleri Gör", 
+          alignment: "center",
+          image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2000&auto=format&fit=crop"
+        },
         blocks: []
       }
     ]
@@ -131,7 +150,13 @@ export const TEMPLATES: Template[] = [
       {
         id: "hero-4",
         type: "hero",
-        settings: { title: "Klasik Çizgiler", subtitle: "Geçmişten gelen zarafet.", buttonText: "İncele", alignment: "center" },
+        settings: { 
+          title: "Klasik Çizgiler", 
+          subtitle: "Geçmişten gelen zarafet.", 
+          buttonText: "İncele", 
+          alignment: "center",
+          image: "https://images.unsplash.com/photo-1599839619722-39751411ea63?q=80&w=2000&auto=format&fit=crop"
+        },
         blocks: []
       }
     ]
