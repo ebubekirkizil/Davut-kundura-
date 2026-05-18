@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { Badge } from "@/components/ui/badge"
 import {
   Tag, Plus, RefreshCw, Search, Trash2, ToggleLeft, ToggleRight,
   Clock, Users, Percent, DollarSign, Truck, Copy, Check, X,
