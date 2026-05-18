@@ -40,11 +40,21 @@ const breadcrumbMap: Record<string, string> = {
 
 export function AdminTopbar() {
   const pathname = usePathname()
+  const [currentDate, setCurrentDate] = React.useState("")
   const [notifications] = React.useState([
     { id: 1, type: "order", message: "Yeni sipariş alındı", time: "2 dk önce", unread: true },
     { id: 2, type: "stock", message: "Stok azalıyor: Premium Deri Kemer", time: "15 dk önce", unread: true },
     { id: 3, type: "payment", message: "Ödeme alındı: 299₺", time: "1 saat önce", unread: false },
   ])
+
+  React.useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('tr-TR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }))
+  }, [])
 
   const unreadCount = notifications.filter(n => n.unread).length
 
@@ -61,12 +71,7 @@ export function AdminTopbar() {
           <div>
             <h1 className="text-xl font-semibold text-foreground">{getCurrentPageTitle()}</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {new Date().toLocaleDateString('tr-TR', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {currentDate}
             </p>
           </div>
 
