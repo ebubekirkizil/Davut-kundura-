@@ -8,9 +8,8 @@ import { Footer } from "@/components/storefront/Footer"
 import { ProductGrid } from "@/components/storefront/ProductGrid"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { ChevronRight, Heart, Share2, ShoppingCart, Star, Truck, Shield, RotateCcw } from "lucide-react"
+import { ChevronRight, Heart, Share2, ShoppingCart, Star, Truck, Shield, RotateCcw, Info, HelpCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useCart } from "@/contexts/CartContext"
 
@@ -37,14 +36,18 @@ const product = {
   colors: [
     { name: "Siyah", value: "#000000" },
     { name: "Kahverengi", value: "#8B4513" },
-    { name: "Lacivert", value: "#000080" },
+    { name: "Lacivert", value: "#1A2421" },
   ],
   images: [
-    "/products/belt-1.jpg",
-    "/products/belt-1-detail.jpg",
-    "/products/belt-1-side.jpg",
-    "/products/belt-1-back.jpg",
+    "https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=800",
+    "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=800",
+    "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=800",
   ],
+  faqs: [
+    { q: "Kemer bedeni nasıl seçilir?", a: "Pantolon bedeninizden 1-2 beden büyük kemer tercih etmeniz idealdir. Kemer ölçüleri toka hariç uzunluğu ifade eder." },
+    { q: "Hakiki deri mi?", a: "Evet, tüm kemerlerimiz %100 birinci sınıf dana derisinden tek parça olarak üretilmektedir." },
+    { q: "Hangi kargo ile gönderim yapıyorsunuz?", a: "Yurtiçi Kargo ve MNG Kargo ile Türkiye'nin her yerine güvenli ve hızlı teslimat sağlıyoruz." },
+  ]
 }
 
 const relatedProducts = [
@@ -52,27 +55,26 @@ const relatedProducts = [
     id: "2",
     name: "Deri Kemer - Kahverengi Vintage",
     price: 349,
-    image: "/products/belt-2.jpg",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=800",
     category: "Deri Kemerler",
     rating: 4.6,
     reviewCount: 43,
   },
   {
     id: "3",
-    name: "Deri Kemer - Lacivert Premium",
-    price: 329,
-    originalPrice: 429,
-    image: "/products/belt-3.jpg",
-    category: "Deri Kemerler",
-    rating: 4.7,
-    reviewCount: 67,
-    isSale: true,
+    name: "Ortopedik Taban - Comfort Plus",
+    price: 149,
+    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=800",
+    category: "Ortopedik Tabanlar",
+    rating: 4.9,
+    reviewCount: 89,
+    isNew: true,
   },
   {
     id: "4",
     name: "Deri Cüzdan - Minimalist",
     price: 249,
-    image: "/products/wallet-1.jpg",
+    image: "https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=800",
     category: "Deri Aksesuarlar",
     rating: 4.9,
     reviewCount: 78,
@@ -83,7 +85,7 @@ const relatedProducts = [
     name: "Ayakkabı Bakım Seti - Premium",
     price: 199,
     originalPrice: 249,
-    image: "/products/care-1.jpg",
+    image: "https://images.unsplash.com/photo-1512374382149-233c42b6a83b?q=80&w=800",
     category: "Bakım Ürünleri",
     rating: 4.7,
     reviewCount: 56,
@@ -124,6 +126,7 @@ export default function ProductDetailPage() {
   const [selectedColor, setSelectedColor] = React.useState(product.colors[0])
   const [quantity, setQuantity] = React.useState(1)
   const [isWishlisted, setIsWishlisted] = React.useState(false)
+  const [activeTab, setActiveTab] = React.useState("details")
   const { addItem } = useCart()
 
   const discount = product.originalPrice
@@ -180,28 +183,32 @@ export default function ProductDetailPage() {
             {/* Image Gallery */}
             <div className="space-y-4">
               {/* Main Image */}
-              <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-primary/10">
-                  <span className="text-8xl">📦</span>
-                </div>
+              <div className="aspect-square bg-muted rounded-lg overflow-hidden relative">
+                <img 
+                  src={product.images[selectedImage]} 
+                  alt={product.name}
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                />
               </div>
 
               {/* Thumbnail Images */}
               <div className="grid grid-cols-4 gap-4">
-                {product.images.map((_, index) => (
+                {product.images.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
                     className={cn(
-                      "aspect-square bg-muted rounded-lg overflow-hidden border-2 transition-colors",
+                      "aspect-square bg-muted rounded-lg overflow-hidden border-2 transition-all duration-300",
                       selectedImage === index
-                        ? "border-accent"
-                        : "border-transparent hover:border-accent/50"
+                        ? "border-accent ring-2 ring-accent/20"
+                        : "border-transparent hover:border-accent/50 opacity-70 hover:opacity-100"
                     )}
                   >
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-primary/10">
-                      <span className="text-2xl">📦</span>
-                    </div>
+                    <img 
+                      src={img} 
+                      alt={`Thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -394,71 +401,127 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Reviews Section */}
-          <div className="mt-16">
-            <h2 className="text-2xl font-serif font-bold mb-6">Müşteri Değerlendirmeleri</h2>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Rating Summary */}
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <div className="text-5xl font-bold mb-2">{product.rating}</div>
-                  <div className="flex justify-center mb-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          "h-5 w-5",
-                          i < Math.floor(product.rating)
-                            ? "fill-accent text-accent"
-                            : "text-muted"
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {product.reviewCount} değerlendirme
-                  </p>
-                </CardContent>
-              </Card>
+          {/* TABS SECTION */}
+          <div className="mt-16 bg-card border rounded-2xl p-6 md:p-10 shadow-sm">
+            <div className="w-full">
+              <div className="grid w-full grid-cols-2 md:grid-cols-4 bg-muted/50 p-1 rounded-xl h-auto mb-8 gap-1">
+                <button onClick={() => setActiveTab("details")} className={cn("py-3 font-semibold rounded-lg transition-all", activeTab === "details" ? "bg-background text-accent shadow-sm" : "text-muted-foreground hover:bg-background/50")}>Ürün Detayları</button>
+                <button onClick={() => setActiveTab("features")} className={cn("py-3 font-semibold rounded-lg transition-all", activeTab === "features" ? "bg-background text-accent shadow-sm" : "text-muted-foreground hover:bg-background/50")}>Özellikler</button>
+                <button onClick={() => setActiveTab("faq")} className={cn("py-3 font-semibold rounded-lg transition-all", activeTab === "faq" ? "bg-background text-accent shadow-sm" : "text-muted-foreground hover:bg-background/50")}>Sıkça Sorulan Sorular</button>
+                <button onClick={() => setActiveTab("reviews")} className={cn("py-3 font-semibold rounded-lg transition-all", activeTab === "reviews" ? "bg-background text-accent shadow-sm" : "text-muted-foreground hover:bg-background/50")}>Değerlendirmeler</button>
+              </div>
 
-              {/* Reviews List */}
-              <div className="lg:col-span-2 space-y-6">
-                {reviews.map((review) => (
-                  <Card key={review.id}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-semibold">{review.author}</span>
-                            {review.verified && (
-                              <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded">
-                                Doğrulanmış Alıcı
-                              </span>
+              {activeTab === "details" && (
+                <div className="space-y-4 text-muted-foreground leading-relaxed animate-in fade-in slide-in-from-bottom-2">
+                  <h3 className="text-2xl font-serif text-foreground font-bold mb-4 flex items-center gap-2"><Info className="text-accent" /> Premium Ustalık</h3>
+                  <p>40 yıllık Davut Kundura güvencesiyle hazırlanan bu özel üretim ürün, tamamen el işçiliğiyle atölyemizde şekillenmiştir.</p>
+                  <p>{product.description}</p>
+                  <p>Kullandığımız hakiki deri malzemeler, zamanla yaşlanarak daha karakteristik ve estetik bir görünüme kavuşur. Doğru bakım ile nesiller boyu kullanılabilecek kalitededir.</p>
+                </div>
+              )}
+
+              {activeTab === "features" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2">
+                  <h3 className="text-2xl font-serif text-foreground font-bold mb-4">Teknik Özellikler</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <ul className="space-y-3">
+                      {product.features.map((feature, i) => (
+                        <li key={i} className="flex items-center gap-3 bg-muted/30 p-3 rounded-lg border border-border/50">
+                          <div className="h-2 w-2 rounded-full bg-accent" />
+                          <span className="font-medium">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="bg-muted/30 p-6 rounded-xl border border-border/50 space-y-4">
+                      <h4 className="font-bold text-foreground">Bakım Önerisi</h4>
+                      <p className="text-sm text-muted-foreground">Hakiki deri ürünler suyla direkt temas ettirilmemelidir. Nemli bir bezle silinip oda sıcaklığında kurumaya bırakılmalı ve belirli periyotlarla badem yağı veya özel deri cilaları ile beslenmelidir.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "faq" && (
+                <h3 className="text-2xl font-serif text-foreground font-bold mb-6 flex items-center gap-2"><HelpCircle className="text-accent" /> Sık Sorulan Sorular</h3>
+                <div className="space-y-4">
+                  {product.faqs.map((faq, i) => (
+                    <div key={i} className="border border-border/60 rounded-xl p-5 hover:border-accent/30 transition-colors bg-background">
+                      <h4 className="font-bold text-foreground mb-2 flex gap-2">
+                        <span className="text-accent">S:</span> {faq.q}
+                      </h4>
+                      <p className="text-muted-foreground text-sm flex gap-2">
+                        <span className="text-accent font-bold">C:</span> {faq.a}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {activeTab === "reviews" && (
+                <div className="animate-in fade-in slide-in-from-bottom-2">
+                  <div className="grid lg:grid-cols-3 gap-8">
+                  {/* Rating Summary */}
+                  <Card className="border-accent/10 bg-accent/5">
+                    <CardContent className="p-6 text-center">
+                      <div className="text-5xl font-bold mb-2 text-foreground">{product.rating}</div>
+                      <div className="flex justify-center mb-2">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "h-5 w-5",
+                              i < Math.floor(product.rating)
+                                ? "fill-accent text-accent"
+                                : "text-muted"
                             )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={cn(
-                                    "h-4 w-4",
-                                    i < review.rating
-                                      ? "fill-accent text-accent"
-                                      : "text-muted"
-                                  )}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-muted-foreground">{review.date}</span>
-                          </div>
-                        </div>
+                          />
+                        ))}
                       </div>
-                      <p className="text-sm text-muted-foreground">{review.comment}</p>
+                      <p className="text-sm text-muted-foreground font-medium">
+                        {product.reviewCount} Değerlendirme
+                      </p>
                     </CardContent>
                   </Card>
-                ))}
-              </div>
+
+                  {/* Reviews List */}
+                  <div className="lg:col-span-2 space-y-4">
+                    {reviews.map((review) => (
+                      <Card key={review.id} className="shadow-sm border-border/50">
+                        <CardContent className="p-5">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-bold text-foreground">{review.author}</span>
+                                {review.verified && (
+                                  <span className="text-[10px] uppercase tracking-wider font-bold bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Shield className="w-3 h-3" /> Doğrulanmış
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 mt-2">
+                                <div className="flex">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={cn(
+                                        "h-3 w-3",
+                                        i < review.rating
+                                          ? "fill-accent text-accent"
+                                          : "text-muted"
+                                      )}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-xs text-muted-foreground">{review.date}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{review.comment}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

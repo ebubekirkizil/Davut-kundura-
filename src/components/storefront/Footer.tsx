@@ -29,14 +29,6 @@ export function Footer({ className }: FooterProps) {
       { label: "Deri Kemerler", href: "/products?category=belts" },
       { label: "Ortopedik Tabanlar", href: "/products?category=insoles" },
       { label: "Bakım Ürünleri", href: "/products?category=care" },
-      { label: "Kampanyalar", href: "/deals" },
-    ],
-    company: [
-      { label: "Hakkımızda", href: "/about" },
-      { label: "İletişim", href: "/contact" },
-      { label: "Mağazalarımız", href: "/stores" },
-      { label: "Kariyer", href: "/careers" },
-      { label: "Blog", href: "/blog" },
     ],
     support: [
       { label: "SSS", href: "/faq" },
@@ -92,11 +84,14 @@ export function Footer({ className }: FooterProps) {
           {/* Company Info */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-block">
-              <div className="text-2xl font-serif font-bold text-gradient-gold">
+              <div 
+                className="text-4xl font-serif text-gradient-gold"
+                style={{ fontFamily: 'var(--font-great-vibes), cursive', fontWeight: 400, lineHeight: 1 }}
+              >
                 Davut Kundura
               </div>
             </Link>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-4">
               40 yıldır premium deri işçiliği ve ortopedik çözümler konusunda güvenilir adresiniz.
               Kalite ve müşteri memnuniyeti önceliğimizdir.
             </p>
@@ -157,11 +152,11 @@ export function Footer({ className }: FooterProps) {
             </ul>
           </div>
 
-          {/* Company Links */}
+          {/* Removed Company Links for now */}
           <div>
-            <h4 className="font-semibold mb-4">Kurumsal</h4>
+            <h4 className="font-semibold mb-4">Destek</h4>
             <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
+              {footerLinks.support.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -219,17 +214,27 @@ export function Footer({ className }: FooterProps) {
             </p>
             <div className="flex items-center gap-4">
               <span>Güvenli Ödeme</span>
-              <div className="flex gap-2">
-                {/* Payment method icons - placeholder */}
-                <div className="h-6 w-10 bg-muted rounded flex items-center justify-center text-xs">
-                  💳
-                </div>
-                <div className="h-6 w-10 bg-muted rounded flex items-center justify-center text-xs">
-                  💳
-                </div>
-                <div className="h-6 w-10 bg-muted rounded flex items-center justify-center text-xs">
-                  💳
-                </div>
+              {/* Payment Icons */}
+              <div className="flex space-x-3 items-center opacity-70 hover:opacity-100 transition-opacity">
+                {/* Troy Logo */}
+                <svg width="32" height="20" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100" height="60" rx="8" fill="white"/>
+                  <path d="M72.5 39H79L70.5 21H64L72.5 39Z" fill="#00A7A1"/>
+                  <path d="M57.5 39H64L55.5 21H49L57.5 39Z" fill="#F8A01A"/>
+                  <path d="M42.5 39H49L40.5 21H34L42.5 39Z" fill="#E6332A"/>
+                </svg>
+                {/* Visa Logo */}
+                <svg width="32" height="20" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100" height="60" rx="8" fill="white"/>
+                  <path d="M40.2 38.8L44.8 21H51.4L46.8 38.8H40.2ZM65.8 21.4C64.6 21.1 62.7 20.8 60.3 20.8C53.8 20.8 49.3 24.3 49.3 29.3C49.3 33 52.8 35 55.4 36.3C58 37.6 58.9 38.4 58.9 39.5C58.9 41.2 56.8 42 54.4 42C51.5 42 49.8 41.2 48.2 40.5L47.2 40L46.2 44.8C47.8 45.5 50.5 46.2 53.4 46.2C60.3 46.2 64.9 42.8 64.9 37.5C64.9 31.2 55.5 30.9 55.5 28.1C55.5 26.8 56.8 25.3 59.5 25.3C61.5 25.3 63.2 25.8 64.6 26.4L65.3 26.7L66.3 21.9L65.8 21.4ZM84.7 38.8H90.5L84.6 21H79.6C78.1 21 76.9 21.9 76.3 23.3L65.3 38.8H71.9L73.2 35.1H81.3L82.1 38.8H84.7ZM75.1 29.8L78.4 20.9L80.3 29.8H75.1ZM33.5 21L26.3 38.8H20.1L21.4 32.5L24.8 21H33.5Z" fill="#1434CB"/>
+                </svg>
+                {/* Mastercard Logo */}
+                <svg width="32" height="20" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="100" height="60" rx="8" fill="white"/>
+                  <circle cx="40" cy="30" r="14" fill="#EB001B"/>
+                  <circle cx="60" cy="30" r="14" fill="#F79E1B"/>
+                  <path d="M50 40C53.7 37.6 56 34.1 56 30C56 25.9 53.7 22.4 50 20C46.3 22.4 44 25.9 44 30C44 34.1 46.3 37.6 50 40Z" fill="#FF5F00"/>
+                </svg>
               </div>
             </div>
           </div>

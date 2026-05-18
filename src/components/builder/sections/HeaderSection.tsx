@@ -53,8 +53,14 @@ export default function HeaderSection({ settings, blocks }: HeaderSectionProps) 
         {/* Logo */}
         <Link href="/">
           <h1
-            className="font-serif tracking-widest uppercase text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors cursor-pointer"
-            style={{ fontSize: `${logoSize}px` }}
+            className="text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors cursor-pointer"
+            style={{ 
+              fontFamily: 'var(--font-great-vibes), cursive', 
+              fontSize: `${(logoSize || 24) * 1.6}px`, 
+              fontWeight: 400,
+              lineHeight: 1,
+              paddingBottom: '4px'
+            }}
           >
             {logoText}
           </h1>

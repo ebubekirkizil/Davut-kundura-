@@ -79,16 +79,11 @@ export function ProductCard({
 
       {/* Image */}
       <Link href={`/products/${id}`} className="block relative aspect-square overflow-hidden bg-muted">
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/10 flex items-center justify-center">
-          <span className="text-6xl">📦</span>
-        </div>
-        {/* Placeholder - replace with actual Image component when images are available */}
-        {/* <Image
+        <img
           src={image}
           alt={name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        /> */}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+        />
       </Link>
 
       {/* Quick Actions (shown on hover) */}

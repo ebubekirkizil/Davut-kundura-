@@ -75,10 +75,7 @@ export function Header({ className }: HeaderProps) {
 
   const navItems = [
     { label: "Ürünler", href: "/products" },
-    { label: "Kategoriler", href: "/categories" },
-    { label: "Kampanyalar", href: "/deals" },
-    { label: "Hakkımızda", href: "/about" },
-    { label: "İletişim", href: "/contact" },
+    { label: "Bakım", href: "/products?cat=bakim" },
   ]
 
   return (
@@ -96,7 +93,10 @@ export function Header({ className }: HeaderProps) {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center space-x-2 group">
-              <div className="text-2xl md:text-3xl font-serif font-bold text-gradient-gold transition-transform group-hover:scale-105">
+              <div 
+                className="text-4xl md:text-5xl text-gradient-gold transition-transform group-hover:scale-105 pb-1"
+                style={{ fontFamily: 'var(--font-great-vibes), cursive', fontWeight: 400, lineHeight: 1 }}
+              >
                 Davut Kundura
               </div>
             </Link>

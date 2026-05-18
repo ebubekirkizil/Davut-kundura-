@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Cinzel, Outfit } from "next/font/google";
+import { Inter, Cinzel, Outfit, Great_Vibes } from "next/font/google";
 import "./globals.css";
 // Otonom sistem aktif: Vercel - GitHub entegrasyonu başarıyla sağlandı.
 import GoogleAnalytics from "@/components/layout/GoogleAnalytics";
@@ -18,6 +18,12 @@ const cinzel = Cinzel({
 
 const outfit = Outfit({
   variable: "--font-outfit",
+  subsets: ["latin"],
+});
+
+const greatVibes = Great_Vibes({
+  weight: "400",
+  variable: "--font-great-vibes",
   subsets: ["latin"],
 });
 
@@ -62,8 +68,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" className={`${inter.variable} ${cinzel.variable} ${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">
+    <html lang="tr" className={`${inter.variable} ${cinzel.variable} ${outfit.variable} ${greatVibes.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col font-sans text-gray-900 bg-white">
         <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
         <Providers>
           {children}

@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from "react"
-import { Mail, CheckCircle } from "lucide-react"
+import { motion } from "framer-motion"
+import { Mail, CheckCircle, Gift } from "lucide-react"
 
 interface Props {
   settings: Record<string, any>
@@ -9,12 +10,12 @@ interface Props {
 export default function NewsletterSignupSection({ settings }: Props) {
   const {
     title = "Fırsatlardan İlk Siz Haberdar Olun",
-    subtitle = "Özel indirimler ve yeni ürünler için abone olun",
+    subtitle = "Özel indirimler, yeni ürün haberleri ve bakım ipuçları için e-posta listemize kayıt olun. İlk alışverişinizde %10 indirim!",
     placeholder = "E-posta adresinizi girin...",
-    buttonText = "Abone Ol",
-    bgColor = "#F7F3EE",
+    buttonText = "Abone Ol & %10 İndirim Kazan",
+    bgColor = "var(--bg-primary)",
     accentColor = "#C8A96E",
-    paddingY = 80,
+    paddingY = 100,
   } = settings
 
   const [email, setEmail] = useState("")
@@ -27,51 +28,78 @@ export default function NewsletterSignupSection({ settings }: Props) {
   }
 
   return (
-    <div
-      className="text-center px-6"
-      style={{ backgroundColor: bgColor, paddingTop: paddingY, paddingBottom: paddingY }}
+    <section
+      style={{ paddingTop: paddingY, paddingBottom: paddingY, backgroundColor: bgColor }}
+      className="relative overflow-hidden"
     >
-      <div className="max-w-xl mx-auto">
-        <div
-          className="w-14 h-14 rounded-2xl mx-auto mb-6 flex items-center justify-center"
-          style={{ backgroundColor: accentColor + "20" }}
+      {/* Decorative */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 50%, rgba(200,169,110,0.08), transparent)' }} />
+
+      <div className="container mx-auto px-6 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="max-w-2xl mx-auto text-center space-y-8"
         >
-          <Mail className="h-7 w-7" style={{ color: accentColor }} />
-        </div>
-
-        <h2 className="text-3xl font-serif font-bold mb-3" style={{ color: "#12100E" }}>
-          {title}
-        </h2>
-        <p className="text-sm opacity-60 mb-8" style={{ color: "#12100E" }}>
-          {subtitle}
-        </p>
-
-        {submitted ? (
-          <div className="flex items-center justify-center gap-3 text-green-600 font-bold">
-            <CheckCircle className="h-6 w-6" />
-            Abone olduğunuz için teşekkürler!
+          {/* Icon */}
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mx-auto"
+            style={{ background: 'rgba(200,169,110,0.15)', color: accentColor }}>
+            <Gift className="w-7 h-7" />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={placeholder}
-              required
-              className="flex-1 px-5 py-3.5 rounded-2xl border text-sm focus:outline-none transition-all"
-              style={{ borderColor: accentColor + "40", color: "#12100E", backgroundColor: "white" }}
-            />
-            <button
-              type="submit"
-              className="px-6 py-3.5 rounded-2xl font-black text-sm transition-all hover:scale-105"
-              style={{ backgroundColor: accentColor, color: "#FDFBF7" }}
+
+          {/* Text */}
+          <div className="space-y-3">
+            <p className="text-sm font-bold tracking-[0.3em] uppercase" style={{ color: accentColor }}>Özel Teklif</p>
+            <h2 className="font-bold" style={{ fontFamily: 'var(--font-heading)', color: 'var(--text-primary)', fontSize: 'clamp(1.8rem, 3vw, 2.8rem)' }}>
+              {title}
+            </h2>
+            <p className="opacity-70 text-base leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+              {subtitle}
+            </p>
+          </div>
+
+          {/* Form */}
+          {submitted ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center justify-center gap-3 px-8 py-4 rounded-2xl font-bold text-white"
+              style={{ background: '#22c55e' }}
             >
-              {buttonText}
-            </button>
-          </form>
-        )}
+              <CheckCircle className="h-5 w-5" />
+              Abone olduğunuz için teşekkürler! İndirim kodunuz e-postanıza gönderildi.
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" style={{ color: 'var(--text-primary)' }} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={placeholder}
+                  required
+                  className="w-full pl-11 pr-5 py-4 rounded-xl border text-sm focus:outline-none transition-all"
+                  style={{ borderColor: 'rgba(200,169,110,0.3)', color: 'var(--text-primary)', backgroundColor: 'var(--bg-primary)', background: 'white' }}
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-7 py-4 rounded-xl font-bold text-sm transition-all hover:scale-105 hover:shadow-xl whitespace-nowrap"
+                style={{ backgroundColor: accentColor, color: "#12100E" }}
+              >
+                {buttonText}
+              </button>
+            </form>
+          )}
+
+          <p className="text-xs opacity-50" style={{ color: 'var(--text-primary)' }}>
+            Spam göndermiyoruz. İstediğiniz zaman aboneliğinizi iptal edebilirsiniz.
+          </p>
+        </motion.div>
       </div>
-    </div>
+    </section>
   )
 }

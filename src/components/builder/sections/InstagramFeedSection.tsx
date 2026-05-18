@@ -1,6 +1,15 @@
 "use client"
 import React from "react"
-import { Instagram, Heart, MessageCircle } from "lucide-react"
+import { Heart, MessageCircle } from "lucide-react"
+
+// Instagram SVG icon (not available in current lucide-react version)
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+  </svg>
+)
 
 interface Block { id: string; settings: Record<string, any> }
 interface Props { settings: Record<string, any>; blocks: Block[] }
@@ -21,7 +30,7 @@ export default function InstagramFeedSection({ settings, blocks }: Props) {
         <div className="flex flex-col items-center mb-12 text-center">
           <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[2px] mb-4">
             <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-              <Instagram className="w-8 h-8 text-slate-900" />
+              <InstagramIcon className="w-8 h-8 text-slate-900" />
             </div>
           </div>
           <h2 className="text-3xl font-serif font-bold text-slate-900 mb-2">{title}</h2>

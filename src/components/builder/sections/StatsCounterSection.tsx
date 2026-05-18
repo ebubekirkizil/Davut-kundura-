@@ -4,32 +4,43 @@ import React, { useEffect, useRef, useState } from "react"
 interface Block { id: string; settings: Record<string, any> }
 interface Props { settings: Record<string, any>; blocks: Block[] }
 
-function useCountUp(target: number, duration = 2000, trigger: boolean) {
+function useCountUp(targetStr: string, duration = 2000, trigger: boolean) {
   const [count, setCount] = useState(0)
+  const isFloat = targetStr.includes('.') || targetStr.includes(',')
+  const target = parseFloat(targetStr.replace(',', '.')) || 0
+
   useEffect(() => {
-    if (!trigger) return
+    if (!trigger || target === 0) return
     let start = 0
     const step = target / (duration / 16)
     const timer = setInterval(() => {
       start += step
-      if (start >= target) { setCount(target); clearInterval(timer) }
-      else setCount(Math.floor(start))
+      if (start >= target) { 
+        setCount(target)
+        clearInterval(timer) 
+      } else {
+        setCount(start)
+      }
     }, 16)
     return () => clearInterval(timer)
   }, [target, duration, trigger])
-  return count
+
+  if (target === 0) return targetStr
+
+  return isFloat ? count.toFixed(1) : Math.floor(count).toString()
 }
 
-function StatCard({ stat, trigger }: { stat: any; trigger: boolean }) {
-  const num = useCountUp(parseInt(stat.settings.value ?? "0"), 2000, trigger)
+function StatCard({ stat, trigger, textColor }: { stat: any; trigger: boolean; textColor: string }) {
+  const valString = stat.settings.value?.toString() || "0"
+  const num = useCountUp(valString, 2000, trigger)
   return (
     <div className="text-center group">
       <div className="text-5xl font-black mb-2 tabular-nums transition-all group-hover:scale-110 duration-300"
         style={{ color: stat.settings.accentColor || "#C8A96E" }}>
         {stat.settings.prefix}{num}{stat.settings.suffix}
       </div>
-      <p className="font-black text-sm uppercase tracking-wider" style={{ color: "#12100E" }}>{stat.settings.label}</p>
-      {stat.settings.sub && <p className="text-xs opacity-50 mt-1" style={{ color: "#12100E" }}>{stat.settings.sub}</p>}
+      <p className="font-black text-sm uppercase tracking-wider" style={{ color: textColor }}>{stat.settings.label}</p>
+      {stat.settings.sub && <p className="text-xs opacity-60 mt-1" style={{ color: textColor }}>{stat.settings.sub}</p>}
     </div>
   )
 }
@@ -62,7 +73,7 @@ export default function StatsCounterSection({ settings, blocks }: Props) {
       <div className="max-w-5xl mx-auto px-6">
         {title && <h2 className="text-3xl font-serif font-bold text-center mb-12" style={{ color: textColor }}>{title}</h2>}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
-          {items.map((s) => <StatCard key={s.id} stat={s} trigger={triggered} />)}
+          {items.map((s) => <StatCard key={s.id} stat={s} trigger={triggered} textColor={textColor} />)}
         </div>
       </div>
     </div>
