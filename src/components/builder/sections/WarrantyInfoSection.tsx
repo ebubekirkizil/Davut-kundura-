@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { ShieldCheck, Tool, RefreshCcw } from "lucide-react"
+import { ShieldCheck, PenTool, RefreshCcw } from "lucide-react"
 
 interface Props { settings: Record<string, any> }
 
@@ -9,7 +9,7 @@ export default function WarrantyInfoSection({ settings }: Props) {
 
   const items = [
     { icon: ShieldCheck, title: "6 Ay İşçilik Garantisi", desc: "Yaptığımız tüm tamir ve bakım işlemleri 6 ay boyunca garantimiz altındadır." },
-    { icon: Tool, title: "Ücretsiz Bakım", desc: "Özel üretim ayakkabılarımızda ilk 1 yıl ücretsiz bakım hizmeti sunuyoruz." },
+    { icon: PenTool, title: "Ücretsiz Bakım", desc: "Özel üretim ayakkabılarımızda ilk 1 yıl ücretsiz bakım hizmeti sunuyoruz." },
     { icon: RefreshCcw, title: "Kolay İade", desc: "Online siparişlerinizde 14 gün içinde koşulsuz şartsız iade hakkınız bulunmaktadır." }
   ]
 

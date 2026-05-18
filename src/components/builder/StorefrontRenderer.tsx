@@ -13,7 +13,6 @@ import FaqAccordionSection from './sections/FaqAccordionSection';
 import TestimonialsSection from './sections/TestimonialsSection';
 import TrustBadgesSection from './sections/TrustBadgesSection';
 import PressLogosSection from './sections/PressLogosSection';
-import CountdownTimerSection from './sections/CountdownTimerSection';
 import NewsletterSignupSection from './sections/NewsletterSignupSection';
 import SpacerSection from './sections/SpacerSection';
 import DividerSection from './sections/DividerSection';
@@ -136,7 +135,6 @@ export default function StorefrontRenderer({ initialSections, isBuilder = false,
       case 'testimonials':     return <TestimonialsSection {...p} />;
       case 'trustBadges':      return <TrustBadgesSection {...p} />;
       case 'pressLogos':       return <PressLogosSection {...p} />;
-      case 'countdownTimer':   return <CountdownTimerSection {...p} />;
       case 'newsletterSignup': return <NewsletterSignupSection {...p} />;
       case 'spacer':           return <SpacerSection {...p} />;
       case 'divider':          return <DividerSection {...p} />;
