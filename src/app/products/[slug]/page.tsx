@@ -441,18 +441,20 @@ export default function ProductDetailPage() {
               )}
 
               {activeTab === "faq" && (
-                <h3 className="text-2xl font-serif text-foreground font-bold mb-6 flex items-center gap-2"><HelpCircle className="text-accent" /> Sık Sorulan Sorular</h3>
-                <div className="space-y-4">
-                  {product.faqs.map((faq, i) => (
-                    <div key={i} className="border border-border/60 rounded-xl p-5 hover:border-accent/30 transition-colors bg-background">
-                      <h4 className="font-bold text-foreground mb-2 flex gap-2">
-                        <span className="text-accent">S:</span> {faq.q}
-                      </h4>
-                      <p className="text-muted-foreground text-sm flex gap-2">
-                        <span className="text-accent font-bold">C:</span> {faq.a}
-                      </p>
-                    </div>
-                  ))}
+                <div className="animate-in fade-in slide-in-from-bottom-2">
+                  <h3 className="text-2xl font-serif text-foreground font-bold mb-6 flex items-center gap-2"><HelpCircle className="text-accent" /> Sık Sorulan Sorular</h3>
+                  <div className="space-y-4">
+                    {product.faqs.map((faq, i) => (
+                      <div key={i} className="border border-border/60 rounded-xl p-5 hover:border-accent/30 transition-colors bg-background">
+                        <h4 className="font-bold text-foreground mb-2 flex gap-2">
+                          <span className="text-accent">S:</span> {faq.q}
+                        </h4>
+                        <p className="text-muted-foreground text-sm flex gap-2">
+                          <span className="text-accent font-bold">C:</span> {faq.a}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -521,7 +523,8 @@ export default function ProductDetailPage() {
                     ))}
                   </div>
                 </div>
-              )}
+              </div>
+            )}
             </div>
           </div>
 
