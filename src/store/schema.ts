@@ -62,6 +62,7 @@ export const SECTION_SCHEMAS: Record<string, SectionSchema> = {
     settings: [
       { id: "title", type: "text", label: "Ana Başlık", default: "Zarafetin Adımları", group: "Metin" },
       { id: "subtitle", type: "text", label: "Alt Başlık", default: "Geleneksel Deri İşçiliği", group: "Metin" },
+      { id: "badgeText", type: "text", label: "Rozet Metni", default: "Yeni Sezon Koleksiyonu", group: "Metin" },
       { id: "buttonText", type: "text", label: "Buton Yazısı", default: "Koleksiyonu Keşfet", group: "Metin" },
       { id: "buttonLink", type: "text", label: "Buton Linki", default: "/products", group: "Metin" },
       { id: "alignment", type: "select", label: "Hizalama", default: "center", group: "Düzen",
